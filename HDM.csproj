@@ -14,7 +14,19 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>x64</Platforms>
-    <Version>1.0.0.0</Version>
+    <Version>1.0.1.0</Version>
+
+    <!--
+      HDMT testing-identity gate. A Debug build (what runs locally as a dev plugin) defines
+      HDM_TESTING, which flips the window header to the "HDMT v<Version> b<InternalBuild>"
+      provenance stamp (see MainWindow.cs). A Release build — what GHC packages for the public
+      feed — leaves the symbol undefined, so the header compiles to the plain public
+      "HDM v<Version>" shape. The testing identity therefore auto-normalizes on promotion with
+      no manual strip, mirroring the HMST<->HMS convention (testing identity is symbol-gated,
+      never hardcoded). This is the ONLY thing HDM_TESTING gates today — MobHarvester ships
+      live in the public build by design and is deliberately NOT behind this symbol.
+    -->
+    <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);HDM_TESTING</DefineConstants>
 
     <!--
       Manifest metadata lives here, NOT in a hand-written .json — the SDK
@@ -24,7 +36,7 @@
     <Name>HDM</Name>
     <InternalName>HDM</InternalName>
     <Author>The Enceladeum</Author>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <Punchline>Wear any monster's face. Client-side mob disguises with a searchable catalog and animation triggers.</Punchline>
     <Description>A catalog of every mob in the game (16k+ models, 15.5k named) plus the full set of humanoid NPCs (Glamourer's NPC tab). Apply any mob's or NPC's look to yourself client-side (Brio-style ModelCharaId swap + redraw, or a Glamourer paint for humans), spawn disguised puppets, trigger action timelines for theatrics, and revert cleanly. Self-apply only, like Glamourer — never enforced on other players. Built for DM/event use — no mechanics, just the face.</Description>
     <RepoUrl>https://github.com/Enceladeum/HDM</RepoUrl>

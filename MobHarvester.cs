@@ -32,7 +32,7 @@ namespace HDM;
 /// CSV — costs nothing. No hooks, no packets, no native writes, no <c>unsafe</c>: it cannot CTD.
 /// Persists to the plugin CONFIG dir (survives plugin updates, unlike <c>Data/</c>); the on-disk
 /// row shape matches the shipped <c>mob-territory-index.csv</c> so a future offline pipeline can
-/// fold it straight back into gubal (the runtime→file loop the shared-RnD thread left open).
+/// fold it straight back into the offline dataset, closing the runtime→file loop.
 ///
 /// PRIORITY. Consulted just BELOW the curated instanced roster (BossMod-derived) and ABOVE the
 /// name/sheet/web tiers: a first-hand sighting outranks a wiki scrape but yields to a hand-verified
@@ -67,6 +67,13 @@ public sealed class MobHarvester : IDisposable
     private long _nextSampleTick;
     private bool _dirty;               // in-memory changed since last flush (drives territory/logout/dispose flush)
     private const long SampleIntervalMs = 2000;
+
+    /// <summary>Master gate for NEW collection (the Config "update monster names from game spawns" toggle).
+    /// When false the sampler is fully inert — no object-table scan, no disk writes — but rows already loaded
+    /// from disk still answer <see cref="TryGetPrimary"/>/<see cref="TryGetName"/>, so the catalog keeps using
+    /// past sightings. Seeded from <see cref="Configuration.HarvestMobNames"/> at startup and written when the
+    /// toggle flips. Default false: a fresh install harvests nothing until the DM opts in.</summary>
+    public bool Enabled;
 
     /// <summary>Distinct BNpcBases with at least one runtime sighting (startup log / diagnostics).</summary>
     public int Count => _byBase.Count;
@@ -116,6 +123,7 @@ public sealed class MobHarvester : IDisposable
 
     private void OnUpdate(IFramework _)
     {
+        if (!Enabled) return; // Config gate: no sampling, no scan, no disk writes until the DM opts in.
         var now = Environment.TickCount64;
         if (now < _nextSampleTick) return;
         _nextSampleTick = now + SampleIntervalMs;

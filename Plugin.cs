@@ -40,10 +40,32 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static ITextureProvider Textures { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
 
-    private const string Command = "/hdm";
+#if HDM_TESTING
+    // Testing build (HDM_TESTING / Debug): the command surface is /hdmt ONLY. It deliberately never
+    // registers /hdm (nor the legacy /hguise alias) — a testing build answers to /hdmt and nothing else,
+    // so you always know which build you're driving and it cannot shadow the public /hdm. InternalName and
+    // config stay "HDM" (see the header note), so the testing build still reads your real HDM.json
+    // favourites. Pairs with the HDMT window header — see MainWindow.cs.
+    // internal (not private) so the MainWindow usage/help strings can render the *active* command
+    // name — a testing build's on-screen help then reads "/hdmt apply …", never a "/hdm" it won't answer.
+    internal const string Command = "/hdmt";
+#else
+    internal const string Command = "/hdm";
     // Legacy alias: the plugin shipped as HGuise through 0.8.54, so keep /hguise working for saved
     // macros / muscle memory. Hidden from the command list (ShowInHelp=false); delete for a clean break.
     private const string CommandAlias = "/hguise";
+#endif
+
+    // ImGui window-id suffix that keeps a testing build's SHARED-CODE windows from conjoining with a
+    // co-loaded prod HDM. ImGui shares one global context across every loaded plugin, so two windows that
+    // Begin() with the same id string merge into one. The main window diverges its ###id inline (see
+    // MainWindow.cs); windows drawn from shared code (the possession dots) append this instead. Empty in
+    // prod so those ids are byte-unchanged; "Testing" in the testing build. Never promoted (Debug-only).
+#if HDM_TESTING
+    internal const string BuildIdSuffix = "Testing";
+#else
+    internal const string BuildIdSuffix = "";
+#endif
 
     private readonly WindowSystem _windows = new("HDM");
     private readonly MainWindow _main;
@@ -199,6 +221,7 @@ public sealed class Plugin : IDalamudPlugin
         _guise.SuppressReassert = idx => _possession.PossessedIndex == idx;
         _possession.OverlayEnabled = config.ShowPossessionDots; // seed the possess-dot overlay from the persisted preference (default on)
         _possession.AllowPossessOthers = config.AllowPossessOthersPuppets; // seed the ownership gate (default off — only a puppet's originator drives it)
+        _harvest.Enabled = config.HarvestMobNames; // seed the runtime name/territory harvester (default off — opt in via Config)
         _main         = new MainWindow(index, timeline, content, territory, manual, stems, instanced, lore, level, webloc, companion, enpcLoc, _harvest, _guise, _humanGuise, _anim, _spawn, _possession, _ipc, moniker, config, PluginInterface, Objects, Targets, ClientState, Textures, Log, accent);
 
         _windows.AddWindow(_main);
@@ -211,13 +234,17 @@ public sealed class Plugin : IDalamudPlugin
         {
             HelpMessage = "Open the catalog (no arg). Subcommands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · help.",
         });
+#if !HDM_TESTING
         CommandManager.AddHandler(CommandAlias, new CommandInfo(OnCommand) { ShowInHelp = false });
+#endif
     }
 
     public void Dispose()
     {
         CommandManager.RemoveHandler(Command);
+#if !HDM_TESTING
         CommandManager.RemoveHandler(CommandAlias);
+#endif
         PluginInterface.UiBuilder.Draw         -= _windows.Draw;
         PluginInterface.UiBuilder.OpenMainUi   -= OpenMain;
         PluginInterface.UiBuilder.OpenConfigUi -= OpenMain;

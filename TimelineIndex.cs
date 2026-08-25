@@ -15,7 +15,7 @@ public sealed record TimelineRow(uint Id, string Cat, string Skel, string Key, s
 
 /// <summary>
 /// Loads Data/timeline-index.csv (columns <c>Id,Cat,Skel,Key</c>), the offline
-/// Fable deliverable that turns opaque timeline ids into named buttons.
+/// catalog that turns opaque timeline ids into named buttons.
 ///
 ///  - "common" rows (empty Skel) are base-game timelines most skeletons share:
 ///    idle, battle stance, walk/run, jumps, reactions.
@@ -26,7 +26,7 @@ public sealed record TimelineRow(uint Id, string Cat, string Skel, string Key, s
 /// skill-name overlays layered on top where a safe 1:1 mapping exists — special-names.csv for
 /// per-skeleton monster specials, and common-skill-names.csv for shared class cast poses
 /// (battle/magic_pt11 -> "Hammer Motif"). The raw key travels with the row so the UI can show
-/// ground truth on hover, and a richer per-skeleton catalog remains a queued Fable deliverable.
+/// ground truth on hover, and a richer per-skeleton catalog remains a planned addition.
 ///
 /// "Legality" is inherently per-skeleton and only heuristic here: a guised actor
 /// can play any timeline its CURRENT skeleton actually defines. We surface the

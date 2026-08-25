@@ -137,7 +137,7 @@ public sealed unsafe class PossessionService : IDisposable
     // ── Peer-sync report throttle ────────────────────────────────────────────────────────────────────────
     // Fire ReportPuppetMoved change-gated (skip while the puppet is stationary, so an idle-but-possessed puppet
     // doesn't spam the relay) and rate-capped (a moving puppet reports at ~30 Hz, not the full frame rate). The
-    // interval is a play-test knob: peer mirrors interpolate, so it can drop further if RMS flags PuppetMove volume.
+    // interval is a play-test knob: peer mirrors interpolate, so it can drop further if the relay flags PuppetMove volume.
     private long _lastMoveReportMs;
     private Vector3 _lastReportedPos;
     private float _lastReportedRot;
@@ -642,7 +642,11 @@ public sealed unsafe class PossessionService : IDisposable
             float r = DotRadius + DotHitPad;
             ImGui.SetNextWindowPos(new Vector2(screen.X - r, screen.Y - r));
             ImGui.SetNextWindowSize(new Vector2(r * 2f, r * 2f));
-            if (ImGui.Begin($"##hdmdot{idx}", DotWinFlags))
+            // BuildIdSuffix keeps a testing build's dots from conjoining with a co-loaded prod HDM's:
+            // same id string => ImGui merges the windows. Empty in prod (id byte-unchanged), "Testing"
+            // in the testing build. The hit-button id is scoped inside this now-distinct window, so it
+            // needs no suffix of its own.
+            if (ImGui.Begin($"##hdmdot{idx}{Plugin.BuildIdSuffix}", DotWinFlags))
             {
                 ImGui.InvisibleButton($"##hit{idx}", new Vector2(r * 2f, r * 2f));
                 if (ImGui.IsItemHovered())

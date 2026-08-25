@@ -44,6 +44,21 @@ public sealed class MainWindow : Window, IDisposable
     private static readonly string Version =
         typeof(MainWindow).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "?";
 
+#if HDM_TESTING
+    // Testing-build provenance tag (HDMT lineage). The window header reads "HDMT v<Version> b<InternalBuild>".
+    // InternalBuild is an ABSOLUTE, monotonic ordinal that NEVER resets across version bumps — every test
+    // build gets the next integer, so any screenshot or in-game report is traceable to one exact source
+    // state. This mirrors the HMST<->HMS convention (b186..b194 promoting into 4-part prod releases such as
+    // v1.0.1.2 / v1.0.1.3): the b<N> counter is the internal build number, the vX.Y.Z is the prod lineage it
+    // is based on. b1 = the FIRST HDMT build, based on live prod 1.0.0.0 (its forward hotfix target is 1.0.1).
+    // Bump by 1 for every test build cut.
+    //
+    // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
+    // the public Release build GHC packages compiles the plain "HDM v<Version>" header with no b-tag. The
+    // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
+    private const int InternalBuild = 1;
+#endif
+
     private readonly MobIndex _index;
     private readonly TimelineIndex _timeline;
     private readonly ContentIndex _content;
@@ -94,6 +109,13 @@ public sealed class MainWindow : Window, IDisposable
                                        // Normal" card is now the primary unstick, so the raw Stop needn't sit open.
     private bool _hideUnnamed;
     private MobRow? _selected;
+    // Favourites-tab focus, decoupled from the volatile _selected the same way _wornGuise is: _selected is the
+    // catalog browse-cursor, so a Revert NULLS it (see RevertGuise) and any catalog click MOVES it. The focused
+    // fav must not ride on that. Holds the BaseId of the fav whose focused surface (and its "Spawn puppet") is
+    // shown; set by clicking a Library row and self-healed to a live fav each draw. Without it the surface
+    // silently snapped to favRows[0] whenever _selected wasn't a fav, so "Spawn puppet" spawned that fallback
+    // (the alphabetical-first fav) instead of the one on screen.
+    private uint? _favFocusBase;
     // batch-3 (item #6): what the LOCAL PLAYER is actually WEARING, decoupled from _selected (which is the
     // catalog browse-cursor — a plain click moves it). Set ONLY at the ApplyGuise self choke-point and
     // cleared in RevertGuise; null = real model (no disguise). The Animations tab scopes to THIS, so browsing
@@ -146,6 +168,26 @@ public sealed class MainWindow : Window, IDisposable
     // corrected label. -1 forces the first Draw to fold in whatever the harvester loaded from disk.
     private int _lastSyncedNameCount = -1;
 
+    // Harvested-territory watermark, paired with _lastSyncedNameCount. TryLocateAll consults the harvester
+    // (Tier A3), so a newly-placed base changes where a row buckets in the location tree — but that shift
+    // touches neither row names nor search, so the name-sync above won't notice it. The harvester's distinct
+    // -base count (MobHarvester.Count) ticks up when a new base is placed; DrawCatalogTab watches it and
+    // forces a rebuild, keeping placement live without the old per-frame rebuild. -1 forces the first Draw to
+    // reconcile against whatever loaded from disk. Inert while the harvester is off (the default): Count never moves.
+    private int _lastHarvestBaseCount = -1;
+
+    // Cached Location-tree STRUCTURE (bucketed + sorted zone/NPC/minion/unknown nodes). The tree is a pure
+    // function of the filtered row set, so it's rebuilt only when that set changes — NOT every frame. Before
+    // this, DrawLocationTree re-bucketed EVERY catalog row (each through TryLocateAll's 10-tier cascade) and
+    // re-ran several LINQ sorts on every Draw while the Catalog tab was open; that ~halved FPS purely from the
+    // window being visible. _treeRows holds the exact filtered-list instance the cache was built from —
+    // Filtered() returns a NEW list instance on every filter invalidation, so a reference compare catches every
+    // change (search, category, family, hide-unnamed, star, live-name sync) with no extra invalidation sites.
+    private List<MobRow>? _treeRows;
+    private List<LocNode>? _treeLocated, _treeEventNodes, _treeUnknown;
+    private LocNode? _treeMinionNode;
+    private int _treeMinionCount, _treeEventCount, _treeUnknownCount;
+
     // Which Location-tree zone nodes are expanded (persisted only in-memory — expand state is
     // ephemeral view state, not a saved preference). Keyed by the node's stable id: a real
     // TerritoryType id for a located zone, or a synthetic UnknownNodeKey(ex) for an ~expansion
@@ -189,7 +231,17 @@ public sealed class MainWindow : Window, IDisposable
                       HumanGuise humanGuise, AnimationService anim, SpawnService spawn, PossessionService possession, HdmIpc ipc, MonikerIpc moniker,
                       Configuration config, IDalamudPluginInterface pi, IObjectTable objects, ITargetManager targets,
                       IClientState clientState, ITextureProvider textures, IPluginLog log, AccentPalette accent)
+#if HDM_TESTING
+        // Testing build's ImGui window-id (the token after ###) is deliberately DISTINCT from prod's.
+        // ImGui shares one global context across every loaded plugin, so if a co-loaded prod HDM and a
+        // testing HDMT both Begin("…###HDMMain"), ImGui resolves them to the SAME window and conjoins
+        // their content (shared move/collapse/close — the "crams both plugins into a single window"
+        // report). The visible label (HDMT v… b…) is irrelevant to identity; only the ###id is. Never
+        // promoted: HDM_TESTING is Debug-only, so the prod build keeps "###HDMMain".
+        : base($"HDMT v{Version} b{InternalBuild}###HDMMainTesting")
+#else
         : base($"HDM v{Version}###HDMMain")
+#endif
     {
         _index = index; _timeline = timeline; _content = content; _territory = territory; _manual = manual; _stems = stems; _instanced = instanced; _lore = lore; _level = level; _webloc = webloc; _companion = companion; _enpcLoc = enpcLoc; _harvest = harvest;
         _guise = guise; _humanGuise = humanGuise; _anim = anim; _spawn = spawn; _possession = possession; _ipc = ipc; _moniker = moniker; _config = config;
@@ -400,6 +452,10 @@ public sealed class MainWindow : Window, IDisposable
         // harvester's name count moved). This is the payoff of walking a duty: a mis-labelled or blank
         // base shows its true, first-hand name the instant it's sighted.
         if (_harvest.NameCount != _lastSyncedNameCount) SyncLiveNames();
+        // Harvested-territory changes (a newly-placed base) shift tree bucketing without touching row names or
+        // search, so the name-sync above won't catch them. Force a filter+tree rebuild when the harvester's
+        // base count moves (inert while it's off — Count never ticks). One int compare per frame.
+        if (_harvest.Count != _lastHarvestBaseCount) { _lastHarvestBaseCount = _harvest.Count; _cachedFilterKey = "\0"; }
         DrawHeader();          // controls block: Category/Type + Disguise·You/Scale panels + Disguise/Spawn + search + despawn + pills
         DrawDetailStrip();     // contextual readouts (identity / active-disguise) — usually empty
         ImGui.Separator();
@@ -1763,7 +1819,7 @@ public sealed class MainWindow : Window, IDisposable
         if (Self() is not { } self) return "no local player.";
         var hide = !_guise.IsHidden(self.ObjectIndex);
         _guise.SetHidden(self, hide);
-        return hide ? "hidden, you're invisible now. '/hdm hide' again to show." : "shown.";
+        return hide ? $"hidden, you're invisible now. '{Plugin.Command} hide' again to show." : "shown.";
     }
 
     /// <summary>Chat/command: apply the territorial-wisp preset.</summary>
@@ -1778,7 +1834,7 @@ public sealed class MainWindow : Window, IDisposable
     {
         if (Self() is not { } self) return "no local player.";
         query = query.Trim();
-        if (query.Length == 0) return "usage: /hdm apply <name or BaseId>";
+        if (query.Length == 0) return $"usage: {Plugin.Command} apply <name or BaseId>";
 
         MobRow? match = uint.TryParse(query, out var baseId) && _index.TryGetByBase(baseId, out var byId) && IsRenderable(byId)
             ? byId
@@ -1804,7 +1860,7 @@ public sealed class MainWindow : Window, IDisposable
             if (match is null) return $"no renderable match for '{query}' to spawn.";
             _selected = match;
         }
-        if (_selected is not { } row) return "select a mob first, or '/hdm spawn <name|BaseId>'.";
+        if (_selected is not { } row) return $"select a mob first, or '{Plugin.Command} spawn <name|BaseId>'.";
         if (SpawnPuppetAs(row) is not { } puppet) return "spawn failed (no local player, or the object table is full).";
         return $"spawned a {row.DisplayName} puppet (obj#{puppet.ObjectIndex}). Total puppets: {_spawn.Count}.";
     }
@@ -1847,7 +1903,7 @@ public sealed class MainWindow : Window, IDisposable
         switch (sub)
         {
             case "" or "help":
-                return "ipc dev (LOCAL mirror path, no outbound sync; use /hdm apply to disguise+sync): ver · snap · apply <name|BaseId> · revert · play <timelineId> · spawn <name|BaseId> · despawn <objIndex>. Subject = your own puppet if targeted, else you.";
+                return $"ipc dev (LOCAL mirror path, no outbound sync; use {Plugin.Command} apply to disguise+sync): ver · snap · apply <name|BaseId> · revert · play <timelineId> · spawn <name|BaseId> · despawn <objIndex>. Subject = your own puppet if targeted, else you.";
             case "ver":
                 var v = _ipc.DevVersion;
                 return $"HDM.ApiVersion = {v.major}.{v.minor}.";
@@ -1871,7 +1927,7 @@ public sealed class MainWindow : Window, IDisposable
             case "play":
             {
                 if (Subject() is not { } t) return "ipc play: no local player.";
-                if (!ushort.TryParse(arg, out var pid) || pid == 0) return "ipc play: usage /hdm ipc play <timelineId>";
+                if (!ushort.TryParse(arg, out var pid) || pid == 0) return $"ipc play: usage {Plugin.Command} ipc play <timelineId>";
                 _ipc.DevPlay(t.ObjectIndex, pid);
                 return $"ipc play → obj#{t.ObjectIndex} timeline {pid}.";
             }
@@ -1888,13 +1944,13 @@ public sealed class MainWindow : Window, IDisposable
                 // _puppets, but IS in SpawnService's tracked set, so it lists in the Spawn tab and despawns
                 // here by its global object index). Guarded by IsSpawned so this can only ever remove an actor
                 // HDM brought into the world — never a player or a game NPC.
-                if (!int.TryParse(arg, out var di) || di < 0) return "ipc despawn: usage /hdm ipc despawn <objIndex>";
+                if (!int.TryParse(arg, out var di) || di < 0) return $"ipc despawn: usage {Plugin.Command} ipc despawn <objIndex>";
                 if (!_spawn.IsSpawned(di)) return $"ipc despawn: obj#{di} isn't a live HDM puppet.";
                 _spawn.Despawn((ushort)di);
                 return $"ipc despawn → obj#{di}.";
             }
             default:
-                return $"ipc: unknown subcommand '{sub}'. Try /hdm ipc help.";
+                return $"ipc: unknown subcommand '{sub}'. Try {Plugin.Command} ipc help.";
         }
     }
 
@@ -2138,9 +2194,14 @@ public sealed class MainWindow : Window, IDisposable
             return;
         }
 
-        // The focused entry the surface below edits: the starred row under the browse-cursor (_selected), else
-        // the first in the list. Clicking a Library row sets _selected, so the surface follows the click.
-        var focused = favRows.FirstOrDefault(fr => fr.BaseId == _selected?.BaseId) ?? favRows[0];
+        // The focused entry the surface below edits. Prefer the DURABLE per-tab focus (_favFocusBase) — it
+        // SURVIVES a Revert (which nulls _selected) and catalog browsing, so "Spawn puppet" always fires the fav
+        // on screen. Fall back to a just-starred catalog pick (_selected), then the first row. Self-heal the
+        // stored id to whatever we resolved, so an unstarred/stale focus lands on a live fav rather than nothing.
+        var focused = favRows.FirstOrDefault(fr => fr.BaseId == _favFocusBase)
+                   ?? favRows.FirstOrDefault(fr => fr.BaseId == _selected?.BaseId)
+                   ?? favRows[0];
+        _favFocusBase = focused.BaseId;
 
         // ── Self-cue strip: Revert / Hide + Loop + Freeze. These govern YOUR own guise regardless of which fav
         // is focused (Loop governs whether an Animation button below holds/loops or plays once), so they sit
@@ -2226,7 +2287,7 @@ public sealed class MainWindow : Window, IDisposable
         float w   = ImGui.GetContentRegionAvail().X - 2f; // fill the rest of the line (child already insets; 2px keeps the border off the clip edge)
         if (HmUi.RowNameButton(r.DisplayName, r.BaseId == focused.BaseId, _accent.Primary, w, "favlibsel",
                                heur ? HeuristicNameTint : (Vector4?)null))
-            _selected = r;
+            { _favFocusBase = r.BaseId; _selected = r; } // durable fav focus (survives Revert) + browse-cursor
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip($"Base {r.BaseId} · {r.SkeletonCode} · MC {r.ModelCharaId}\nClick to focus below." +
                              (heur ? "\nName is a heuristic guess." : ""));
@@ -2516,7 +2577,10 @@ public sealed class MainWindow : Window, IDisposable
     /// without clicking. There is no render cap: a collapsed tree costs nothing, and the DM
     /// manages volume by expanding one zone at a time (the reason the old 400-row cap is gone).
     /// </summary>
-    private void DrawLocationTree(List<MobRow> rows)
+    // Bucket the filtered rows into the cached zone/NPC/minion/unknown node lists. Runs only on a cache miss
+    // (see DrawLocationTree's guard), NOT per frame: this is the pass that walks every catalog row through
+    // TryLocateAll's tier cascade and sorts the nodes, so keeping it off the per-frame path is the FPS fix.
+    private void RebuildLocationTree(List<MobRow> rows)
     {
         // Bucket rows into zone nodes (located by home territory, else by ~expansion).
         var nodes = new Dictionary<uint, LocNode>();
@@ -2597,23 +2661,46 @@ public sealed class MainWindow : Window, IDisposable
             }
         }
 
-        var located = nodes.Values.Where(n => n.Located)
+        _treeLocated = nodes.Values.Where(n => n.Located)
             .OrderBy(n => n.Expansion).ThenBy(n => n.CategoryRank).ThenBy(n => n.SortKey)
             .ThenBy(n => n.ZoneLabel, StringComparer.Ordinal).ToList();
         nodes.TryGetValue(MinionNodeKey, out var minionNode);
+        _treeMinionNode = minionNode;
         // The humanoid-NPC set is now many Race→Clan nodes (not one flat node); gather them and order the
         // leaves alphabetically by "Race — Clan" label so the section reads A→Z.
-        var eventNodes = nodes.Values.Where(n => n.Category == "EventNpc")
+        _treeEventNodes = nodes.Values.Where(n => n.Category == "EventNpc")
             .OrderBy(n => n.ZoneLabel, StringComparer.OrdinalIgnoreCase).ToList();
-        var unknown = nodes.Values.Where(n => !n.Located && n.Key != MinionNodeKey && n.Category != "EventNpc")
+        _treeUnknown = nodes.Values.Where(n => !n.Located && n.Key != MinionNodeKey && n.Category != "EventNpc")
             .OrderBy(n => n.Expansion).ToList();
 
         // Section counts for the dividers below (the pre-header summary line was removed in batch-1 — it
         // duplicated the meta pills). These three feed the NPCs / Minions / Unknown divider metas; the
         // located zones carry their own per-expansion "N zones" counts.
-        var minionCount = minionNode?.Items.Count ?? 0;
-        var eventCount = eventNodes.Sum(n => n.Items.Count);
-        var unknownCount = unknown.Sum(n => n.Items.Count);
+        _treeMinionCount = minionNode?.Items.Count ?? 0;
+        _treeEventCount = _treeEventNodes.Sum(n => n.Items.Count);
+        _treeUnknownCount = _treeUnknown.Sum(n => n.Items.Count);
+    }
+
+    private void DrawLocationTree(List<MobRow> rows)
+    {
+        // Rebuild the tree STRUCTURE only on a cache miss — Filtered() hands back a fresh list instance on every
+        // filter invalidation, so a reference compare catches every change (search/category/family/hide-unnamed/
+        // star/live-name sync) with no extra invalidation sites. Per frame this is one ref check; the bucket/sort
+        // in RebuildLocationTree used to run every frame and ~halved FPS while the Catalog tab was open. The
+        // render walk below stays per-frame — ImGui is immediate-mode — but only submits already-bucketed nodes.
+        if (!ReferenceEquals(rows, _treeRows) || _treeLocated is null)
+        {
+            RebuildLocationTree(rows);
+            _treeRows = rows;
+        }
+
+        var located = _treeLocated!;
+        var eventNodes = _treeEventNodes!;
+        var unknown = _treeUnknown!;
+        var minionNode = _treeMinionNode;
+        var minionCount = _treeMinionCount;
+        var eventCount = _treeEventCount;
+        var unknownCount = _treeUnknownCount;
 
         // A live search force-opens every node (matches are already narrow) without disturbing the
         // user's persisted expand set.
@@ -3752,6 +3839,22 @@ public sealed class MainWindow : Window, IDisposable
                 ImGui.EndPopup();
             }
         }
+
+        // ── Data · monster catalog ────────────────────────────────────────────────────────────────────
+        ImGui.Spacing();
+        ImGui.Spacing();
+        ImGui.TextDisabled("Data · monster catalog");
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        var harvest = _harvest.Enabled;
+        if (ImGui.Checkbox("Update monster names from game spawns", ref harvest))
+        {
+            _harvest.Enabled = harvest;
+            _config.HarvestMobNames = harvest;
+            _pi.SavePluginConfig(_config);
+        }
+        ImGui.TextDisabled("Off by default. When on, HDM passively samples live enemies while you're in a duty\nand records their names and home instance to fill the catalog's instanced tail.");
     }
 
     public void Dispose() { }

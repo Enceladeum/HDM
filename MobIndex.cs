@@ -108,7 +108,7 @@ public sealed record MobRow(
 
 /// <summary>
 /// Loads Data/mob-model-index.csv (generated offline by
-/// <c>xivtool bnpc index --names bnpc-pairs.json</c> — Fable pipeline).
+/// <c>xivtool bnpc index --names bnpc-pairs.json</c>).
 /// 16,243 rows, 15,526 named. All data is client-side sheet content; only the
 /// Base↔Name label pairing came from the crowdsourced (Teamcraft gubal) archive.
 /// </summary>

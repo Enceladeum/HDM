@@ -1,11 +1,11 @@
 #!/usr/bin/env py -3
 """
 Generates Data/common-skill-names.csv (columns: Id,Name) — the offline join that
-relabels HGuise's shared "Common" timeline chips with the recognisable player-skill
+relabels HDM's shared "Common" timeline chips with the recognisable player-skill
 name that triggers them, in place of the lossy key-path heuristic (Prettify).
 
-WHY offline: identical cadence to special-names.csv / skel-anim-caps.csv (Fable
-deliverables regenerated per patch). Bakes ALL the safety rules into the generator
+WHY offline: identical cadence to special-names.csv / skel-anim-caps.csv
+(regenerated per patch). Bakes ALL the safety rules into the generator
 so the runtime loader is a dead-simple id->name lookup.
 
 The animation data model (0-indexed Action.csv columns, verified against the game):

@@ -48,7 +48,7 @@ public sealed record ContentInfo(
 /// What it deliberately does NOT do: map a catalog mob to the duty it spawns in. Combat
 /// mobs are server-spawned (there are zero BattleNpc placements in the static LGB data), so
 /// the BNpcBase→TerritoryType roster can only come from crowdsource telemetry — that table
-/// is a separate Fable deliverable (see shared-RnD/hdm-mob-content-map). Once it lands,
+/// is a separate offline deliverable. Once it lands,
 /// the category UI joins it against this index; until then this index still powers the live
 /// "you are in [Dungeon] The Clyteum" context (the player's current territory is always known).
 /// </summary>

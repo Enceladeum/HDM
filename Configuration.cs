@@ -158,4 +158,16 @@ public sealed class Configuration : IPluginConfiguration
     /// New key — absent in older configs deserializes to false, so no migration is needed.
     /// </summary>
     public bool AllowPossessOthersPuppets { get; set; } = false;
+
+    /// <summary>
+    /// Opt-in (default OFF): let the Tier A3 runtime harvester passively sample live BattleNpc spawns while
+    /// you're in a duty and record their <c>BNpcBase → territory</c> + localized name to a user-local CSV
+    /// (see <see cref="MobHarvester"/>), which then feeds the catalog's location tree and live nameplates.
+    /// OFF by default so a fresh install collects nothing until asked — the shipped CSVs already place the
+    /// overworld; this only fills the instanced tail (the YoRHa androids &amp;co.) for a DM who opts in.
+    /// Gates NEW collection only: rows already harvested to disk keep answering location lookups even when
+    /// this is off. Seeded into <see cref="MobHarvester.Enabled"/> at startup and written back when the
+    /// Config toggle flips. New key — absent in older configs deserializes to false, so no migration is needed.
+    /// </summary>
+    public bool HarvestMobNames { get; set; } = false;
 }
