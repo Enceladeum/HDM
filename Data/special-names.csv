@@ -1,0 +1,4932 @@
+Id,Name
+1092,Divebomb
+1094,Firestorm
+1095,Fireball
+1096,Hatch
+1098,Magitek Ray
+1099,Magitek Ray
+1100,Magitek Ray
+1101,Magitek Ray
+1102,Foul Breath
+1103,Frost Breath
+1104,Hoofkick
+1105,Stampede
+1106,Big Horn
+1107,Stone Throw
+1108,Soil Smear
+1109,Ripe Banana
+1110,Thunderstrike
+1111,Thunderstorm
+1112,Sticky Web
+1113,Caustic Spray
+1114,Deadly Thrust
+1115,Deadly Thrust
+1116,Wing Cutter
+1117,Bloodcurdling Caw
+1118,Yolk Shower
+1119,Infusion
+1120,Bristle
+1121,Bellowing Grunt
+1122,Big Burst
+1123,Glacier Ice
+1124,Deflagration
+1126,Hell Slash
+1127,Soul Drain
+1128,Doomsay
+1129,Seedvolley
+1130,Sour Sough
+1131,Swift Sough
+1132,Sticky Tongue
+1133,Crypsis
+1134,Languid Lap
+1135,Microblaster
+1136,Circle Blaster
+1137,Wild Eye
+1138,Blaster
+1139,Stone Cold
+1140,Megablaster
+1141,Iron Justice
+1142,King's Will
+1143,Blade of Suffering
+1144,Blade of Absolution
+1145,Blade of Repentance
+1146,Mind Blast
+1147,Drain Touch
+1148,Acid Mist
+1149,Acid Mist
+1150,Acid Mist
+1151,Heavy Pollen
+1152,Bombardier
+1153,Infestation
+1154,Spoil
+1155,Somersault Slash
+1156,Nutshell
+1157,Nutshell
+1158,Nutshell
+1159,Scamper
+1160,Blood Drain
+1161,Ultrasonics
+1162,Ultrasonics
+1163,Aqueous Discharge
+1164,Viscous Discharge
+1165,Mucous Discharge
+1166,Agitation
+1167,Agitation
+1168,Agitation
+1169,Snap Jaw
+1170,Corrosive Spit
+1171,Corrosive Spit
+1172,Proboscis
+1173,Blood Drain
+1174,Blood Drain
+1175,Glowlight
+1176,Nascent Flash
+1177,Transcendence
+1178,Hypha Whip
+1179,Queasy Cloud
+1180,Slumber Cloud
+1181,Romp
+1182,Jittering Jig
+1183,Frenetic Flurry
+1184,Haste
+1185,Bomb Toss
+1186,Bomb Toss
+1187,Firecracker Shower
+1188,Wild Rattle
+1189,Dripping Fang
+1190,Stone Gaze
+1191,Backflip
+1192,Tail Chase
+1193,Fireball
+1194,Bombination
+1195,Whipcrack
+1196,Whimsy a la Mode
+1197,Tortoise Stomp
+1198,Harden Shell
+1199,Lateral Slash
+1200,Whetstone
+1201,Smite of Rage
+1202,Grand Slam
+1203,Swiftfeather
+1204,Swift Gust
+1205,Canopy
+1206,Arboreal Storm
+1207,Acorn Bomb
+1208,Stone Skull
+1209,Boulder Clap
+1210,True Grit
+1211,Stagnant Spray
+1212,Garish Light
+1213,Peculiar Light
+1219,Backhand Blow
+1220,????
+1221,Extinction Impact
+1222,Meteor Impact
+1223,Plaincracker
+1224,Rockslide
+1225,Compaction
+1227,Cold Caress
+1228,Sweet Steel
+1229,Devastate
+1230,Infuriate
+1231,Faze
+1232,Sandslinger
+1233,Body Slam
+1234,Cold Gaze
+1235,Stone Gaze
+1236,Run Amok
+1237,"10,000 Needles"
+1238,Zillion Needles
+1239,"100,000 Needles"
+1240,Hammer Beak
+1241,Petribreath
+1242,Numbing Breath
+1243,Poison Breath
+1244,Slumber Breath
+1245,Howl
+1246,Foul Bite
+1247,Sanguine Bite
+1248,Cursed Gaze
+1249,Dread Gaze
+1250,Level 5 Petrify
+1251,Vulcanize
+1252,Shatter
+1253,Burning Cyclone
+1254,Levinshower
+1255,Levinfang
+1256,Head Butt
+1257,Seismic Scream
+1258,Lanolin
+1259,Trap Jaws
+1260,Acid Spray
+1261,Drill Cannons
+1262,Cermet Drill
+1263,Overcharge
+1264,Sand Breath
+1265,Sandstorm
+1266,Poison Breath
+1267,Earthbreak
+1268,Earthquake
+1270,Grand Sword
+1271,the Deep Reaches
+1272,System Evaluation
+1273,Magitek Ray
+1274,Overheat
+1275,Exhaust
+1276,Magitek Field
+1277,Gnaw
+1278,Seaspray
+1279,Sandspray
+1280,Feeding Frenzy
+1281,Pulverizing Pound
+1282,Horrisonous Blast
+1283,Tremblor
+1284,Khoomii
+1285,Sonorous Blast
+1286,Bottomless Desert
+1287,Soil Coat
+1288,Spine Stream
+1289,Titan's Boon
+1290,Titan's Anger
+1293,Water Cannon
+1294,Hydroball
+1295,Lacerate
+1296,Jumping Thrust
+1297,Ambuscade
+1299,Spinning Kick
+1300,Groundburst
+1301,Bubble Shower
+1302,Big Scissors
+1303,Bubble Shower
+1304,Crab Dribble
+1305,Peck
+1306,Fowl Stench
+1307,Rancid Belch
+1308,Flying Sardine
+1309,Regurgitate
+1310,Beatdown
+1311,Inhale
+1312,Swallow
+1313,Spit
+1314,Moldy Sneeze
+1315,Sickly Sneeze
+1316,Black Hole
+1317,Worm Hole
+1318,the Look
+1319,Rotten Breath
+1320,Curse
+1321,Malice
+1322,Pervasion
+1323,Numbing Tendrils
+1324,Irritating Tendrils
+1325,Bleat
+1326,Fleece Butt
+1327,Lullaby
+1328,Fey Light
+1329,Fey Glow
+1330,Catapult
+1331,Mighty Strikes
+1332,Aqua Vitae
+1333,Bone Powder
+1334,Beak Snap
+1335,Overtone Shriek
+1336,Shriek
+1337,Bad Breath
+1338,Sweet Breath
+1339,Vine Probe
+1340,Counter Maneuvers
+1341,Shred
+1342,the Hand
+1343,Death by Claw
+1345,Straight Punch
+1346,Elbow Drop
+1347,Heartburn
+1348,Absent-mindedness
+1349,Hot Hands
+1350,Hot Horns
+1351,Double Smash
+1352,Corrupted Tail
+1353,Grim Cleaver
+1354,Grim Halo
+1355,Desolation
+1356,Hellssend
+1357,Grim Fate
+1358,10-tonze Swipe
+1359,10-stone Swing
+1360,100-tonze Swipe
+1361,100-tonze Swing
+1362,Glower
+1363,Surge of Vigor
+1364,Eye of the Beholder
+1365,Baleful Roar
+1366,Storm
+1367,Curl
+1368,Gouge
+1369,Shining Amber
+1371,Downburst
+1372,Luminous Lance
+1373,Shining Emerald
+1374,Frog Song
+1375,Tiny Song
+1376,Veil of the Whorl
+1378,Superior Stone II
+1380,Salivous Snap
+1381,Dragon Breath
+1382,Granite Rain
+1383,Toxic Vomit
+1384,Touchdown
+1385,???????:??????
+1386,Thunderous Breath
+1387,??
+1388,attack
+1389,Sear
+1390,Incinerate
+1391,Vulcan Burst
+1392,Eruption
+1393,Radiant Plume
+1394,Crimson Cyclone
+1395,Hellfire
+1396,?????:????
+1397,?????:??
+1398,?????:??????
+1399,?????:???
+1400,?????:????
+1401,????:??
+1402,????:??
+1403,Friction
+1404,Downburst
+1405,Wicked Wheel
+1406,Slipstream
+1407,Mistral Song
+1408,Mistral Shriek
+1409,Aerial Blast
+1414,Mirage
+1417,Realm Shaker
+1418,Sticky Web
+1419,Silkscreen
+1420,Deadly Thrust
+1421,Tail Molt
+1422,Dark Mist
+1423,Pain Mire
+1424,Digest
+1425,Fluid Spread
+1426,Fluid Spread
+1427,Fluid Spread
+1428,Fluid Spread
+1429,Blood Drain
+1430,Rock Buster
+1431,Tumult
+1432,Mountain Buster
+1433,Weight of the Land
+1434,Rock Throw
+1435,Boulder Throw
+1436,Landslide
+1437,Geocrush
+1438,Earthen Fury
+1442,Pod Burst
+1443,Silken Fingers
+1444,Self-destruct
+1445,Shatterstone
+1446,Summer's Heat
+1447,Bomb Toss
+1448,Cannibalize
+1449,Colossal Slam
+1450,Immortalize
+1457,Magitek Missiles
+1459,Guided Missile Kyrios
+1474,Choco Strike
+1475,Choco Guard
+1476,Choco Kick
+1477,Choco Drop
+1478,Choco Blast
+1479,Choco Rush
+1480,Choco Beak
+1481,Choco Slash
+1482,Choco Meteor Storm
+1483,Choco Surge
+1484,Choco Cure
+1485,Choco Regen
+1486,Rake
+1487,Flame Breath
+1488,Peck
+1490,Hiss
+1491,Cap Bump
+1493,Lap
+1494,Labored Leap
+1495,Drop of Venom
+1496,Nerve Sever
+1497,Sanguine Bite
+1498,Bog Bomb
+1500,Lunge
+1501,Electric Velitation
+1502,Sprout Smack
+1503,Sprout Spin
+1504,Stolon
+1505,Small Claw
+1506,Occult Aqua Breath
+1507,Screwdriver
+1508,?????????
+1509,Dark Orb
+1510,Condemnation
+1511,Bloody Claw
+1512,Wings of Woe
+1513,Painful Whip
+1514,Gas Shell
+1515,Bearclaw
+1516,Alternate Plumage
+1517,Gust
+1518,Sharp Sting
+1519,Final Sting
+1520,Foreburst
+1521,Wind Shear
+1522,Zephyr Mantle
+1523,Loop
+1524,Slowcall
+1525,Mow
+1526,Triclip
+1527,Frightful Roar
+1528,Mortal Ray
+1529,Obliterate
+1530,Obliterate
+1531,Caudal Swipe
+1532,Crushing Fangs
+1533,Flatten
+1534,Alarum
+1535,Standing Chine
+1536,Big Hug
+1537,Dissever
+1538,White Breath
+1539,Hopelessness
+1540,Ball of Fire
+1542,Ball of Ice
+1544,Radiant Breath
+1545,Miasma Breath
+1546,Dark Wave
+1547,Dark Thorn
+1548,Soul Douse
+1551,Hopelessness
+1552,Evil Eye
+1553,Chaos Breath
+1556,Stun
+1557,Mana Cannon
+1560,Black Cloud
+1561,Blighted Gloom
+1564,Crepuscule Blade
+1565,Knout
+1566,Unmitigated Explosion
+1567,Self-destruct
+1568,Haste
+1569,Bravado
+1570,Terminus Est
+1571,Void Fire IV
+1572,Thunderbolt
+1573,Wild Bolt
+1574,Aetherial Pull
+1575,Hard Head
+1576,?????:???
+1577,Electrostatic Trouncing
+1578,Ecliptic Meteor
+1579,Bubble Burst
+1580,Geotemporal Blast
+1589,Liquefy
+1590,Liquefy
+1591,Allagan Rot
+1593,Vacuum Wave
+1594,Sina Burst
+1596,Fragility
+1597,FF12???????:???OBJ??????
+1598,FF12???????:???OBJ??4???
+1599,Creeping Darkness
+1601,Verge Line
+1603,????????:?????/??
+1604,Aetheroplasm
+1605,Diffractive Laser
+1606,Magitek Ray
+1607,Magitek Ray
+1608,Magitek Ray
+1609,Ceruleum Vent
+1610,Homing Lasers
+1611,Rock Throw
+1612,Vulcan Burst
+1613,Vortex Barrier
+1614,Landslide
+1615,Boulder Throw
+1616,Eruption
+1617,Granite Interment
+1618,Radiant Plume
+1619,Radiant Blaze
+1624,Tank Purge
+1625,Electray
+1626,Explosion
+1627,Ultima
+1628,Brainjack
+1629,Tail Drive
+1630,Assault Cannon
+1641,Ballast
+1643,Shining Topaz
+1644,Downburst
+1645,Ballast
+1646,Ballast
+1647,Ballast
+1649,Ballast
+1650,Ballast
+1651,Landslide
+1652,Earthen Ward
+1653,Rock Buster
+1654,Mountain Buster
+1655,Earthen Fury
+1656,Wind Blade
+1657,Aerial Slash
+1658,Shockwave
+1659,Contagion
+1660,Aerial Blast
+1661,Crimson Cyclone
+1662,Burning Strike
+1663,Flaming Crush
+1664,Radiant Shield
+1665,Inferno
+1666,Embrace
+1668,Fey Covenant
+1669,Fey Illumination
+1670,Silent Dusk
+1671,Fey Light
+1672,Fey Glow
+1674,Canker
+1675,Murder Hole
+1676,Repel
+1680,Imminent Catastrophe
+1681,Triumphant Roar
+1682,Tailwind
+1683,the Lion's Breath
+1684,the Ram's Breath
+1685,the Dragon's Breath
+1686,the Ram's Voice
+1687,the Dragon's Voice
+1688,Fire Blast
+1689,the Ram's Keeper
+1690,Cacophony
+1691,Twister
+1692,Tail Snap
+1693,Mandible Bite
+1694,Formic Pheromones
+1695,Swinge
+1696,Collapse
+1697,Spiked Tail
+1698,Typhoon
+1699,Sustained Blast
+1700,Biting Wind
+1702,Hatch
+1703,Blazing Trail
+1704,Glaciate
+1705,Chaotic Chorus
+1706,Web of Lightning
+1708,Plasma Release
+1709,Self-destruct
+1710,Self-destruct
+1711,Cannonfire
+1717,Hundred Lashings
+1718,Gold Rush
+1719,the Scorpion's Sting
+1720,Gold Dust
+1721,the Scorpion's Sting
+1722,Burr Burrow
+1723,Hooked Burrs
+1724,Sow
+1725,Terminus Est
+1726,Moldy Phlegm
+1727,Goobbue's Grief
+1728,Amorphic Flail
+1730,Sharpened Knife
+1731,the Scourge of Nym
+1732,Everyone's Grudge
+1733,Throat Stab
+1734,Rancor Release
+1735,attack
+1737,Gold Bile Plume
+1739,Gold Bile Plume
+1740,Eyes on Me
+1741,Void Matter
+1742,Sand Cyclone
+1743,Hood Swing
+1744,Boulderdash
+1747,Desolation
+1749,Corrupted Crystals
+1751,Dineis
+1754,Clearout
+1755,Clearout
+1756,Lamp Oil
+1757,Eruption
+1758,Electrify
+1759,Mark of Pain
+1760,Dark Dome
+1761,Firewater
+1762,Flat Blade
+1763,Mudslinger
+1764,Stone Throw
+1765,Fortis
+1766,Vitalis
+1767,Triple Threat
+1769,Surge of Vigor
+1770,Footwork
+1771,Gut Rip
+1772,Mortify
+1773,Cannonfire
+1775,Telega
+1776,Whip Back
+1777,Regorge
+1778,Steel Scales
+1781,Devour
+1783,Disseminate
+1784,Rupture
+1785,Syrup
+1788,Plummet
+1789,Spiked Tail
+1791,Liquid Heaven
+1792,Firestorm
+1793,Fireball
+1794,Divebomb
+1795,Aetheric Profusion
+1796,Twister
+1798,Unwoven Will
+1799,Sustained Blast
+1800,Fireball
+1801,Superflare
+1803,Diarchy
+1804,Mean Thrash
+1805,Fear Itself
+1806,Caber Toss
+1807,Static Charge
+1808,Gelid Charge
+1809,the Ram's Voice
+1813,Captive Bolt
+1814,Dimension Zero
+1817,Ancient Flare
+1818,Culling Blade
+1819,Moonfall Slash
+1820,Abyssal Slash
+1821,Megiddo Flame
+1822,Frost Breath
+1823,Sheet of Ice
+1824,Rime Wreath
+1825,Cauterize
+1826,Snowfall
+1828,???
+1829,Aetheroplasm
+1830,Freefire
+1831,Ultima
+1833,Judgment
+1835,Liquefy
+1836,Liquefy
+1837,Typhoon
+1838,Sea of Pitch
+1839,Bottomless Desert
+1840,Allagan Rot
+1841,Vacuum Wave
+1842,Firestorm
+1843,Twister
+1844,Sustained Blast
+1845,Hatch
+1846,Sheet of Ice
+1847,Bubonic Cloud
+1848,Eyes on Me
+1849,Plague Dance
+1850,Mind Melt
+1851,Reanimate
+1852,Mind Melt
+1853,Burst
+1854,Bury
+1855,Bury
+1857,Tail Drive
+1858,Frost Breath
+1859,Sheet of Ice
+1860,Rime Wreath
+1861,Cauterize
+1862,Ancient Flare
+1863,Quake III
+1867,Static Charge
+1868,Gelid Charge
+1869,the Ram's Voice
+1870,Triumvirate
+1871,Mean Thrash
+1872,Fear Itself
+1873,Aetheric Profusion
+1946,Foul Breath
+1947,Frost Breath
+1948,Thunderstrike
+1949,Thunderstorm
+1950,Wing Cutter
+1951,Bloodcurdling Caw
+1952,Yolk Shower
+1953,Bellowing Grunt
+1954,Self-destruct
+1955,Soul Drain
+1956,Sour Sough
+1957,Swift Sough
+1958,Charged Whisker
+1959,Megablaster
+1960,Iron Justice
+1961,Mind Blast
+1962,Acid Mist
+1963,Acid Mist
+1964,Acid Mist
+1965,Acid Mist
+1966,Infestation
+1967,Spoil
+1968,Ultrasonics
+1969,Ultrasonics
+1970,Aqueous Discharge
+1971,Viscous Discharge
+1972,Mucous Discharge
+1973,Corrosive Spit
+1974,Corrosive Spit
+1975,Blinding Burst
+1976,Hypha Whip
+1977,Queasy Cloud
+1978,Slumber Cloud
+1979,Romp
+1980,Bomb Toss
+1981,Bomb Toss
+1982,Firecracker Shower
+1983,Tail Chase
+1984,Fireball
+1985,Bombination
+1986,Tortoise Stomp
+1987,Grand Slam
+1988,Canopy
+1989,Arboreal Storm
+1990,Acorn Bomb
+1991,Backhand Blow
+1992,Rise and Fall
+1993,Boulder Clap
+1994,True Grit
+1995,Plaincracker
+1996,Rockslide
+1997,Stagnant Spray
+1998,Eerie Light
+1999,Peculiar Light
+2003,Infuriate
+2004,Faze
+2005,Sandslinger
+2006,Body Slam
+2007,Cold Gaze
+2008,Stone Gaze
+2009,50 Needles
+2010,100 Needles
+2011,1000 Needles
+2012,Petribreath
+2013,Numbing Breath
+2014,Poison Breath
+2015,Slumber Breath
+2016,Cursed Gaze
+2017,Dread Gaze
+2018,Level 5 Petrify
+2019,Shatter
+2020,Burning Cyclone
+2021,Levinshower
+2022,Acid Spray
+2023,Cermet Drill
+2024,Overcharge
+2025,Sand Breath
+2026,Sandstorm
+2027,Poison Breath
+2028,Earthquake
+2029,Grand Sword
+2030,Magitek Ray
+2031,Exhaust
+2032,Feeding Frenzy
+2033,Pulverizing Pound
+2034,Seismic Rift
+2035,Seismic Rift
+2036,Khoomii
+2037,Sonorous Blast
+2038,Spine Stream
+2039,Titan's Anger
+2040,Hydroball
+2041,Groundburst
+2042,Bubble Shower
+2043,Bubble Bath
+2044,Crab Dribble
+2045,Fowl Stench
+2046,Rancid Belch
+2048,Moldy Sneeze
+2049,Sickly Sneeze
+2050,Black Hole
+2051,Worm Hole
+2052,the Look
+2053,Rotten Breath
+2054,Bleat
+2055,Lullaby
+2056,??
+2057,Sear
+2058,Incinerate
+2059,Vulcan Burst
+2060,Eruption
+2061,Radiant Plume
+2062,Crimson Cyclone
+2063,Hellfire
+2064,Friction
+2065,Downburst
+2066,Wicked Wheel
+2067,Slipstream
+2068,Mistral Song
+2069,Mistral Shriek
+2070,Aerial Blast
+2071,10-tonze Swipe
+2072,10-tonze Swing
+2073,100-tonze Swipe
+2074,100-tonze Swing
+2075,Glower
+2076,Eye of the Beholder
+2077,Overtone Shriek
+2078,Shriek
+2079,Bad Breath
+2080,Sweet Breath
+2081,Vine Probe
+2082,Elbow Drop
+2083,Heartburn
+2084,Double Smash
+2085,Grim Halo
+2086,Desolation
+2087,Sweet Steel
+2088,Dark Mist
+2089,Rock Buster
+2090,Tumult
+2091,Mountain Buster
+2092,Weight of the Land
+2093,Rock Throw
+2094,Landslide
+2095,Geocrush
+2096,Earthen Fury
+2097,the Hand
+2098,Dragon Breath
+2099,Granite Rain
+2100,Toxic Vomit
+2101,Touchdown
+2102,Miasma Breath
+2103,Dark Wave
+2104,Evil Eye
+2105,Chaos Breath
+2106,Flame Breath
+2107,Choco Strike
+2108,Choco Blast
+2112,Labored Leap
+2113,Vasoconstrictor
+2114,Bog Bomb
+2116,Electric Velitation
+2117,Sprout Spin
+2118,FF11???:????
+2119,Screwdriver
+2120,Condemnation
+2121,Terror Eye
+2122,Gas Shell
+2123,Filoplumage
+2124,Gust
+2125,Slowcall
+2126,Mow
+2127,Triclip
+2128,Frightful Roar
+2129,Mortal Ray
+2130,Caudal Swipe
+2131,Flatten
+2132,Threaten
+2133,Kneeling Snath
+2139,Web of Lightning
+2140,Plasma Release
+2148,attack
+2149,White Breath
+2150,Ball of Fire
+2152,Ball of Ice
+2154,Radiant Breath
+2155,Soul Douse
+2158,Ambuscade
+2159,Thunderbolt
+2160,Wild Horn
+2161,Trounce
+2162,Ecliptic Meteor
+2164,the Lion's Breath
+2165,the Ram's Breath
+2166,the Dragon's Breath
+2167,the Ram's Voice
+2168,the Dragon's Voice
+2169,the Ram's Keeper
+2170,Black Cloud
+2171,Blighted Gloom
+2172,Crepuscule Blade
+2173,Eruption
+2174,Radiant Plume
+2175,Bubble Burst
+2176,Electrify
+2177,Dark Dome
+2178,Firewater
+2179,Scorched Earth
+2181,Burr Burrow
+2182,Moldy Phlegm
+2183,Goobbue's Grief
+2184,Amorphic Flail
+2185,the Scourge of Nym
+2186,Eyes on Me
+2187,Desolation
+2188,Creeping Darkness
+2189,Diffractive Laser
+2190,Forward Laser
+2191,Forward Laser
+2192,Forward Laser
+2193,Ceruleum Vent
+2194,Homing Lasers
+2195,Vulcan Burst
+2196,Landslide
+2197,Tank Purge
+2198,Ultima
+2199,Mandible Bite
+2200,Formic Pheromones
+2201,Collapse
+2203,Blazing Trail
+2205,Verge Line
+2207,Inferno
+2208,Charybdis
+2209,Weight of the Land
+2210,Imminent Catastrophe
+2211,Hundred Lashings
+2212,Gold Rush
+2213,Gold Dust
+2214,Gold Bile Plume
+2215,Gold Bile Plume
+2216,Magitek Cannon
+2217,Photon Stream
+2218,attack
+2219,Hood Swing
+2220,Whip Back
+2221,Disseminate
+2222,Rupture
+2223,Syrup
+2224,Plummet
+2225,Liquid Hell
+2226,Firestorm
+2227,Fireball
+2228,Divebomb
+2254,??
+2255,High Voltage
+2256,Repelling Cannons
+2257,Allagan Rot
+2258,Gravity Field
+2259,Aerial Bombardment
+2260,Perimeter Cannon
+2261,Firestream
+2262,Piercing Laser
+2263,Node Retrieval
+2264,Summon
+2265,attack
+2266,High Voltage
+2267,Repelling Cannons
+2268,Gravity Field
+2269,Firestream
+2270,Piercing Laser
+2271,Object 199
+2272,Headspin
+2273,Headspin
+2275,Gravity Thrust
+2276,Slow Play
+2277,Headspin
+2278,Headspin
+2279,Germinate
+2280,Wicked Thorn
+2281,Tornado
+2283,??????
+2284,Thermal Tumult
+2285,Featherlance
+2286,Thermal Tumult
+2287,Leech
+2288,Incinerate
+2289,Steam Clean
+2290,Wrecking Ball
+2291,Inferno
+2292,Whirlwind
+2293,Umbral Vise
+2294,Skyward Swing
+2295,Thunder II
+2296,attack
+2297,Army of One
+2298,attack
+2299,attack
+2300,Spellsword
+2301,Death's Door
+2302,Heave
+2303,Charge Eradicated
+2304,Incinerate
+2305,Wrecking Ball
+2306,Inferno
+2307,Whirlwind
+2308,Umbral Vise
+2309,Skyward Swing
+2310,Thunder II
+2311,Spellsword
+2312,Death's Door
+2313,Heave
+2314,Phantom Orb
+2315,Great Whirlwind
+2316,Eye of the Storm
+2317,Sand Pillar
+2318,Sand Pillar
+2319,Ceruleum Pillar
+2320,Great Whirlwind
+2321,Eye of the Storm
+2322,Sand Pillar
+2323,Sand Pillar
+2324,Ceruleum Pillar
+2325,Rotoswipe
+2326,Bot Retrieval
+2327,Equalizer
+2328,Neutralizer
+2329,Rive
+2330,Rotoswipe
+2331,Rive
+2332,Siren Song
+2333,Bubble Burst
+2334,Soothing Song
+2335,Bubble Burst
+2336,Mountain Buster
+2337,Earthen Fury
+2338,Aerial Slash
+2339,Contagion
+2340,Aerial Blast
+2341,Flaming Crush
+2343,Burning Hate
+2344,Bubo Burst
+2345,Detonation
+2346,Detonation
+2347,Aetherial Surge
+2349,Darkness
+2350,Tornado
+2351,Burning Tendrils
+2352,Burning Tendrils
+2353,Electromagnetism
+2354,Electromagnetism
+2355,Eyes on Me
+2356,Eyes on Me
+2357,Dirty Cannons
+2358,Dirty Cannons
+2359,Swift Shadow
+2360,Painflare
+2361,Firestream
+2362,Firestream
+2381,Magitek Ray
+2382,Magitek Ray
+2386,Blessing of Light
+2387,Blessing of Light
+2388,??
+2389,attack
+2391,Upheaval
+2392,Upheaval
+2397,Granite Sepulchre
+2398,Landslide
+2399,Landslide
+2400,Landslide
+2401,Landslide
+2402,Tumult
+2403,Tumult
+2405,Mistral Song
+2406,Mistral Song
+2407,Viscous Aetheroplasm
+2408,Aetheric Boom
+2409,Aetheric Boom
+2410,Mantle of the Whorl
+2411,Aetheroplasm
+2412,Fusion Burst
+2413,??:????????:?????????????
+2414,Thwack
+2415,Thwack
+2416,Play Rough
+2417,Play Rough
+2418,Guardian Aura
+2419,Guardian Aura
+2420,Charge Up
+2421,Critical Swing
+2422,Critical Swing
+2424,Spinning Mogshield
+2425,Spinning Mogshield
+2426,Come at Me Kupo
+2427,1000-kuponze Swipe
+2428,100-kuponze Swipe
+2429,Moogle-Go-Round
+2430,Moogle-Go-Round
+2431,Pom Cure
+2432,Pom Cure
+2433,Pom Holy
+2434,Pom Holy
+2435,Moogle Eye Shot
+2436,Moogle Eye Shot
+2440,Mograin of Death
+2442,Pom Flare
+2443,Pom Flare
+2446,March of the Moogles
+2447,March of the Moogles
+2448,Moogle Thrust
+2449,Moogle Thrust
+2451,1000-kuponze Charge
+2452,1000-kuponze Charge
+2453,Mog Creation
+2454,Mog Creation
+2455,Memento Moogle
+2456,Memento Moogle
+2457,Come at Me Kupo
+2458,Demifire II
+2459,Searing Wind
+2460,Infernal Fetters
+2461,Inferno Howl
+2462,Crimson Cyclone
+2463,Crimson Cyclone
+2464,Infernal Surge
+2465,Infernal Surge
+2466,Thermal Tumult
+2467,Thermal Tumult
+2468,Gigastorm
+2469,Gigastorm
+2470,Cyclone
+2471,Fantod
+2472,Feather Rain
+2473,Super Cyclone
+2474,Super Cyclone
+2475,Pulverizing Punch
+2476,Pulverizing Punch
+2477,Blinding Light
+2478,Banishga
+2479,Banish III
+2480,Banish
+2481,Divide
+2482,Squish and Stick
+2483,Peel
+2484,Aqua Roar
+2485,Acid Shower
+2486,Flash Flood
+2487,Flash Flood
+2488,Mograin of Death
+2489,Mograin of Death
+2490,??:????:??????:????????/????
+2491,Gogo Meteor
+2492,Pom Meteor
+2495,Warp
+2496,Transonic Blast
+2497,attack
+2498,Breath Wing
+2499,Breath Wing
+2500,Predatory Swoop
+2501,Predatory Swoop
+2502,Sonic Boom
+2503,Flying Frenzy
+2504,Flying Frenzy
+2505,Sonic Storm
+2506,Good King's Decree
+2510,attack
+2511,attack
+2512,Breath Wing
+2513,Breath Wing
+2514,Caustic Vomit
+2515,Caustic Vomit
+2516,Viscous Aetheroplasm
+2517,??:????:????????:????????/????
+2518,??:????:????
+2519,Corrupting Spit
+2520,????�??:AA:????:?????
+2522,Corrupting Spit
+2523,Digestive Fluid
+2524,Acid Mist
+2525,Acid Mist
+2526,Terror Touch
+2527,Paralyze III
+2528,Paralyze III
+2529,attack
+2530,Eightfold Suffering
+2531,Deathly Verse
+2532,Feral Lunge
+2533,Deathly Cadenza
+2534,Iambic March
+2541,Crystalline Shower
+2542,Crystalline Shower
+2543,Corrupting Burst
+2544,Corrupting Burst
+2545,attack
+2546,Feral Lunge
+2547,Deathly Cadenza
+2548,Lunatic Voice
+2551,Aero Blast
+2552,Aero Blast
+2553,Zombify
+2554,Flames of Fury
+2555,Aim
+2556,Quake
+2557,Quake
+2558,Hundred Cuts
+2559,Captive Bolt
+2560,Hundred Cuts
+2561,Ancient Flare
+2562,Ancient Flare
+2564,Snowball
+2565,Snowball
+2566,Holy Flame
+2567,Holy Flame
+2568,Poison Spore
+2569,Poison Spore
+2570,Mercurial Strike
+2571,Mercurial Strike
+2572,Impact Roar
+2573,Impact Roar
+2574,Power Attack
+2575,Power Attack
+2576,Fast Boulder
+2577,Fast Boulder
+2578,Earthen Heart
+2579,Earthen Heart
+2580,Rockslide
+2581,Rockslide
+2582,Burst
+2583,Burst
+2584,High Fire Powder
+2585,Dust Explosion
+2586,Void Blizzard II
+2587,Icefall
+2588,Danse Macabre
+2589,Nether Burst
+2590,Nether Burst
+2591,Danse Macabre
+2592,??:??????/???????
+2593,??:??????/???????
+2594,Fatal Allure
+2595,Blood Sword
+2596,Blood Rain
+2597,Blood Rain
+2598,Blood Rain
+2599,Blood Rain
+2600,Blood Rain
+2601,Blood Rain
+2602,Great Ball of Fire
+2603,???????:AA
+2604,Abyssal Swing
+2605,Abyssal Swing
+2606,Abyssal Transfixion
+2607,Abyssal Charge
+2608,Tenebrous Missile
+2609,Prime Guillotine
+2610,Ruination
+2611,Dismember
+2612,Void Miasma
+2613,Void Miasma
+2614,Vacuum Slash
+2615,Carnem Levare
+2616,Carnem Levare
+2617,Carnem Levare
+2618,Carnem Levare
+2619,????PBAE
+2620,_rsv_47886_-1_1_0_0_SE2DC5B04_EE2DC5B04
+2621,Hellscathe
+2622,Heavensflame
+2623,Vacuum Slash
+2624,Abyssal Slash
+2625,Abyssal Slash
+2626,Abyssal Slash
+2627,Abyssal Slash
+2628,Megiddo Flame
+2629,Megiddo Flame
+2630,Megiddo Flame
+2631,Megiddo Flame
+2640,Critical Sweep
+2641,Critical Sweep
+2642,Brood Rage
+2643,Hatch
+2644,Aether Detonation
+2645,Aether Detonation
+2646,Aether Detonation
+2647,Aether Detonation
+2648,Surprise Needle
+2649,Abyssal Charge
+2650,Death Scythe
+2651,Death Scythe
+2652,Climb
+2653,Alight
+2655,Total Immolation
+2656,Apocalypse
+2657,Cloudscourge
+2658,Cloudscourge
+2659,Energy Discharge
+2660,Shock
+2661,Shock
+2662,Shock
+2663,Landing
+2664,Comet
+2666,Cosmic Shrapnel
+2667,Astral Light
+2668,Astral Light
+2669,Sonic Storm
+2670,Passions' Heat
+2671,Void Fire IV
+2672,?????�?????
+2673,Dark Mist
+2674,Beguiling Mist
+2677,Will of Darkness
+2678,Void Fire
+2679,Void Fire
+2682,Demonize
+2685,Dust Diffusion
+2686,Dust Diffusion
+2687,????????
+2688,Sand Pillar
+2692,attack
+2695,Aqua Breath
+2696,Aqua Breath
+2697,Tail Whip
+2698,Tail Whip
+2699,Scale Darts
+2700,Waterspout
+2701,Waterspout
+2702,Waterspout
+2705,Body Slam
+2706,Body Slam
+2709,Stun Shot
+2710,Bilgestorm
+2711,Bilgestorm
+2712,Hydroshot
+2713,Hydro Shot
+2714,Dreadstorm
+2715,Dreadstorm
+2716,Dreadwash
+2717,Dreadwash
+2718,Tidal Roar
+2719,Tidal Roar
+2720,Great Flood
+2721,Tidal Roar
+2722,Aether Draw
+2723,Aqua Burst
+2724,Aqua Burst
+2725,Tidal Wave
+2728,Waterspout
+2729,Grand Fall
+2730,Tidal Cannon
+2731,Spinning Dive
+2732,Spinning Dive
+2733,Spinning Dive
+2734,Spinning Dive
+2736,Dread Tide
+2737,Inhale
+2738,Spit
+2739,Devour
+2740,Claw
+2741,Claw
+2742,Bad-mouth
+2743,Kick and Scream
+2744,Kick and Scream
+2745,Spore Burst
+2746,Spore Burst
+2747,Purulent Ooze
+2748,Purulent Ooze
+2749,Ruinous Omen
+2750,Ruinous Omen
+2751,Ravensclaw
+2752,Ravensclaw
+2753,Ruby Claw
+2754,Ravensbeak
+2755,the Dark Doubles
+2756,Raven's Ascent
+2757,Iron Chariot
+2758,Iron Chariot
+2759,Lunar Dynamo
+2760,Lunar Dynamo
+2761,Hypernova
+2762,Super Nova
+2763,Sunder Pressure
+2764,Universal Gravitation
+2765,Dalamud Dive
+2766,Dalamud Dive
+2767,Raven Dive
+2768,Raven Dive
+2769,Meteor Stream
+2770,Meteor Stream
+2771,Heavensfall
+2772,Moonfall
+2773,Meteor Impact
+2774,Moonburst
+2775,Debris Burst
+2776,Ruby Flare
+2777,Megaflare
+2779,Tremblor
+2780,Heavy Impact
+2781,Heavy Strike
+2782,Heavy Impact
+2783,Heavy Strike
+2784,Heavy Impact
+2785,Heavy Strike
+2786,Magnetic Shock
+2789,Thermionic Beam
+2790,Thermionic Beam
+2791,Asphyxiation
+2792,Heavensfall
+2793,Heavensfall
+2794,Thermionic Burst
+2795,Thermionic Burst
+2796,Ball of Fire
+2797,Ball of Fire
+2798,Binding Chain
+2799,Binding Chain
+2800,Neurolink Burst
+2801,Neurolink Burst
+2802,Fireball
+2803,Fireball
+2804,Iceball
+2805,Chain Lightning
+2806,Cauterize
+2807,Cauterize
+2808,Cauterize
+2809,Cauterize
+2810,Attractant
+2811,Dirty Sneeze
+2812,Goobbue's Grief
+2813,Spore Cloud
+2814,Hypno Squama
+2815,Scale Flakes
+2816,Exuviation
+2817,Exuviation
+2818,Poison Dust
+2819,Poison Dust
+2820,Erosion Darts
+2821,Cannonball
+2822,Cannonball
+2823,Plague Swipe
+2824,Plague Swipe
+2825,Moldy Gale
+2826,Corrosive Gale
+2827,Stormwind
+2828,Stormwind
+2829,Eerie Soundwave
+2830,Eerie Soundwave
+2831,Climb
+2832,Swoop
+2833,Swoop
+2834,Unlock
+2835,Bloody Caress
+2836,Bloody Caress
+2837,Thorn Whip
+2838,Briary Growth
+2839,Floral Trap
+2840,Floral Trap
+2841,Devour
+2842,Devour
+2843,Spit
+2844,Spit
+2845,Viscid Emission
+2846,Blighted Bouquet
+2847,Leafstorm
+2848,Leafstorm
+2849,Acid Rain
+2850,Acid Rain
+2851,Rotten Stench
+2852,Rotten Stench
+2853,Nutrify
+2854,Burst
+2855,Acid Ooze
+2857,Tail Slap
+2858,Tail Slap
+2859,Red Lotus Blade
+2860,Red Lotus Blade
+2861,Circle of Flames
+2862,Circle of Flames
+2863,Circle Blade
+2864,Circle Blade
+2865,Cursed Voice
+2866,Cursed Voice
+2867,Hysteric Smash
+2868,Petrifaction
+2869,Cursed Shriek
+2870,Circle Blade
+2871,Circle Blade
+2872,Bravery
+2873,Venomous Tail
+2874,Shot
+2875,Aimed Shot
+2876,Arrow Deluge
+2877,Arrow Deluge
+2878,Frenzy
+2879,Dark Sphere
+2880,Terror Sphere
+2881,Shade Shot
+2882,??:????:????
+2883,??:????:????
+2886,Venom
+2887,Venom
+2888,Cursed Sphere
+2889,Cursed Sphere
+2890,Scurvy
+2891,Deathtrap
+2892,Deathtrap
+2893,Revelation
+2894,Leafstorm
+2896,Sludge Bomb
+2897,Acid Rain
+2898,Acid Cloud
+2899,Acid Cloud
+2901,Eye of the Gorgon
+2902,Petrifying Voice
+2903,_rsv_47895_-1_1_0_0_SE2DC5B04_EE2DC5B04
+2904,Petrifying Shriek
+2905,Venomous Tail
+2906,Venomous Tail
+2907,Life Drain
+2908,Life Drain
+2909,Defensive Reaction
+2910,Defensive Reaction
+2911,Aetheric Burst
+2912,Disruption Wave
+2913,Lightning Rod
+2915,Excavated
+2916,Triggered Landmine
+2917,Chemical Bomb
+2918,Landmine Auto-detonation
+2919,Briny Veil
+2920,Briny Veil
+2921,Hyperflame
+2922,Heat Breath
+2923,Fireball
+2924,Fireball
+2925,Tail Smash
+2926,Tail Smash
+2927,Deadly Hold
+2928,Wild Charge
+2929,Demon Eye
+2930,Demon Eye
+2931,Apotheosis
+2932,Head Butt
+2933,Bull Charge
+2934,Arresting Gaze
+2935,Cold Stare
+2936,Baleful Glint
+2937,Scission Thrust
+2938,Scission Thrust
+2939,Microwall
+2940,Microwall
+2943,??????????
+2944,1000-tonze Swing
+2945,Predatorial Instinct
+2946,Predatorial Instinct
+2947,Discipline
+2948,Discipline
+2949,Discipline
+2950,Discipline
+2951,Discipline
+2952,Discipline
+2953,Ballistic Missile
+2954,Ballistic Missile
+2955,Ballistic Missile
+2956,Ballistic Missile
+2957,Ballistic Missile
+2958,Ballistic Missile
+2959,Baleful Glint
+2960,Jettatura
+2961,Mold Burst
+2962,Mold Burst
+2963,Diabolic Curse
+2964,Diabolic Curse
+2965,Critical Gravity
+2966,Critical Gravity
+2967,attack
+2968,attack
+2969,Camisado
+2970,Nightmare
+2971,Nightmare
+2972,Noctoshield
+2973,Ultimate Terror
+2974,Ultimate Terror
+2975,Night Terror
+2976,Night Terror
+2977,Pavor Nocturnus
+2978,Pavor Nocturnus
+2979,Graviball
+2980,Death Ray
+2981,Hex Eye
+2982,Hex Eye
+2983,Loom
+2984,Paralyze III
+2985,Paralyze III
+2986,Forked Lightning
+2987,Chain Lightning
+2988,Greater Memory
+2989,Venomous Tail
+2990,Electroblast
+2991,attack
+2992,Diffusion Ray
+2993,Brainjack
+2994,Allagan Field
+2995,Anti-hero Artillery
+2996,Homing Missile
+2997,Inertia Stream
+2998,Ballistic Missile
+2999,Atomic Ray
+3000,attack
+3001,Diffusion Ray
+3002,Allagan Field
+3003,Gaseous Bomb
+3004,Homing Missile
+3005,Inertia Stream
+3006,Ballistic Missile
+3007,_rsv_47901_-1_1_0_0_SE2DC5B04_EE2DC5B04
+3008,Critical Surge
+3009,Whirlwind Slash
+3010,Whirlwind Slash
+3011,Whirlwind Slash
+3012,Whirlwind Slash
+3013,Bitter End
+3014,Bitter End
+3015,Pradamante
+3016,Pradamante
+3017,Giga Jump
+3018,Giga Jump
+3019,Frog Song
+3020,Tiny Song
+3021,Rocket Punch
+3024,Wind Slash
+3025,Wind Slash
+3026,Mog Creation
+3027,Mooglesse Oblige
+3028,To Arms
+3029,Royal Rouse
+3030,Mog Meteor
+3031,1000-kuponze Swipe
+3032,Moogle-Go-Round
+3033,Stifling Mogdark
+3034,Searing Moglight
+3035,Mog Malison
+3036,Moogle Magicks
+3037,Delta Mog Attack
+3038,Mog Anthem
+3039,Mog Creation
+3040,Mooglesse Oblige
+3041,Royal Rouse
+3042,Mog Meteor
+3043,1000-kuponze Swipe
+3044,Moogle-Go-Round
+3045,Stifling Mogdark
+3046,Searing Moglight
+3048,Delta Mog Attack
+3049,Mog Anthem
+3050,Supercurse of No Escape
+3051,Standstill
+3052,Earth Crusher
+3053,Dread Tide
+3054,Dread Tide
+3055,Dread Tide
+3056,Dread Tide
+3057,Dread Tide
+3058,Dread Tide
+3059,Binding Coil
+3061,Petrifaction
+3062,Petrifaction
+3063,Savage Swipe
+3064,Savage Swipe
+3065,Bomb Spark
+3066,Bomb Spark
+3067,Electrogenetic Force
+3068,Electrocute
+3069,Career
+3070,Needle Burst
+3072,Career
+3073,Needle Burst
+3074,Goblin Rush
+3075,Bomb Toss
+3076,Snipethoom
+3077,Barrel Toss
+3078,Glider Ram
+3079,Glider Ram
+3080,Bomb Toss
+3081,Barrel Toss
+3082,Scramble
+3083,attack
+3084,Flame Thrower
+3085,Bombardment
+3087,Carpet Bomb
+3088,Giant Bomb
+3089,attack
+3090,Flame Thrower
+3091,Chain Mine
+3092,Burst
+3093,Ball of Malice
+3094,Ceruleum Explosion
+3095,Massive Explosion
+3096,Massive Explosion
+3097,Burst
+3098,Big Burst
+3099,Bestial Roar
+3100,Bestial Roar
+3101,Cross Lance
+3102,Cross Lance
+3103,Delta Mog Attack
+3104,Mog Meteor
+3105,Blighted Bouquet
+3106,Thorn Whip
+3107,Thorn Whip
+3108,Oversurge
+3109,Oversurge
+3110,??
+3111,Splash
+3113,Grovel
+3114,Grovel
+3118,Asphyxiation
+3119,Bombardment
+3121,Burst
+3122,Burst
+3201,Queen's Orders
+3202,Catching Claws
+3203,Roar
+3204,Hydroball
+3205,Empty Soul
+3206,Tail Slap
+3207,Entangle
+3208,Occult White Wind
+3209,Whirling Slash
+3210,Critical Bite
+3211,Third Leg Forward
+3212,Warlock's Tide
+3213,Spite of the Sky Elders
+3214,Sweeping Gouge
+3215,Lumisphere
+3216,Flamespitter
+3217,Abyssal Solace
+3218,Heliovoid
+3219,Shadow Burst
+3220,Jester's Reap
+3221,Spin
+3222,Spin
+3223,Grand Toss
+3224,Heavy Scrapline
+3225,Spell Flame
+3226,Bellows
+3227,Ringscross Strikes
+3228,All for One
+3229,Evil Emission
+3230,Bodyweight Exorcism
+3231,Tiny Warp
+3232,Arcane Beacon
+3233,_rsv_50718_-1_1_0_0_SE2DC5B04_EE2DC5B04
+3234,Arachnid Funnel
+3235,Venom Eruption
+3236,Conformity
+3237,Passage of Naught
+3238,Conformity
+3239,Shortsword and Sorcery
+3240,Empty Seed
+3241,Blackfire Blaze
+3242,Brand of Purgatory
+3243,Ink Jet
+3244,Tremblor
+3245,Desert Storm
+3246,Lightning Bolt
+3247,Crackle Hiss
+3248,Fey Caress
+3249,Fey Wind
+3250,Erratic Blaster
+3251,Electrification
+3252,Wild Charge
+3253,Electric Burst
+3254,Static Discharge
+3255,Snow Drift
+3256,Buffet
+3257,Tundra
+3258,Cold Wave
+3259,Ice Guillotine
+3260,Jester's Reap
+3261,Bitter End
+3262,Death
+3263,Subduction
+3264,(?)??????:??????:???????:??????????3
+3265,Redfire Blaze
+3266,Fermata
+3267,Liberation
+3268,Flare Star
+3269,Burst
+3270,Chandrahas
+3271,Particle Beam
+3272,Laughing Moon
+3273,Radiance
+3274,White Breath
+3275,Mini
+3276,Sabik
+3277,Rejuvenation
+3278,Double Dive
+3279,Reflux
+3281,attack
+3282,attack
+3283,Shock Strike
+3284,Shock Strike
+3285,Thunderspark
+3286,Thunderspark
+3287,Thunderstorm
+3288,Thunderstorm
+3289,Scourge of Thunder
+3290,Thunderstorm
+3291,Judgment Bolt
+3292,Judgment Bolt
+3293,Chaotic Strike
+3294,Chaotic Strike
+3295,Rolling Thunder
+3296,Rolling Thunder
+3298,Conductivity
+3299,Conductivity
+3300,Thunderbolt
+3301,Thunderbolt
+3302,Increased Sentence
+3303,Thunderbolt
+3304,Thunderbolt
+3306,Astral Punch
+3307,Knuckle Press
+3308,Knuckle Press
+3309,Goldor Fire III
+3310,Burning Rave
+3311,Burning Rave
+3312,Goldor Blast
+3313,Aura Cannon
+3314,Ancient Quake
+3315,Ancient Quake
+3316,Ancient Quaga
+3317,Ancient Quaga
+3318,Unmitigated Explosion
+3319,Aetherochemical Reaction
+3320,Acceleration Bomb
+3321,Aetherochemical Explosion
+3322,Coloratura
+3323,Coloratura
+3324,Firaga Forte
+3325,Firaga Forte
+3326,Blizzaga Forte
+3327,Blizzaga Forte
+3328,Thundaga Forte
+3329,Electric Excess
+3330,Thundaga Forte
+3331,Midwinter Tragedy
+3332,Midwinter Tragedy
+3333,Cavatina
+3334,Cavatina
+3335,Dark Dome
+3336,Cavatina
+3337,Ranine Comedy
+3338,Ranine Comedy
+3340,Pyrotechnics
+3341,Pyrotechnics
+3342,Aetherochemical Explosion
+3343,Pyrotechnics
+3345,Seize
+3346,Hurl
+3347,Ancient Flare
+3348,Ancient Flare
+3349,Unholy
+3350,Unholy
+3351,Daybreak
+3352,Daybreak
+3353,Firewalker
+3354,Firewalker
+3355,Topple
+3356,Topple
+3359,Curtain Call
+3360,Curtain Call
+3361,Astral Punch
+3362,Astral Punch
+3365,Blood Moon
+3366,Blood Moon
+3367,Deathstream
+3368,Deathstream
+3369,Vile Utterance
+3370,Vile Utterance
+3371,Hunter's Moon
+3372,Aura Curtain
+3373,Spiral Spin
+3374,Spiral Spin
+3375,Quarry Lake
+3376,Daybreak
+3377,Daybreak
+3378,Daybreak
+3379,Force of Restraint
+3380,Searing Chain
+3381,Water and Wine
+3382,Infinite Anguish
+3383,Wallop
+3384,Wallop
+3385,Clearout
+3386,Clearout
+3387,Water Cannon
+3388,Wallop
+3389,Wallop
+3390,Clearout
+3391,Clearout
+3394,Ink Blot
+3395,Ink Blot
+3396,Electrocution
+3397,Thunderstorm
+3398,Mini
+3399,Smolder
+3400,Shiver
+3401,Shudder
+3402,Shudder
+3403,The Last Bout
+3404,The Last Bout
+3405,The Last Dance
+3406,The Last Dance
+3407,The Last Song
+3408,The Last Song
+3409,Douse
+3410,Douse
+3411,Drench
+3412,Drench
+3413,Scale Ripple
+3414,Scale Ripple
+3415,Smolder
+3416,Ink Blot
+3417,Ink Blot
+3418,Ink
+3419,Ink
+3420,Ripe Banana
+3421,Browbeat
+3422,Chest Thump
+3423,Chest Thump
+3424,Streak
+3425,Burst
+3426,World's End
+3427,Freshwater Cannon
+3428,Upwell
+3429,Spittle
+3430,????????
+3431,Spittle Splatter
+3432,Riptide
+3433,Watery Grave
+3434,Watery Grave
+3435,Watery Grave
+3437,Waterwhirl
+3438,Waterwhirl
+3439,Surface Breach
+3440,Surface Breach
+3441,Whirlpool
+3442,Whirlpool
+3443,Blast of Chaos
+3444,Aura
+3445,Hunter's Moon
+3446,Hunter's Moon
+3447,the Lion's Breath
+3448,Nip
+3449,Agony
+3450,Agony
+3451,Agony
+3452,Agony
+3453,Strident Scream
+3454,Strident Scream
+3455,Flounder
+3456,Flounder
+3457,Brackish Rain
+3458,Brackish Rain
+3459,Brackish Drop
+3460,Brackish Drop
+3461,Hatch
+3462,Big Scissors
+3463,Bubble Bath
+3464,Bubble Bath
+3465,Jaws of Death
+3466,Frost Blade
+3472,Iron Justice
+3473,Iron Justice
+3474,Cloudcover
+3475,Cloudcover
+3476,Black Nebula
+3477,Black Nebula
+3478,Black Waves
+3479,Soul Burst
+3480,Black Mana Burst
+3481,Spirit Burst
+3482,Soul Charge
+3483,Eyes for You
+3484,Eyes for You
+3485,Head over Heels
+3486,In Sickness and in Health
+3487,Pure Will
+3488,Infatuation
+3489,Iron Justice
+3490,Iron Justice
+3491,Iron Justice
+3492,Iron Justice
+3493,Iron Justice
+3494,Iron Justice
+3495,Inner Demons
+3496,Inner Demons
+3497,Hard Stomp
+3498,Hard Stomp
+3499,Diamondback
+3502,Jet Exhaust
+3503,Whipstream
+3504,Falling Sky
+3505,Falling Sky
+3506,Ripper Claw
+3507,Ripper Claw
+3508,Fireball
+3509,Fireball
+3510,Heat Breath
+3511,Heat Breath
+3512,Tail Smash
+3513,Tail Smash
+3514,Missionary's Charge
+3515,Ring Build
+3516,Ancient Wrath
+3517,Iron Kiss
+3518,Cannonball Ricochet
+3519,Spindly Finger
+3520,Spindly Finger
+3521,Cannonball Ricochet
+3522,Roast
+3523,Roast
+3524,Ram
+3525,Ram
+3526,Teary Twirl
+3527,Teary Twirl
+3528,Pluck and Prune
+3529,Pluck and Prune
+3530,Pungent Pirouette
+3531,Pungent Pirouette
+3532,Heirloom Scream
+3533,Heirloom Scream
+3534,Pollen
+3535,Pollen
+3536,Mystery Waltz
+3537,Low Voltage
+3538,Low Voltage
+3539,Object 130
+3540,Object 130
+3541,Auto-cannons
+3542,Auto-cannons
+3543,Self-detonate
+3544,Self-detonate
+3548,Wild Charge
+3550,Rotting Arrow
+3551,Rotting Arrow
+3554,Tantrum
+3555,Tantrum
+3560,Self-destruct
+3561,Self-destruct
+3562,Whorl of the Mind
+3563,Imperium
+3564,??:2014?????
+3565,Deep Chill
+3566,Flower Devour
+3567,Flower Devour
+3568,Inertia Stream
+3569,Brainjack
+3570,Chain Lightning
+3571,Chain Lightning
+3572,Burning Rave
+3573,Stool Pelt
+3574,Stool Pelt
+3576,Comet Impact
+3577,Comet Impact
+3578,Meteor Impact
+3579,Meteor Impact
+3580,Toad Breath
+3581,Toad Breath
+3586,Void Call
+3588,Encierro
+3589,Encierro
+3591,??
+3592,Flying Frenzy
+3593,Dragon's Blood
+3594,Jettatura
+3595,Jettatura
+3596,Charybdis
+3597,????:?????:????????:???????????
+3598,Icicle Impact
+3599,Icicle Impact
+3600,Hiemal Storm
+3601,Hailstorm
+3602,Laws of Ice
+3603,Thousand-year Storm
+3605,Snow Drift
+3606,Snow Drift
+3607,????:???
+3608,Electric Shock
+3609,Electric Shock
+3610,Thunderous Shower
+3611,Heat Lightning
+3612,Goldor Thunder III
+3613,Cyclonic Chaos
+3614,Lava Spit
+3615,Seed of the Rivers
+3616,the Dusk Star
+3617,Seed of the Sea
+3618,Self-detonate
+3619,Nanospore Cloud
+3620,Nanospore Cloud
+3621,Snortsault
+3622,Snortsault
+3623,FUNGAH
+3624,FUNGAH
+3627,Mortal Vow
+3628,Arm of Purgatory
+3629,Chain of Purgatory
+3630,Chain of Purgatory
+3631,Once Burned
+3632,Whitefire
+3633,Bluefire
+3634,Bluefire
+3637,Megaflare
+3638,Heavy Cannon
+3639,Megaflare
+3640,Megaflare
+3641,Massive Explosion
+3642,Fell Flow
+3643,Earth Shaker
+3644,Kothornos Quake
+3645,Megaflare
+3646,Megaflare
+3647,Megaflare
+3648,Megaflare
+3649,Megaflare Strike
+3650,Earth Shaker
+3651,Earth Shaker
+3652,Earth Shaker
+3665,Seed Crystals
+3666,Hall of Stone
+3669,Hall of Lead
+3670,Hall of Lead
+3675,Aqua Ball
+3676,Aqua Ball
+3694,Thunderous Force
+3695,Raiton
+3701,Self-detonate
+3702,Burst
+3706,Cold Wave
+3707,Cold Wave
+3712,Sulphurous Breath
+3713,Level 100 Flare
+3714,Level 100 Flare
+3715,Level 150 Death
+3716,Level 150 Death
+3717,Sullen Gaze
+3718,Ireful Gaze
+3721,Elemental Cascade
+3722,Breath of Light
+3723,Elemental Cascade
+3724,Breath of Fire
+3725,?????
+3726,Breath of Ice
+3727,Elemental Cascade
+3728,Breath of Thunder
+3729,Elemental Cascade
+3730,Breath of Poison
+3731,Banishing Light
+3732,Banishing Light
+3733,Flood of Darkness
+3734,Rot Gas
+3739,Feint Particle Beam
+3740,Feint Particle Beam
+3741,Particle Beam
+3742,Particle Beam
+3743,Explosion
+3744,Particle Beam
+3745,??:?????:GT:????????
+3746,??:?????:GT:????????
+3747,Vortex
+3748,Aetherial Pull
+3749,Bounds of Sin
+3750,Aetherial Tide
+4095,Admonishment
+4096,Admonishment
+4097,Antipathy
+4098,Antipathy
+4099,Antipathy
+4100,Antipathy
+4101,Explosive Countdown
+4102,Antipathy
+4121,???:???????:??:??????????:????:DPS:???????:???
+4122,Spew
+4123,Spew
+4124,Grip of Fury
+4125,Grip of Fire
+4126,Grip of Fens
+4127,Tear of Night
+4128,Web
+4129,Web
+4130,Direct Seeding
+4131,Aero II
+4132,Windage
+4133,Buffet
+4134,Great Whirlwind
+4135,Turbulence
+4136,Shock
+4137,Invisible Touch
+4138,Dragon Night
+4139,Dragonstrike
+4140,Sword Dance
+4141,Sword Dance
+4142,Ice Grid
+4143,Icewind
+4144,Kurui-gekko
+4145,Moonlight
+4146,Kurui-kasha
+4147,Bloomshower
+4160,Dragonkiller
+4161,Dragonkiller
+4162,Underfoot
+4163,Underfoot
+4177,Comet
+4178,Comet
+4179,Magitek Meteor
+4180,Meteor
+4181,Flintlock
+4182,End of Days
+4183,Bombardment
+4184,Carpet Bomb
+4361,Burst
+4364,Feather Rain
+4365,Feather Squall
+4368,Profane Pressure
+4369,Black Eruption
+4370,Alternating Current
+4371,Electrocution
+4372,Shock
+4373,Lightning Bolt
+4374,Levinbolt
+4375,Comet
+4376,Comet
+4377,Heavensfall
+4378,Heavensfall
+4379,Burst
+4380,Heavensfall
+4381,Light Shot
+4382,Chaos Blast
+4383,Aether Mortar
+4384,Aether Mortar
+4385,Charged Aether Mortar
+4386,Charged Aether Mortar
+4387,Hydrothermal Missile
+4388,Resin Bomb
+4389,Resin Bomb
+4390,Heavy Impact
+4391,Heavy Impact
+4392,Light Blast
+4393,Light Impact
+4395,Tidal Guillotine
+4396,Protean Wave
+4397,Sluice
+4398,Sluice
+4399,Attract
+4400,Magnetism
+4401,Magnetic Jolt
+4402,Ultramagnetism
+4403,??
+4404,Repel
+4405,Dropsea
+4406,Baleen Bomb
+4407,Groundstorm
+4408,Rain Storm
+4409,Thunderhead
+4410,Thunderhead
+4411,?????�????
+4412,Lightning Bolt
+4413,Ancient Circle
+4414,Ancient Circle
+4415,Dark Eruption
+4416,Ancient Eruption
+4417,End of Days
+4418,Entropic Flame
+4419,Overbite
+4433,Void Slash
+4434,Double Sever
+4435,Tapas
+4436,Atmospheric Compression
+4437,Broken Glass
+4438,Broken Glass
+4446,Judgment Nisi
+4447,Exhaust
+4448,Exhaust
+4449,Final Sentence
+4457,Aetherochemical Laser
+4458,Aetherochemical Laser
+4459,Magitek Ray
+4460,Aetherochemical Laser
+4461,Magitek Ray
+4462,Aetherochemical Laser
+4463,Light Pillar
+4464,Light Pillar
+4465,Ascalon's Mercy
+4466,Ascalon's Mercy
+4467,Meteorain
+4468,Meteorain
+4469,Holy Bladedance
+4470,Shock
+4471,Conviction
+4474,Electrify
+4475,Eternal Conviction
+4476,Dimensional Collapse
+4477,Dimensional Collapse
+4478,Heavy Impact
+4479,Heavy Impact
+4482,Burning Chains
+4483,Holy Chain
+4484,Turret Charge
+4485,the Light of Ascalon
+4486,the Light of Ascalon
+4487,Void Spark
+4496,Soulbane Shock
+4497,Paradox
+4501,Dragon's Blood
+4502,Retreat
+4503,Disclosure
+4504,Disclosure
+4506,Charybdis
+4507,Revengeance
+4508,Prelude to Slaughter
+4509,Prelude to Slaughter
+4510,Slaughter
+4511,Slaughter
+4516,Aetherial Pool
+4521,Death Rings
+4522,Black Menace
+4523,Levinbolt
+4524,Lightning Storm
+4528,Dark Blizzard II
+4529,Dark Blizzard II
+4530,Blazing Blast
+4531,Dark Fire II
+4532,Aetherial Pull
+4533,Limbs of Lead
+4534,Tramontane
+4536,Weighing of the Heart
+4537,Fated Burn Mark
+4538,Flare Star
+4540,Magitek Hook
+4543,Breach Blast
+4544,Breach Blast
+4547,Mortal Revolution
+4548,Mortal Revolution
+4553,Water Drop
+4554,Hydrobomb
+4555,Acid Rain
+4556,Bile Bombardment
+4557,Sickle Slash
+4558,Sickle Slash
+4559,Bloody Harvest
+4560,Bloody Harvest
+4561,Touchdown
+4562,Empty Shadow
+4563,Malicious Weave
+4564,Rush
+4565,Landing
+4566,Cosmic Kiss
+4567,Pierce
+4568,Hallowed Wings
+4570,Great Whirlwind
+4571,Great Whirlwind
+4573,Pestilent Penance
+4574,Self-destruct
+4575,Soar
+4576,Cauterize
+4577,_rsv_47845_-1_1_0_0_SE2DC5B04_EE2DC5B04
+4578,_rsv_47855_-1_1_0_0_SE2DC5B04_EE2DC5B04
+4579,Rush
+4580,Lunar Halo
+4581,Big Burst
+4582,Sphere Shatter
+4583,Unmitigated Explosion
+4584,Explosion
+4585,Demonic Descent
+4586,Gehenna
+4587,J Kick
+4588,J Storm
+4597,Supercharge
+4598,Blassty Charge
+4599,Ahura Mazda
+4600,Bubble Burst
+4601,Burn
+4602,Hatch
+4603,Aratama
+4604,Lunar Halo
+4613,Void Wall
+4614,Void Ward
+4615,Sticky Wicket
+4616,Mucus Bomb
+4617,Petal
+4618,Petal
+4620,Extremely Bad Breath
+4621,Extremely Bad Breath
+4622,Earthy Breath
+4623,Earthy Breath
+4624,Crossfire
+4625,Crossfire
+4626,Keen Moonbeam
+4627,Luminous Lancet
+4628,attack
+4629,Aether Detonation
+4630,Aether Detonation
+4631,the Dragon's Glory
+4632,the Dragon's Glory
+4635,Body Slam
+4636,Body Slam
+4639,Loose Screw
+4640,Loose Screw
+4642,Aethershot
+4643,Ratzon
+4644,Hall of Sorrow
+4645,Ratzon
+4646,Orogenic Deformation
+4647,Fiendish Wail
+4653,Lindwurm's Stone III
+4654,Yesod
+4689,Magic Hammer
+4690,Corporal Punishment
+4691,Crackling Howl
+4692,Therapeutic Shock
+4694,Minefield
+4695,Minefield
+4696,Hidden Minefield
+4697,Hidden Minefield
+4698,_rsv_47899_-1_1_0_0_SE2DC5B04_EE2DC5B04
+4699,Crashing Wave
+4700,_rsv_47897_-1_1_0_0_SE2DC5B04_EE2DC5B04
+4701,Crashing Thunder
+4702,Upwell
+4703,Punishing Wave
+4704,_rsv_47944_-1_1_0_0_SE2DC5B04_EE2DC5B04
+4705,Punishing Thunder
+4706,Earth Missile
+4707,Earth Missile
+4708,Earth Missile
+4709,Ice Missile
+4710,Mimicked Fire Blast
+4711,Fire Beam
+4712,Stonefang
+4713,Drill Drive
+4714,Heart of the Chakram
+4715,Heart of the Chakram
+4716,Enumeration
+4717,Enumeration
+4718,Raging Artillery
+4719,Short Needle
+4720,Penetrator Missile
+4721,Long Needle
+4722,Shockwave
+4723,J Wave
+4724,Flood
+4725,Flood
+4726,Water III
+4727,Water III
+4728,Unholy Darkness
+4729,Ancient Holy
+4730,Indulgent Will
+4731,Hurricane Wing
+4732,Ancient Aero
+4733,Weal of Wind
+4734,Ancient Aero
+4735,????
+4736,Stone II
+4737,Ancient Stone
+4738,Stone
+4739,Ancient Libra
+4740,Ancient Libra
+4741,Aetherial Exchange
+4742,????
+4744,Earth Shaker
+4745,Earth Shaker
+4746,Pillar of Mercy
+4747,Frog Song
+4748,Odious Croak
+4749,Tainted Flood
+4750,Water Bomb
+4751,Ascension
+4752,Ascension
+4756,Arcane Recoil
+4757,Height Error
+4758,Height Error
+4773,Pom Praise
+4774,Pom Praise
+4775,Akh Rhai
+4776,Holy Breath
+4777,Lightning Bolt
+4778,Lightning Bolt
+4832,Pom Praise
+4833,Demoniacal Mogcane
+4835,Caloric Theory
+4836,Cannonfire
+4837,Mucal Glob
+4838,Excretion
+4839,Ice Rondel
+4840,Iceberg
+4842,Ghomoro Splitter
+4843,Ghomoro Splitter
+4844,Theriac
+4845,Blast Trap
+4846,Ultimum
+4847,Doomsday
+4848,Cosmo Meteor
+4849,Meteor
+4850,attack
+4851,attack
+4852,attack
+4853,attack
+4854,attack
+4855,Execration
+4871,Landmine
+4872,Landmine
+4873,Luring Trap
+4874,Enfeebling Trap
+4875,Impeding Trap
+4876,Impeding Trap
+4877,Fae Trap
+4878,Explosion
+4879,Detonator
+4880,Weapon Enhancement
+4881,Gear Enhancement
+4882,Raise
+4883,Extension
+4884,Extension
+4885,Darkdragon Dive
+4889,Tiny Quake III
+4890,Tremblor
+4891,Tiny Quake III
+4892,Tremblor
+4893,Tiny Quake III
+4894,Tremblor
+4895,Twilight Shadow
+4896,Punishing Ray
+4897,Mana Explosion
+4898,Mana Explosion
+4899,Disintegration
+4900,Mana Eruption
+4901,Keen Tempest
+4902,Necropurge
+4903,Dead or Undead
+4904,Necropurge
+4911,Quasar
+4912,Quasar
+4913,Quasar
+4914,Quasar
+4915,Gravitational Explosion
+4916,Dischordant Damnation
+4917,Explosion
+4919,Brushfire
+4920,Bibliocide
+4921,Occult Aero II
+4922,Ixali Aero II
+4923,Aero III
+4924,Ixali Aero III
+4925,Dark Vomit
+4926,Dark
+4927,Aetherial Release
+4928,Aetherial Release
+5013,Gobslice Mooncrops
+5014,Gobslice Mooncrops
+5019,Blazing Scourge
+5020,blazing scourge
+5021,Ordained Capital Punishment
+5022,Holy Scourge
+5023,Gravitational Anomaly
+5024,Gravitational Anomaly
+5025,Plaint of Obloquy
+5026,Plaint of Obloquy
+5027,Plaint of Surety
+5028,Plaint of Severity
+5029,Plaint of Solidarity
+5030,Plaint of Solidarity
+5031,Judgment Crystal
+5032,Judgment Crystal
+5033,Holy Bleed
+5034,Holy Bleed
+5035,Communion
+5036,Communion
+5037,Impact Stream
+5038,Confession
+5039,Cast Judgment
+5040,Cast Judgment
+5041,Divine Judgment
+5042,Divine Judgment
+5043,Dark Dealing
+5047,Pumpkin
+5048,Turali Stone III
+5049,Falling Rock
+5050,Perfect Landing
+5051,Perfect Landing
+5052,Ordered Fire
+5053,Hawk Blaster
+5054,Hawk Blaster
+5055,Hawk Blaster
+5056,Photon
+5057,Pole Shift
+5058,Electromagnetic Burst
+5059,Quasar
+5060,Quasar
+5062,Celestial Trail
+5063,Scorched Earth
+5064,Optical Sight
+5065,Optical Sight
+5066,Optical Sight
+5067,Sacrament
+5068,Radiant Sacrament
+5081,Ruinous Omen
+5082,Ruinous Omen
+5083,Flaming Halberd
+5084,Flaming Halberd
+5085,_rsv_47943_-1_1_0_0_SE2DC5B04_EE2DC5B04
+5086,the North Star
+5087,Rupture
+5088,the South Star
+5089,Flamesnare
+5090,Infinite Ice
+5098,Surface Missile
+5099,Shrapnel Shell
+5100,Advanced Nox
+5101,Nox
+5102,Ice Burst
+5103,Void Blizzard III
+5104,Void Blizzard IV
+5105,Void Blizzard IV
+5216,Whispering Dawn
+5259,Fey Union
+5314,Breath Wing
+5315,Void Aero III
+5316,Void Aero IV
+5318,Void Death
+5319,Void Death
+5320,Bolt of Darkness
+5321,Bolt of Darkness
+5322,Hot Foot
+5323,Blackfire
+5331,Alexandrian Thunder
+5332,Sparkstorm
+5347,the North Star
+5348,the North Star
+5349,Magitek Pulse
+5350,Magitek Pulse
+5351,Fire II
+5352,Fire II
+5353,Blizzard II
+5354,Blizzard II
+5355,Thundering Pillar
+5356,Thunder II
+5357,Heavensward
+5358,Overflow
+5359,Counter
+5360,Left-arm Metal Cutter
+5361,Ketu Cutter
+5362,Ketu Wave
+5363,Ketu Wave
+5364,Right-arm Ray
+5365,Rahu Ray
+5366,Right-arm Comet
+5367,Rahu Comet
+5368,Ceruleum Explosion
+5369,Incinerating Lahar
+5372,Rolling Barrage
+5373,Concussive Oscillation
+5374,Blissful Arrow
+5375,Blissful Spear
+5376,Blissful Spear
+5377,Blissful Hammer
+5378,Blissful Hammer
+5379,Fluid Dynamic
+5380,Rasen Kaikyo
+5381,Seasplitter
+5382,Explosion
+5383,Sheer Force
+5384,Sheer Force
+5385,Stepped Leader
+5386,Levinbolt
+5387,Electrocution
+5388,Electrocution
+5389,Churn
+5390,??:??
+5391,Seasplitter
+5392,Seasplitter
+5393,Seasplitter
+5394,Seasplitter
+5395,Seasplitter
+5412,Churn
+5413,Great Torrent
+5817,Airborne Explosion
+5818,Garlean Fire
+5819,Anti-personnel Missile
+5820,Magitek Missiles
+5821,Precision Guided Missile
+5822,Magitek Missiles
+5823,Flagrant Fire III
+5824,Delay-action Charge
+5825,Unmitigated Explosion
+5826,Thermobaric Charge
+5828,Silvered Edge
+5829,Art of the Sword
+5830,Gale Cut
+5831,Gale Cut
+5832,Dry Blows
+5833,Crumbling Crust
+5834,Reconstruct
+5835,Reconstruct
+5836,Tears from Hell
+5837,Tears from Hell
+5838,Destruction
+5843,Shear
+5844,Shear
+5845,Stone Age
+5846,Tremblor
+5847,Earthquake
+5848,Earthquake
+5849,-100 Gs
+5850,100 Gs
+5851,100 Gs
+5852,Main Quake
+5853,Main Quake
+5854,Explosion
+5855,Explosion
+5856,Gravitational Manipulation
+5857,Gold Thunder
+5858,Fourfold Sacrifice
+5859,Gravitational Explosion
+5860,Gravitational Explosion
+5861,Gold Thunder
+5862,Gravitational Explosion
+5863,Menace
+5864,Weighted Wing
+5865,Tidal Wave
+5866,Tidal Wave
+5867,Hellfire
+5868,Hellfire
+5869,Judgment Bolt
+5870,Judgment Bolt
+5871,Diamond Dust
+5872,Diamond Dust
+5873,_rsv_50546_-1_1_0_0_SE2DC5B04_EE2DC5B04
+5874,Earthen Fury
+5875,Aerial Blast
+5876,Aerial Blast
+5877,Ice Storm
+5878,Levinbolt
+5879,Hypernova
+5880,Hypernova
+5881,Earth Breath
+5882,Earth Breath
+5883,Ice Storm
+5884,Ice Storm
+5885,Chainsaw
+5886,Chainsaw
+5887,Sanctified Holy
+5888,Holy Edge
+5889,Shrouded Holy
+5890,Holy Blur
+5892,Geothermal Flatulence
+5893,Geothermal Flatulence
+5894,Old
+5895,Old
+5897,Twin Bolt
+5898,Downburst
+5899,Downburst
+5901,Blissful Spear
+5902,Blissful Spear
+5903,Blissful Spear
+5904,Blissful Spear
+5905,Blissful Spear
+5906,Blissful Spear
+5912,attack
+5913,Chain Mine
+5917,Just Chilling
+5929,attack
+5936,_rsv_47885_-1_1_0_0_SE2DC5B04_EE2DC5B04
+5937,Blizzard III
+5938,Flare
+5939,Flare
+5940,Whelming Loss
+5941,Emptiness
+5942,Nihility
+5943,Rustling Wind
+5944,Ancient Aero
+5952,??:??????:??????:????:??????
+5953,Lightning Bolt
+5954,Lightning Bolt
+5957,Sword Dance
+5958,Sword Dance
+5962,Magitek Cannon
+5963,Magitek Cannon
+5970,Explosion
+5971,Explosion
+5973,Hellstorm
+5974,Autumn Ball
+5978,Hawk Blaster
+5979,Hawk Blaster
+5980,Thermobaric Explosive
+5981,Big Burst
+5982,Ceruleum Refill
+5985,Dragon Spirit
+5986,Dragon Spirit
+5987,Aetherial Ray
+5988,Aetherial Ray
+5989,Atomic Ray
+5990,Atomic Ray
+5991,??:???????????????????:RTI1:??1
+5992,Landwaker
+5993,Jagged Edge
+5994,Falling Rock
+5995,Falling Rock
+5997,Bahamut's Favor
+5998,Exaflare
+6000,Dark Vortex
+6001,Ring of Chaos
+6002,Disquiet
+6003,Cross of Chaos
+6004,Vertical Plunge
+6005,Bloody Puddle
+6006,Lindwurm's Water III
+6007,Bloody Puddle
+6008,Tyrant's Flare II
+6009,Mystic Flame
+6019,Sacrifice
+6020,Burn
+6021,Rail of the Rat
+6022,Immolate
+6023,Rail of the Rooster
+6024,Unrelenting
+6025,Unrelenting
+6026,Crush Helm
+6027,Crush Weapon
+6028,Crush Weapon
+6029,Embrace
+6030,Embrace
+6031,Embrace
+6033,Heavenly Subjugation
+6040,Earth Shaker
+6041,Earth Shaker
+6042,the Word
+6043,the Word
+6044,Maverick
+6045,Maverick
+6046,Dismount
+6047,Dread Tide
+6048,Dread Tide
+6049,Manusya Blizzard III
+6050,Chill
+6051,Light Pillar
+6052,Light Pillar
+6055,Massacre Elegy
+6056,Horde Lullaby
+6057,Ode of the Underfoot
+6058,Massacre Elegy
+6059,Inhale
+6060,?????
+6061,Ronkan Bind III
+6062,Ronkan Bind III
+6063,Ink
+6064,Ink
+6065,Sunbeam
+6066,Saintly Beam
+6067,Acid Rain
+6068,Acid Rain
+6069,Head On
+6070,Head On
+6071,Diabolic Headlamp
+6073,Flash Torrent
+6074,Flash Torrent
+6075,Flash Torrent
+6076,Flash Torrent
+6077,Repay
+6078,the Price
+6079,Flash Fire
+6080,Flash Fire
+6081,Twofold Tempest
+6082,Flash Gale
+6083,Downpour
+6084,Massive Impact
+6085,Earthquake
+6086,Bitter Chill
+6087,Blizzard Blitz
+6088,Frigid Ring
+6089,Blizzard Blitz
+6090,Thrumming Thunder III
+6091,Thrumming Thunder
+6092,Fustuarium
+6093,Shockwave
+6094,Wave Cannon
+6095,Wave Cannon
+6096,Pulse Wave
+6097,Gravitational Wave
+6098,Gravitational Wave
+6099,Gravitas
+6100,Gravitas
+6101,Vitrophyre
+6102,Vitrophyre
+6103,Ave Maria
+6104,Ave Maria
+6105,the Path of Light
+6106,the Path of Light
+6107,the River of Light
+6108,the River of Light
+6109,Explosive Theorem
+6110,Meteor
+6111,Atomic Impact
+6112,Meteor
+6113,Comet
+6114,Meteor
+6352,Volcanic Drop
+6353,Volcanic Debris
+6358,Wings of Destruction
+6359,Wings of Destruction
+6360,Trine
+6361,Trine
+6362,Trine
+6363,Trine
+6364,Timely Teleport
+6365,Hundredfold Havoc
+6366,Hundredfold Havoc
+6367,Gale Force
+6368,Gale Force
+6369,Ominous Wind
+6370,Ominous Wind
+6371,Vacuum Blade
+6372,Vacuum Blade
+6373,Aratama
+6374,Aratama
+6375,Aratama
+6376,Aratama
+6380,Aratama
+6381,Aratama
+6385,Intemperate Will
+6386,Intemperate Will
+6387,Indolent Will
+6388,Indolent Will
+6389,Absolute Authority
+6390,Allagan Flare
+6391,Flare Star
+6392,Flare Star
+6394,Forbidden Arts
+6395,Surging Flood
+6396,Demonic Wave
+6398,Twinbite
+6399,Rock Hard
+6400,Windfang
+6401,Wicked Tornado
+6402,Thermal Gust
+6403,Crimson Cyclone
+6406,Freefire
+6407,Freefire
+6408,Viscous Aetheroplasm
+6409,Viscous Aetheroplasm
+6413,Hydrowave
+6414,Tributary
+6415,Flames
+6418,Waxing Grudge
+6419,Waxing Grudge
+6420,Waning Grudge
+6421,Waning Grudge
+6422,Dance of the Dead
+6423,Rogue Wave
+6425,Tidal Shift
+6426,Upwell
+6427,Ivy Fetters
+6428,Ivy Fetters
+6429,Dispersivity
+6430,Dispersivity
+6440,Reverse Time Eruption
+6441,Time Eruption
+6442,Time Bomb
+6443,Time Bomb
+6444,Eruption
+6445,Eruption
+6448,????
+6449,Gust Front
+6450,Death Strike
+6451,Death Strike
+6452,Pulverize
+6453,Pulverize
+6454,Triboelectricity
+6455,Triboelectricity
+6456,Explosive Flare
+6457,Ignite
+6458,Whitewater
+6459,Whitewater
+6460,_rsv_47909_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6461,Briny Cannonade
+6463,Magnetic Genesis
+6464,Magnetic Genesis
+6465,Heavy Weight
+6466,Rake
+6469,Rake
+6470,Rake
+6471,Mangle
+6472,Tail Swing
+6473,Rush
+6474,Fire Breath
+6475,Flaming Recoil
+6476,Rush
+6477,Sweeping Flames
+6478,Mangle
+6479,Flaming Recoil
+6481,Protean Wave
+6482,Upwell
+6483,Tremblor
+6484,Tremblor
+6485,Quake
+6486,Intimidation
+6487,Cold Fog
+6488,Cold Fog
+6489,White Death
+6490,Frigid Needle
+6491,Fog Plume
+6492,Shardstrike
+6493,Shardstrike
+6494,Taproot
+6495,Taproot
+6498,Landslip
+6499,Landslip
+6500,Unshower
+6501,Quagmire
+6502,Mudrain
+6503,Quagmire
+6504,All-mighty Flames
+6505,Scathing Net
+6506,All-consuming Flames
+6507,Rekindle
+6508,Hotspot
+6509,Hotspot
+6510,_rsv_47859_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6511,Stray Flames
+6512,_rsv_47862_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6513,Stray Spray
+6514,Skyrending Swing
+6515,Cyclone
+6516,Earthquake
+6517,Earthquake
+6518,_rsv_47875_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6519,Knock Down
+6520,Knock Down
+6521,Knock Down
+6524,_rsv_47878_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6525,Big Bang
+6526,Big Bang
+6527,Big Bang
+6528,_rsv_47865_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6529,Azure Wings
+6530,Azure Wings
+6531,Crimson Wings
+6532,Crimson Wings
+6533,Extinguishment
+6534,Stygian Maw
+6535,Bloodied Maw
+6536,Bloodied Maw
+6537,Earth Shaker
+6538,Earth Shaker
+6539,Time Immemorial
+6540,Time Immemorial
+6541,Controlled Explosion
+6542,Explosion
+6543,Unmitigated Explosion
+6544,Apocalyptic Explosion
+6545,Storage Violation
+6546,Storage Violation
+6547,Storage Violation Obliteration
+6548,Critical Storage Violation
+6549,Flame Thrower
+6711,Flame Thrower
+6712,Afterburner
+6713,Afterburner
+6714,_rsv_47871_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6715,Shockwave
+6716,_rsv_47863_-1_1_0_0_SE2DC5B04_EE2DC5B04
+6717,Gekko
+6718,Gekko
+6719,Kasha
+6720,Kasha
+6721,Seasplitter
+6722,Seasplitter
+6723,Seasplitter
+6724,Seasplitter
+6725,Seasplitter
+6726,Seasplitter
+6727,??
+6728,Sniper Cannon
+6729,Floodlight
+6730,High-powered Sniper Cannon
+6731,Spotlight
+6732,Optimized Fire III
+6733,Optimized Fire III
+6734,Cosmo Meteor
+6735,Optimized Meteor
+6736,Ion Efflux
+6737,Ion Efflux
+6738,Oversampled Wave Cannon
+6739,Oversampled Wave Cannon
+6742,Wave Cannon
+6743,Wave Cannon
+6744,Critical Synchronization Bug
+6745,Critical Synchronization Bug
+6746,Critical Overflow Bug
+6747,Critical Overflow Bug
+6748,Critical Performance Bug
+6749,Critical Underflow Bug
+6750,Latent Defect
+6751,Latent Performance Defect
+6752,Cascading Latent Defect
+6753,Latent Performance Defect
+6754,Cascading Latent Defect
+6755,Patch
+6756,Patch
+6765,Hells' Gate
+6766,Chilling Draft
+6767,Ancient Blizzard
+6791,the Storm Within
+6792,the Storm Without
+6793,Wave Cannon
+6794,Condensed Wave Cannon Kyrios
+6795,Diffuse Wave Cannon Kyrios
+6796,Diffuse Wave Cannon Kyrios
+6797,Ekpyrosis
+6799,Freezing Missile
+6802,Wild Fire Beam
+6804,Freezing Missile
+6805,Great Typhoon
+6806,Great Typhoon
+6807,Great Typhoon
+6808,Great Typhoon
+6809,Great Typhoon
+6810,Great Typhoon
+6811,Great Typhoon
+6812,Great Typhoon
+6813,Fortune-blade Sigil
+6814,Fortune-blade Sigil
+6815,Fortune-blade Sigil
+6816,Calamity-blade Sigil
+6817,Serpent Descending
+6818,Serpent Descending
+6819,Serpent's Fang
+6820,Serpent's Fang
+6821,Serpent's Jaws
+6822,Serpent's Jaws
+6823,Karmic Curse
+6824,Karmic Curse
+6825,Shockwave
+6826,Auralight
+6827,Auralight
+6828,Holy II
+6829,Westward March
+6830,Auralight
+6831,Auralight
+6832,??
+6833,Searchlight
+6834,Hallowed Bolt
+6835,Crush Weapon
+6836,Ray of Light
+6837,Scalding Tank
+6839,Astral Rays
+6840,Unlucky Lot
+6841,Captivity
+6842,Unlucky Lot
+6843,Bright Aurora
+6844,Dark Aurora
+6845,Shooting Star
+6846,attack
+6851,Magitek Missile
+6852,Link-strike
+6853,Divine Ruination
+6854,Hallowed Bolt
+6855,Hallowed Bolt
+6857,Squish and Flick
+6858,Squish and Flick
+6860,attack
+6861,Crush Helm
+6862,Crush Armor
+6863,Sanctified Blizzard IV
+6864,Ghastly Grasp
+6865,Hallowed Bolt
+6866,Divine Ruination
+6874,Legendary Imbas
+6875,Sky-high Drive
+6876,Tartarean Thunder
+6878,Darkblight
+6879,Darkblight
+6880,Massive Explosion
+6881,Fatal Current
+6885,Infernal Howl
+6886,Interference
+6887,Interference
+6888,Heretic's Fork
+6889,Heretic's Fork
+6890,Executioner's Sword
+6891,Executioner's Sword
+6892,Deathly Ray
+6893,Deathly Ray
+6894,Hydrovent
+6896,Typhoon Wing
+6897,Typhoon Wing
+6898,Exegesis
+6899,Exegesis
+6900,Burst
+6901,Judged
+6902,Inescapable Illumination
+6903,Found Wanting
+6904,Divine Diminuendo
+6905,Divine Diminuendo
+6908,Sanctified Staccato
+6909,Sanctified Staccato
+6910,Holy Water
+6911,Targeted Quake
+6912,Electrothermia
+6913,Wood's Embrace
+6914,Void Water IV
+6915,Leafstorm
+6916,Dense Planting
+6917,War and Pease
+6918,Sparkling Intensifies
+6920,Drop of Light
+7138,Fey Blessing
+7140,Fey Illumination
+7187,Glittering Emerald
+7188,Gust
+7189,Glittering Emerald
+7190,Glittering Emerald
+7191,Radiant Aegis
+7192,Wind Blade
+7193,Wind Blade
+7194,Slipstream
+7195,Slipstream
+7196,Earthen Armor
+7422,God Ray
+7423,God Ray
+7424,God Ray
+7425,Explosion
+7426,Duel Descent
+7427,Soul and Body
+7428,Soul and Body
+7429,Dream of the Rood
+7430,Dream of the Rood
+7431,Soul and Body
+7432,Soul and Body
+7433,Holy Trinity
+7434,Guiding Light
+7435,Broken Faith
+7436,Shadow Spread
+7437,Double Misdirect
+7438,Laserblade
+7439,Allagan Thunder
+7440,Temporal Paradox
+7442,Bomb Out
+7443,Dark Nova
+7444,Vice of Greed
+7445,Overwhelming Force
+7446,Aetherial Pull
+7447,Hoard Wealth
+7448,Suspended Stone
+7449,Falling Rock
+7452,Tidal Wave
+7453,Wind Slash
+7459,Tidal Roar
+7461,Awesome Splash
+7462,Maelstrom
+7463,Tidalspout
+7464,Hydrobomb
+7465,Hot Water
+7466,Boiled Alive
+7467,Spilling Wave
+7468,Rip Current
+7469,Backbreaking Wave
+7470,Rock Fall
+7471,Paranormal Activity
+7473,Sanctified Quake III
+7478,Monstrosity
+7479,Merciless Left
+7480,Sparking Current
+7481,Goblibra
+7482,Static Filament
+7483,Haste
+7498,Pyric Circle
+7499,Pulse of the Land
+7500,Force of the Land
+7501,Weight of the Land
+7502,Landslide
+7503,Weight of the World
+7504,Avalanche Axe
+7505,Void Miasma
+7506,Unholy Darkness
+7507,Quietus
+7508,Shadowflame
+7509,Hell Wind
+7511,Endangered Flare
+7515,Sonic Arrow
+7516,Silver Stake
+7517,Divine Diminuendo
+7519,Massive Landslide
+7520,Earthen Fury
+7521,Dwarven Discharge
+7522,Tartarean Flame
+7523,Ancient Tornado
+7524,Water IV of the Seventh Dawn
+7525,Tornado of the Seventh Dawn
+7526,Water IV of the Seventh Dawn
+7527,Plunging Wave
+7528,Nether Blast
+7529,Tsunami
+7530,Flagrant Fire III
+7531,Paradoxum
+7532,Dark
+7533,Broken World
+7534,Meltdown
+7535,Shadow Spread
+7536,??????
+7543,Mortal Flame
+7544,Otherworldly Heat
+7545,Energy Blast
+7546,Incendiary Saturation Bombing
+7547,Radiate Heat
+7548,Incendiary Bombing
+7549,Automatic Cannon
+7550,Energy Dispersal
+7551,attack
+7552,Laser Sight
+7553,Short-range Missile
+7554,Short-range Missile
+7555,Shocking Discharge
+7559,Anti-personnel Missile
+7560,Anti-materiel Missile
+7561,Whipwind
+7562,Almighty Judgment
+7564,Ordained Motion
+7565,Ordained Stillness
+7566,Timeless Sentence
+7568,Scattered Magic
+7569,Air-to-surface Energy
+7572,Ballistic Impact
+7573,Shrapnel Impact
+7574,Hyperdrive
+7575,Lock On
+7582,Laser Sight
+7583,Energy Ring
+7584,Energy Ring
+7585,Energy Ring
+7586,Energy Ring
+7587,Peacefire
+7588,Irresistible Pull
+7590,Thorns
+7591,Downburst
+7592,Shapeshifting Supercell
+7593,Heat Burst
+7594,Delta Fire III
+7595,Heat Bond
+7596,Downburst
+7597,Sinblaze
+7598,Spike of Flame
+7599,Spike of Flame
+7600,Ruby Sphere
+7601,Bradamante
+7603,Judgment Jolt
+7604,Chaos Strike
+7605,Stepped Leader
+7606,Judgment Jolt
+7607,Chain Lightning
+7608,Terrible Hammer
+7609,Terrible Blade
+7612,Betwixt Worlds
+7613,Betwixt Worlds
+7614,Betwixt Worlds
+7615,Betwixt Worlds
+7616,Paper Cut
+7617,Sungrace
+7618,Sungrace
+7619,Sungrace
+7620,Moongrace
+7621,Moongrace
+7622,Moongrace
+7623,attack
+7624,Unjoined Aspect
+7625,Magitek Spark
+7626,Fortius
+7627,Advanced Death Ray
+7628,??
+7629,Reflected Biting Frost
+7630,Reflected Driving Frost
+7631,Reflected Axe Kick
+7632,Reflected Scythe Kick
+7633,Reflected Hallowed Wings
+7634,Reflected Hallowed Wings
+7635,Reflected Hallowed Wings
+7636,Reflected Frost Armor
+7637,Reflected Shining Armor
+7638,Reflected Drachen Armor
+7639,Bright Pulse
+7640,Hypercharged Light
+7641,Ancient Holy
+7642,Bright Hunger
+7643,Lightsteep
+7644,Pure Crystal
+7645,Skyfall
+7646,Karmic Drain
+7648,Silver Scourge
+7651,Air Bump
+7655,Hateful Miasma
+7656,Endless Ice Age
+7657,Forcible Difreeze
+7658,Akh Morn
+7659,Chilling Chain
+7663,Thorns
+7665,Beastly Fury
+7666,Empty Flood
+7667,Joyless Dragonsong
+7668,Shockwave
+7669,Heavy Hitter
+7670,Blinding Light
+7671,Unmitigated Explosion
+7672,Big Burst
+7679,Nine Ivies
+7692,Papercutter
+7694,Unconventional Voltage
+7695,Infantry Deterrent
+7696,Leveling Missile
+7697,Howling Agony
+7698,Chemical Burn
+7699,Fire IV
+7700,Thunder IV
+7701,Aero IV
+7702,Warped Light
+7703,Alexandrian Thunder III
+7706,?????�?????
+7707,Rain of Fire
+7708,Ekpyrosis
+7710,Life's Last Song
+7714,Incendiary Barrage
+7715,Surface Missile
+7716,Occult Missile
+7717,High-order Explosive Blast
+7718,Homing Laser
+7721,Relentless Spiral
+7800,MRV Missile
+7801,Tail Missile
+7802,Call Beast
+7803,Off My Lawn
+7804,Burn
+7805,False Demon Eye
+7809,Laser Shower
+7810,Flames' Revelation
+7811,Frosting Fracas
+7812,Absolute Flash
+7813,?????
+7814,Holy
+7815,Radiant Braver
+7816,Meteor
+7817,Brimstone Earth
+7818,Deluge of Death
+7819,Season of Earth
+7820,Stock Break
+7823,Uplift
+7824,Alpha Stone
+7825,Groundbreaker
+7826,Groundbreaker
+7830,Dark II
+7831,Ruthless Bombardment
+7846,Grand Crossflame
+7847,Tridirectional Flame
+7861,attack
+7866,Burst II
+7867,Auroral Wind
+7868,High-order Explosive Blast
+7872,Optimal Play
+7873,Queen's Shot
+7874,Queen's Justice
+7875,Queen's Justice
+7876,Gunnhildr's Blades
+7877,Northswain's Glow
+7878,Heaven's Wrath
+7879,Splat
+7880,Splat
+7881,Splat
+7882,Sea Shanty
+7883,Sea Shanty
+7884,Deluge of Darkness
+7885,Arcane Reaction
+7886,Timeless Spite
+7887,Earth-shattering Particle Beam
+7888,Rejuvenating Balm
+7889,Heavy Wide-angle Particle Beam
+7890,Condensed Wide-angle Particle Beam
+7891,Void Mortar
+7892,Empty Shadow
+7893,Bad Vibrations
+7894,Evil Seed
+7895,Particle Beam
+7899,Utter Immolation
+7900,Cold Shock
+7901,Flames of Bozja
+7907,Voidwhorl
+7908,Indigo Woe
+7909,Throne of Shadow
+7910,Distant Scream
+7918,Emerald Crusher
+7919,Pulse Laser
+7921,Tertius Terminus Est
+7926,Divide et Impera
+7927,Shining Blade
+7928,Straightforward Thunder II
+7929,Glacier Splitter
+7930,Sinbound Fire III
+7931,Sinsmite
+7932,Sinsight
+7933,Burn Mark
+7934,Raging Winds
+7936,Tachi: Yukikaze
+7937,Tachi: Kasha
+7938,Weight of Fortune
+7939,Great Whirlwind
+7940,Canyon
+7941,Poison Trap
+7942,Cost of Living
+7943,Thunder IV
+7944,Devastating Bolt
+7945,Devastating Bolt
+7946,Meaty Slice
+7947,Aetheronecrosis
+7948,Swirling Miasma
+7949,Bedrock Uplift
+7950,Trapped under Ice
+7951,Mini
+7952,Missile Salvo
+7953,Shock Missile
+7954,Multi-missile
+7955,Homing Laser
+7956,Divine Favor
+7957,Burst
+7958,Flood Ray
+7959,attack
+7960,Diamond Rain
+7961,Photon Burst
+7962,Diamond Shrapnel
+7964,Temporary Current
+7965,Conflag Strike
+7966,Ferostorm
+7967,Judgment Jolt
+7968,Formless Judgment
+7969,Formless Judgment
+7971,Calamitous Cry
+7972,Pulse of the Land
+7973,Falling Rock
+7974,Weight of the World
+7975,Dark Blizzard III
+7976,Return IV
+7977,Maelstrom
+7978,Quicken
+7979,Slow
+7980,Apocalypse
+7981,Black Tide
+7984,Coronach
+7986,Ground-razing Particle Beam
+7987,Heated Blast
+7988,Searing Blast
+7989,Chill Blast
+7990,Freezing Blast
+8645,Divide Et Impera
+8646,Forked Fury
+8647,Hemitheos's Fire IV
+8648,Empty Hate
+8649,Flames of the Falling Order
+8650,_rsv_47907_-1_1_0_0_SE2DC5B04_EE2DC5B04
+8651,Thrum of Discord
+8652,Quietus
+8653,Dark Aero III
+8654,Massive Explosion
+8655,Giga Tempest
+8656,Ruination
+8658,Alpha Wind
+8660,Distant Clap
+8663,Ballistic Impact
+8664,Bladestorm
+8665,Left-arm Wave
+8666,Right-arm Ray
+8672,2-tonze Magitek Missile
+8673,Ground-to-ground Ballistic
+8674,Lunar Flare
+8676,Lightning Bolt
+8677,Magical Interference
+8678,Darker Note
+8679,Lighter Note
+8680,White Dissonance
+8681,Black Dissonance
+8682,Transference
+8683,Transference
+8685,Riot of Magic
+8686,Seed of Magic Beta
+8696,Magic Artillery Alpha
+8697,Magic Artillery Beta
+8698,Wipe: White
+8699,Wipe: Black
+8700,Shock: White
+8701,Shock: Black
+8702,Sublime Transcendence
+8703,attack
+8704,Crash: White
+8705,Vortex
+8706,Manipulate Energy
+8707,Energy Sphere
+8711,Ruinous Pseudomen
+8712,Explosion
+8713,Pillar of Shamash
+8714,Aetherial Ray
+8715,Pillar of Shamash
+8720,Hyperdimensional Slash
+8721,Heavensflame
+8722,Shockwave
+8723,Gigaflare's Edge
+8724,Exaflare's Edge
+8725,Ice of Ascalon
+8726,Trinity
+8727,Trinity
+8728,Screes of Fury
+8729,Wave: White
+8730,Wave: Black
+8734,Giga Tempest
+8736,Ignis Est
+8737,Ventus Est
+8738,Ballistic Impact
+8739,Surface Missile
+8741,Turbine
+8742,Pyroclysm
+8743,Buffet
+8746,Nihility's Song
+8748,Smelting
+8749,Weal of Stone
+8760,Vitriol
+8761,Evil Emission
+8765,Chaotic Undercurrent
+8766,Chaotic Undercurrent
+8769,Cosmic Kiss
+8771,Cosmic Kiss
+8777,Electromagnetic Release
+8778,Dynamic Scrapline
+8779,Surface Missile
+8784,Cruelty
+8785,Wildfire Crucible
+8789,Advanced Death IV
+8790,Light Pseudopillar
+8791,Diabolic Gate
+8792,Airborne Explosion
+8793,Airborne Explosion
+8794,Bombardment
+8796,Manusya Blizzard III
+8797,Skineater Surge
+8799,True Aero IV
+8800,Befoulment
+8802,Slender Spines
+8803,Alexandrian Quake III
+8804,Heavy Impact
+8805,Heavy Impact
+8806,Heavy Impact
+8807,Heavy Impact
+8809,the Dragon's Rage
+8810,Vengeful Flame
+8811,Phlegethon
+8815,Explosion
+8816,Styx
+8817,Bouncing Bomb
+8818,Self-destruct
+8819,Dichroic Spectrum
+8820,Echoes
+8823,Trounce
+8825,Phantom Pain
+8826,Coffin Scratch
+8827,Pater Patriae
+8829,Omnidimensional Onslaught
+8831,Season of Water
+8832,Great Typhoon
+8836,Venomous Scourge
+8837,Lava Mekhane
+8838,Saltwater Shot
+8839,Mammoth Bolt
+8840,Acid Pinax
+8841,Lava Pinax
+8842,Well Pinax
+8843,Levinstrike Pinax
+8844,Partial Immolation
+8845,Akh Morn
+8846,Nine Nights
+8847,Hemitheos's Dark IV
+8855,Fireflood
+8856,Wicked Fire
+8857,Esoteric Finisher
+8858,Spiritflame
+8859,Blazing Rain
+8860,Flaming Epigraph
+8861,Sparks of Condemnation
+8862,Vertical Blast
+8875,Death's Embrace
+8877,Dead Star
+8878,Nemesis
+8887,Parhelion
+8888,Parhelion
+8889,Parhelion
+8890,Parhelion
+8891,Sundered Remains
+8892,Out of Time
+8893,Chain Pain
+8896,Lightning Tendrils
+8897,Lightning Tendrils
+8904,Earthen Auger
+8906,Tornado in Green
+8907,?????
+8911,Surface Missile
+8912,attack
+8913,attack
+8919,Burning Twister
+8920,Chain Pain
+8938,Cursed Casting
+8940,Galaxias
+8942,Mixed Feelings
+8944,Diffusive-force Particle Beam
+8947,Burst
+8948,Scorching Streak
+8951,Craniotomy
+8952,Happy Surprise
+8953,Fulgurous Howl
+8954,Diamond Dust
+8955,Enomotos
+8957,Brightwing
+8958,Skyblind
+8959,Explosion
+8960,Flame Breath
+8961,Ice Breath
+8962,Swirling Blizzard
+8963,Dark Orb
+8964,Holy Orb
+8965,Dark Breath
+8966,Myriad Aspects
+8967,Staggering Breath
+8968,Hallowed Plume
+8969,Flames of Ascalon
+8970,Unmoving Dvenadkatika
+8971,Cannon Reflection
+8974,Spike of Flame
+8979,Hand of the Empire
+8981,Typhoon
+8983,Ductus
+8986,Toxic Vomit
+8988,Wolf's Crossing
+8989,Wave of Nausea
+8990,Befoulment
+8991,No Future
+8992,Discharge
+8994,Blizzard II
+8995,Magitek Missiles
+9350,Electrifying Flight
+9360,Silent Torrent
+9361,Silent Torrent
+9362,Silent Torrent
+9438,Flare
+9439,Electrify
+9440,Scarlet Thread
+9441,the Ram's Voice
+9442,the Dragon's Voice
+9443,Rush
+9444,Steelsbreath
+9445,Fusion Burst
+9446,Large Specimen
+9447,Electrify
+9448,Arm of Purgatory
+9449,Hypothermal Combustion
+9450,Shock
+9451,Radiance
+9452,Brutal Halo
+9453,Burn
+9454,Arm of Purgatory
+9455,Roiling Mass
+9456,Inspirited Cyclone
+9457,Catching
+9458,Topaz Ray
+9459,Topaz Ray
+9460,Cleansing
+9461,Hypothermal Amplification
+9462,Starfall
+9463,Shockwave
+9464,Levin Wave
+9465,Stunning Sheen
+9466,Wind Surge
+9467,Sand Surge
+9468,Arcane Beacon
+9472,Circle of Lives
+9473,Sublime Estoc
+9474,Energy Ray
+9476,Will of the Underworld
+9477,Unyielding Will
+9478,Unyielding Will
+9479,Tiny Flare
+9480,Tiny Holy
+9481,Mortal Slayer
+9484,Army Slayer
+9485,Mortal Slayer
+9486,Army Slayer
+9487,Will of the Underworld
+9489,Vacuum
+9491,Return to Nothing
+9492,Great Return to Nothing
+9493,Burst
+9494,Violent Burst
+9496,????
+9497,????
+9498,Atomic Ray
+9500,Burst
+9503,Big Burst
+9853,Soul of Friendship
+9854,Soul of Devotion
+9857,Glory Blaze
+10498,Unveil
+10499,Rush
+10510,Magitek Missiles
+10521,Infinite Reach
+10522,Quake III
+10525,Fuseflare
+10529,Burst
+10530,Burst
+10531,Burst
+10532,Bolts from the Blue
+10534,Heavens' Stake
+10535,Entropic Excess
+10536,Hiemal Storm
+10537,Double Immolation
+10538,Cloud to Ground
+10539,Byregot's Strike
+10541,Eye of the Storm
+10542,Laser Focus
+10543,Citadel Buster
+10548,Divine Excoriation
+10549,Blessing of Light
+10551,Flames of the Dead
+10556,Wayward Soul
+10557,Balance
+10558,Rhalgr's Beacon
+10559,Bronze Lightning
+10560,Shockbolt
+10561,Hyperconductive Plasma
+10562,Incendiary Support
+10565,Dancing Flame
+10566,Sunbeam
+10567,Seal of the Fireblossom
+10568,Roaring Star
+10571,Toxic Fountain
+10572,Corrosive Fountain
+10583,Far-flung Fire
+10585,Everfire
+10586,Cloud to Ground
+10587,Broad Swing
+10589,Deepest Pit
+10595,Beatific Scorn
+10596,Death Foreseen
+10597,Antipathy
+10598,Ring of Might
+10599,Ring of Might
+10600,Ring of Might
+10601,Blazing Beacon
+10603,Moggleday Night Fever
+10604,Twin Pom Meteor
+10605,Sacred Flay
+10607,Great Ball of Fire
+10608,Rotten Onion
+10609,Explosion
+10610,Big Explosion
+10611,Twin Pom Meteor
+10612,Rotten Rampage
+10613,Pom Bog
+10614,Chilling Duster
+10615,Lindwurm's Aero III
+10617,Polyominous Dark IV
+10618,Synergy
+10619,Clawful
+10620,Glossal Predation
+10621,????�????
+10622,Dark Perimeter
+10623,Ruby Reflection
+10624,Ruby Reflection
+10625,Colossal Charge
+10626,Colossal Charge
+10627,Shockwave
+10628,Word of the Wood
+10629,Subterranean Shudder
+10630,Fetters
+10631,Split Ends
+10632,Hair Spray
+10633,Deadly Twist
+10634,Upbraid
+10635,Plummet
+10636,Plummet
+10637,Plummet
+10638,Void Quake III
+10639,Rotten Rampage
+10640,Fireflood
+10641,Torch Flame
+10642,Nest of Flamevipers
+10643,Blood of the Gorgon
+10644,Conceptual Shift
+10645,Ex-factor
+10646,Splicer
+10648,Everburn
+10650,Forcible Fire IV
+10651,attack
+10652,Bullish Swipe
+10653,Thunder III
+10654,Blades of Attis
+10655,Hemitheos's Glare III
+10656,Hemitheos's Glare
+10657,Razorwind
+10658,Hemitheos's Tornado
+10659,Flamisphere
+10664,Secret Breeze
+10665,Breath of the Gorgon
+10666,Uplift
+10667,Boulder Break
+10668,Dark Sphere
+10669,Hair Flay
+10670,Unsightly Chaos
+10671,Void Blizzard III
+10672,Harvest Moon
+10677,Conception
+10678,Unholy Darkness
+10679,Boulder Break
+10680,Hair Spray
+10681,Cryptic Flames
+10682,_rsv_47906_-1_1_0_0_SE2DC5B04_EE2DC5B04
+10683,Orogenic Shift
+10687,Fire Well
+10688,Nox
+10689,Greatest Flood
+10690,_rsv_49769_-1_1_0_0_SE2DC5B04_EE2DC5B04
+10691,Storm Wave
+10692,_rsv_47951_-1_1_0_0_SE2DC5B04_EE2DC5B04
+10695,????
+10698,Burning Pillar
+10699,Radial Flagration
+10701,Flamerake
+10702,Inferno
+10703,Dualfire
+10709,Hunks of Junk
+10713,Blaster
+10714,Flame Thrower
+10715,Wave Repeater
+10716,Wave Repeater
+10717,Wave Repeater
+10718,Wave Repeater
+10719,Critical Underflow Bug
+10720,Cascading Latent Defect
+10721,Cascading Latent Defect
+10725,Wave Cannon
+10726,"Hello, Distant World"
+10727,"Hello, Distant World"
+10728,"Hello, World"
+10729,Inhale
+10730,Cosmo Arrow
+10731,Cosmo Dive
+10732,Cosmo Dive
+10733,Wave Cannon
+10734,Wave Cannon
+10735,Wave Cannon
+10736,Dark
+10737,Gust
+10738,Meracydian Squall
+10739,Twister
+10740,Meracydian Squall
+10741,Turbine
+10742,Nerve Gas Ring
+10743,Flamespire Claw
+10744,Will of the Fury
+10745,Will of the Fury
+10746,Will of the Fury
+10747,Will of the Fury
+10748,Will of the Fury
+10749,Shadow Play
+10750,Thermal Divide
+10751,Blue Moon
+10752,Midnight Frost
+10753,Winter Halo
+10754,Lunar Kiss
+10755,Summer Shade
+10756,Spring Flowers
+10757,Cutting Wind
+10758,Uplift
+10759,Blueblossoms
+10760,Giltblossoms
+10761,Cheimon
+10762,Spears Three
+10763,Rain of Spears
+10765,Optimized Bladedance
+10767,Optimized Fire III
+10769,Aetherial Light
+10770,Potent Perfume
+10772,Sap Shower
+10773,Spinner's Wheel
+10774,Thundercall
+10775,Sinbound Holy
+10776,Spun Lightning
+10777,Crackling Cataclysm
+10778,Shock
+10779,Abyssal Slash
+10780,Abyssal Slash
+10782,Abyssal Slash
+10783,Recharge
+10785,Guided Missile Kyrios
+10786,First Light
+10787,The Face of Wrath
+10788,The Face of Delight
+10789,Scattering
+10790,Chakra
+10791,Chakra
+10792,Chakra
+10793,Chakra
+10794,Chakra
+10805,Pile Pyre
+10806,Blizzard III
+10807,Thunder III
+10808,Meteor
+10812,Silkspit
+10813,Entangling Web
+10814,Entangling Web
+10815,Steel Web
+10816,Parted Plumes
+10817,Dividing Wings
+10818,D�moniac Bonds
+10819,Tetrad�moniac Bonds
+10820,Soul Grasp
+10821,Seal of the Rainblossom
+10822,Season of Fire
+10824,Illusory Gloom
+10825,Empyreal Banish IV
+10826,Looming Chaos
+10827,Dark Current
+10828,Dike
+10829,Dike
+10830,Arche
+10831,Weight of Nothing
+10832,Inner Light
+10833,Outer Dark
+10834,Ultima Blow
+10835,Palladian Ray
+10836,Superchain Burst
+10837,Dynastic Diadem
+10838,Superchain Emission
+10839,White Flame
+10840,Umbral Glow
+10841,Astral Glow
+10842,Unmitigated Explosion
+10843,Unmitigated Explosion
+10844,Tempestuous Tear
+10845,Astral Impact
+10846,Theos's Saltire
+10847,Alexandrian Quake III
+10848,Alexandrian Quake III
+10849,Alexandrian Quake III
+10850,Lingering Spark
+10852,Wings Dark and Light
+10853,Fell Forces
+10854,Explosion
+10855,Big Burst
+10856,Meteor
+10857,Void Comet
+10858,Meteor
+10859,Bitter Reaping
+10860,Eye of the Hurricane
+10861,Steel Scream
+10862,Burst
+10863,Big Burst
+10864,Burst
+10865,Dramatic Burst
+10866,Fire II
+10867,Humble Hammer
+10868,Cloud to Ground
+10870,Eventide Triad
+10871,Rapid-sequence Particle Beam
+10872,Wind Sickle
+10873,Thrice on Rokujo
+10874,Thunder Threefold
+10875,Levinblossom Lance
+10876,Boundless Scarlet
+10877,Boundless Azure
+10878,_rsv_47908_-1_1_0_0_SE2DC5B04_EE2DC5B04
+10879,Macabre Mark
+10880,Shadow Kasumi-giri
+10881,Shadow Kasumi-giri
+10882,Shadow Kasumi-giri
+10883,Shadow Kasumi-giri
+10884,Boundless Azure
+10885,Triple Kasumi-giri
+10886,Triple Kasumi-giri
+10887,Triple Kasumi-giri
+10888,Triple Kasumi-giri
+10889,Triple Kasumi-giri
+10890,Triple Kasumi-giri
+10891,Triple Kasumi-giri
+10892,Triple Kasumi-giri
+10893,Kenki Release
+10894,Lateral Slice
+10899,Gaiaochos
+10900,Ultima
+10901,Crime and Punishment
+10902,Curse of the Flesh
+10903,Abyssal Quasar
+10904,Explosion
+10905,Earthen Geyser
+10908,Lightning Crossing
+10909,Double Meteor
+10910,Double Meteor
+10911,Duplicitous Battery
+10912,Death's Journey
+10917,Firestrike
+10919,Chaos-condensed Particle Beam
+10920,Pand�moniac Meltdown
+10921,Dismissal Overruling
+10922,Goldor Fire III
+10926,Blizzard III
+10927,Fireball
+10928,Trigger Happy
+10930,Fire Spread
+10931,Fire Spread
+10932,Sledgemagic
+10934,Scalding Waves
+10935,Flowing Lance
+10937,Full-fledged Tantrum
+10938,Falling Rock
+10940,Fell Forces
+10941,Fluke Typhoon
+10943,Aero II
+10944,Fair Flight
+10945,Beguiling Glitter
+10946,Diffuse Darkness
+10948,Fluke Typhoon
+10949,Fluke Gale
+10950,Updraft
+10951,Hydrobullet
+10952,Angry Seas
+10953,Arcane Blight
+10954,Arcane Mine
+10955,Arcane Combustion
+10956,Fire Powder
+10957,Brilliant Blossoms
+10958,Islebloom Light
+10959,Katarraktes
+10960,Rhyton
+10961,attack
+10962,Destructive Bolt
+10965,Godsbane
+10966,To the Last
+10967,Sable Thread
+10970,Miasmic Blast
+10971,Big Crunch
+10972,Chasmic Nails
+10973,Dimensional Surge
+10974,Dimensional Surge
+10975,Dimensional Surge
+10976,Sparking Flare
+10977,Branding Flare
+10979,Akh Rhai
+10980,Umbral Rays
+10981,Fell Forces
+10982,Dark Matter
+10985,Crystalline Storm
+10986,Wind Shot
+10987,Stalagmite Circle
+10988,Typhoon
+10989,the Arrow
+10990,the Arrow
+10991,Downhill
+10992,Downhill
+10993,Flinted Foehn
+10994,Flinted Foehn
+11000,Blades of Famine
+11001,Levinsickle
+11002,Levinsickle Spark
+11004,Sticky Spit
+11005,Landslip
+11006,Sandpearl Shroud
+11009,Sudden Downpour
+11010,Sudden Downpour
+11013,Arm of Purgatory
+11014,Moving Mountains
+11016,Barbed Lightning
+11017,Sinister Sight
+11018,Scorching Right
+11019,Culling Blade
+11020,Captive Bolt
+11021,Targeted Light
+11022,Frozen Swirl
+11023,Allfire
+11025,Radiant Rhythm
+11026,Nox
+11031,Worrisome Wave
+11032,??????
+11033,Thunderlight Flurry
+11034,Artillery
+11035,Spreading Fire
+11036,Spreading Fire
+11037,Spreading Fire
+11038,Spreading Fire
+11039,Sweet Nectar
+11040,Sweet Nectar
+11041,Sweet Nectar
+11042,Tracking Bolt
+11043,Shock
+11044,Electrowhirl
+11045,Fireshower
+11046,Burning Sun
+11049,Blighted Bolt
+11050,Lightning Storm
+11051,Calamitous Echo
+11052,Ice Talon
+11053,Eruption
+11054,Ionic Discharge
+11055,Scourge of Thunder
+11056,Scourge of Ice
+11057,Sinbound Fire
+11058,Volcanic Drop
+11059,Mountain Fire
+11060,Unmitigated Explosion
+11064,Poison Heart
+11066,Pod Burst
+11067,Powerful Gust
+11068,Forlorn Wind
+11069,Absolute Authority
+11070,Royal Banishment
+11071,Divide and Conquer
+11073,Blizzard Conditions
+11074,Wildfire Conditions
+11075,Hyperelectricity
+11076,Gale-force Winds
+11079,Ribbitygibbet
+11080,Chirp-o'-the-wisp
+11081,Mesmerizing March
+11082,Stirring Samba
+11083,Thunderspark
+11084,Cyclonic Ring
+11085,Extrasensory Expulsion
+11086,Extrasensory Expulsion
+11091,Card Trick
+11092,Levinroot Ring
+11093,Hypercharged Glower
+11094,Quarantine
+11096,Anthrabomb
+11098,Hot Blast
+11100,Anthrabomb
+11105,Coiled Strike
+11106,Coiled Strike
+11107,Burst
+11108,Spinshock
+11110,Heavyweight Needles
+11111,Cataclysmic Blade
+11112,Mouser
+11113,Shockwave
+11114,Raining Cats
+11115,Double Swipe
+11116,Quadruple Swipe
+11117,Grimalkin Gale
+11120,Indigo Breeze
+11121,Contest of Wills
+11122,Supercell Matrix
+11125,Violet Voltage
+11126,Fulgurous Howl
+11127,Looming Nightmare
+11128,Overexposure
+11129,Aethersplit
+11130,Scream
+11131,Horrid Roar
+11132,Chasm of Vollok
+11134,Half Circuit
+11135,Half Circuit
+11136,Multidirectional Divide
+11137,Multidirectional Divide
+11138,Duty's Edge
+11139,Chasm of Vollok
+11140,Siege of Vollok
+11141,Walls of Vollok
+11142,Might of Vollok
+11143,Drum of Vollok
+11144,Chasm of Vollok
+11145,Crossfire Blade
+11146,Flame Blade
+11147,Empyreal Banish III
+11149,Windswrath
+11156,Explosive Rain
+11157,Explosive Rain
+11158,Explosive Rain
+11159,Explosive Rain
+11161,Blazing Lariat
+11162,Blazing Lariat
+11163,Punishing Chain
+11165,Four Star
+11166,Eight Star
+11167,Axe Current
+11168,Spinning Current
+11169,Roundhouse Current
+11170,Sabertail
+11171,Wicked Blaze
+11172,Laceration
+11173,Chain Lightning
+11174,Chain Lightning
+11175,Mustard Bomb
+11176,Tidal Thunder
+11177,Conduction Point
+11178,Forked Fissures
+11179,Spark II
+11180,Spark III
+11181,Lightning Cage
+11182,Morning Stars
+11184,Fledgling Fury
+11185,Promised Fall
+11186,Foreseen Flurry
+11188,Drop of Venom
+11189,Bee Sting
+11190,Poison Sting
+11191,???????
+11192,Heart-struck
+11193,???????
+11194,Spread Love
+11195,Drop of Love
+11196,Heartsick
+11197,Big Burst
+11198,Big Burst
+11199,Big Burst
+11200,??????
+11206,Scorn of the Scorpion
+11207,Stinging Malady
+11208,Stinging Deception
+11211,Poison Daggers
+11215,Dawnlit Bolt
+11224,Sonic Storm
+11231,Tyranny's Grasp
+11234,Ninety-ninefold Curse
+11235,Explosion
+11239,Burning Sun
+11240,Doubling
+11241,Doubling
+11242,Shockwave
+11251,Tail Smash
+11252,Witchgleam
+11253,Wicked Bolt
+11254,Thunder
+11256,Apex Judgment
+11258,Bewitching Flight
+11259,Bewitching Flight
+11260,Crossfire Blade
+11261,Fracture
+11264,Ghostcrusher
+11270,Valorous Ascension
+11272,Spark
+11274,Splintering Nails
+11276,Burn
+11277,Filoplumes
+11278,Thunder and Error
+11279,Flying Frenzy
+11280,Ruthless Bombardment
+11282,Electray
+11283,Lightning Bolt
+11284,Light of Salvation
+11286,the Path of Light
+11287,the Path of Darkness
+11288,Akh Morn
+11289,Akh Morn
+11290,Cruel Path of Light
+11291,Cruel Path of Darkness
+11292,Explosion
+11293,Unmitigated Explosion
+11294,Sinbound Thunder III
+11295,Cyclonic Break
+11296,the House of Light
+11297,Sinbound Meltdown
+11298,Tidal Light
+11299,Longing of the Lost
+11300,Rock Blast
+11301,Stonega III
+11302,Thunder II
+11303,Line Voltage
+11304,Electrowave
+11305,Telltale Tears
+11306,Dark II
+11308,Gravity Pillar
+11309,Gravity Ray
+11310,Atomic Ray
+11311,Raised Tribute
+11312,Radical Shift
+11313,Radical Shift
+11314,Dimensional Distortion
+11315,Royal Banishment
+11319,Blazing Ring
+11320,Blazing Surge
+11321,Pyretic Wurm
+11322,Fangs of the Underworld
+11323,Umbra Wave
+11324,Dark Nova
+11325,Dark Nova
+11326,Dark Nebula
+11327,Unbridled Rage
+11329,Flare
+11331,Void Thunder III
+11332,Aerosnare
+11333,Occult Stone II
+11338,Dirty Slash
+11339,Hurricane Wing
+11340,Hurricane Wing
+11341,Hurricane Wing
+11342,Hurricane Wing
+11343,Hurricane Wing
+11344,Hurricane Wing
+11345,Hurricane Wing
+11346,Hurricane Wing
+11348,Sharp Spike
+11349,Epicenter Shock
+11350,Raking Scratch
+11351,Choco Slaughter
+11352,???????
+11354,Arcane Orb
+11355,Akh Morn
+11356,Morn Afah
+11357,Apocalypse
+11359,Brittle Impact
+11360,Brittle Impact
+11361,Brittle Impact
+11362,Banish
+11363,Banishga IV
+11364,Thunderball
+11365,Havoc Spiral
+11366,Lightning Bolt
+11367,Divine Dominion
+11368,Arrogance Incarnate
+11369,????
+11370,Light's Chain
+11380,Bedrock Uplift
+11381,Bedrock Uplift
+11382,Bedrock Uplift
+11383,Tiny Fire III
+11388,Soul Binding
+11389,attack
+11391,Diffusive-force Particle Beam
+11395,Hyper-focused Particle Beam
+11396,Multi-pronged Particle Beam
+11397,Evil Seed
+11398,Dark-energy Particle Beam
+11399,Death IV
+11405,Death IV
+11406,Luminous Hammer
+11407,Axeglow
+11408,Axeglow
+11409,Lancelight
+11410,Lancelight
+11411,Critical Axeblow
+11412,Critical Lanceblow
+11413,Attack
+11414,Lindwurm's Glare
+11419,attack
+11422,Ice Dart
+11423,Horrid Roar
+11428,Hard Splash
+11429,Open Water
+11430,Aetherial Ray
+11431,Hydrofall
+11434,Imitation Icicle
+11435,Imitation Rain
+11436,Imitation Blizzard
+11437,Imitation Blizzard
+11438,Imitation Blizzard
+11439,Imitation Blizzard
+11440,Meteor Impact
+11441,Lightning Bolt
+11442,Made Magic
+11443,Made Magic
+11444,Crystallized Energy
+11449,Electric Field
+11451,Portentous Comet
+11452,Portentous Cometeor
+11453,Explosion
+11454,Explosion
+11455,Unmitigated Explosion
+11457,Ray of Ignorance
+11458,Lacunate Stream
+11460,Unmitigated Explosion
+11461,Lindwurm's Thunder II
+11462,Pudding Party
+11463,Warm Bomb
+11464,Cool Bomb
+11465,Color Clash
+11466,Color Clash
+11467,Sticky Mousse
+11468,Burst
+11470,Br�l�e
+11471,????????
+11472,Pudding Graf
+11473,Mousse Drip
+11474,Moussacre
+11475,Deathtrap
+11476,Sovereign Scar
+11477,Reign's End
+11478,Prowling Gale
+11479,Windfang
+11480,Stonefang
+11481,Howling Havoc
+11482,Ultraviolent Ray
+11483,Aerotemporal Blast
+11484,Vacuum Wave
+11485,Twofold Tempest
+11486,Champion's Circuit
+11487,Champion's Circuit
+11488,Champion's Circuit
+11489,Earthshake
+11490,Ruinous Rune
+11491,Ruinous Rune
+11492,Carving Rune
+11493,Near Tide
+11494,Far Tide
+11495,Erosive Eye
+11496,Lick of Flame
+11497,Zombie Scales
+11498,Feather Rain
+11499,Dismal Roar
+11500,Lightning Crossing
+12778,Whispering Dawn
+12779,Fey Blessing
+14500,Shame
+14501,Get Down!
+14502,Get Down!
+14503,Get Down!
+14504,Play A-side
+14505,Play B-side
+14506,Half Beats
+14507,Eighth Beats
+14508,Major Freak Out
+14509,Minor Freak Out
+14510,Freak Out
+14511,Freak Out
+14513,Back-up Dance
+14514,Quarter Beats
+14515,Mini
+14516,Elemental Impact
+14517,Self-destruct
+14518,Flame Thrower
+14519,Chilling Collision
+14520,Self-destruct
+14522,Fusion Burst
+14523,Collateral Heat Jet
+14524,Collateral Cold Jet
+14525,Collateral Gas Jet
+14526,Collateral Fireball
+14527,Collateral Iceball
+14528,Collateral Bioball
+14529,Excruciating Equilibrium
+14530,Delta Attack
+14531,Massive Explosion
+14532,Arcane Spear
+14533,Hellish Torment
+14535,Surface Cannon
+14536,Precision Cannon
+14537,Cell Shock
+14538,Explosion
+14543,Explosion
+14544,It Came from the Dirt
+14545,The Unpotted
+14546,Spore Sac
+14547,Sporesplosion
+14548,Killer Seeds
+14549,Sinister Seeds
+14550,Tendrils of Terror
+14551,Roots of Evil
+14553,Abominable Blink
+14554,Shock
+14555,Shock
+14557,Thunder Slash
+14560,Thunder Slash
+14561,Thunder Slash
+14562,Stock Break
+14563,Alexandrian Thunder III
+14564,Alexandrian Thunder III
+14565,Alexandrian Banish III
+14566,Alexandrian Thunder II
+14567,Explosion
+14568,Unmitigated Explosion
+14569,Escelons' Fall
+14570,Holy Hazard
+14572,Specter of the Lost
+14577,Explosion
+14583,Preening Prism
+14584,Glitterbox
+14585,Cross Charge
+14586,Carpet Bomb
+14587,Systematic Bombardment
+14588,Electromine
+14589,Electray
+14590,High-voltage Electray
+14591,Sideways Fire II
+14592,Alexandrian Thunder III
+14593,Alexandrian Thunder III
+14594,Aero III
+14595,Roaring Stone
+14596,Alexandrian Thunder IV
+14597,Alexandrian Thunder IV
+14598,3-snap Twist & Drop the Needle
+14599,4-snap Twist & Drop the Needle
+14600,Thunderstrike
+14602,Shining Shot
+14603,Emblazon
+14604,Profane Waul
+14606,Keraunography
+14607,??
+14608,Memory of the Storm
+14609,Memory of the Pyre
+14610,Ancient Aero III
+14615,Taste of Thunder
+14616,Lightning Bolt
+14617,Taste of Thunder
+14618,Falling Rock
+14625,Blade of First Light
+14626,Blade of First Light
+14627,Shackles of Greater Sanctity
+14628,attack
+14629,The End's Embrace
+14630,Existential Dread
+14632,Blue Shockwave
+14634,Burst
+14635,Smite of Gloom
+14636,Grand Cross
+14637,Grand Cross
+14638,Shockwave
+14639,Aetherblight
+14646,Bounds of Sin
+14648,Meltdown
+14649,Drain Aether
+14650,Bounds of Sin
+14651,Searing Chains
+14652,Shackles of Penitence
+14653,Shackles of Penitence
+14654,Shackles of Sanctity
+14655,Explosion
+14656,Big Burst
+14661,Sublime Fire
+14662,Sublime Earth
+14663,Sublime Water
+14664,Sublime Ice
+14665,Sublime Lightning
+14666,Sublime Wind
+14667,Sublime Fire
+14668,Sublime Earth
+14669,Sublime Water
+14670,Sublime Ice
+14671,Sublime Lightning
+14672,Sublime Wind
+14673,Fire Blade
+14674,Earth Blade
+14675,Water Blade
+14676,Ice Blade
+14677,Lightning Blade
+14678,Wind Blade
+14679,Fire Blade
+14680,Earth Blade
+14681,Water Blade
+14682,Ice Blade
+14683,Lightning Blade
+14684,Wind Blade
+14699,Princely Blow
+14700,Uranos Cascade
+14701,Gaea Stream
+14702,Omega Javelin
+14704,Stellar Burst
+14706,Empyreal Vortex
+14707,Flare
+14708,Burst
+14709,Quake
+14710,Freeze
+14711,Tornado
+14712,Flood
+14713,Unfathomable Horror
+14714,Unfathomable Horror
+14715,Unfathomable Horror
+14716,Unfathomable Horror
+14719,Antimatter
+14720,Explosion
+14721,Energy Ray
+14722,Energy Ray
+14723,Energy Ray
+14724,Energy Ray
+14726,Omega Blaster
+14727,Anti-personnel Missile
+14728,Guided Missile
+14729,Leafmash
+14730,Wyvern's Radiance
+14731,Wyvern's Radiance
+14732,Wyvern's Radiance
+14733,Wyvern's Radiance
+14734,Guardian Resonance
+14735,Guardian Resonance
+14736,Greater Resonance
+14737,Guardian Resonance
+14738,Wyvern's Vengeance
+14739,Wyvern's Radiance
+14740,Wyvern's Radiance
+14741,Wyvern's Radiance
+14742,Wyvern's Radiance
+14743,Dragonspark
+14744,White Flash
+14754,Bombardment
+14755,Bombardment
+14758,Moontide Font
+14759,Spinning Needles
+14760,Grand Cross
+14761,Grand Cross
+14769,Aim
+14770,Iainuki
+14771,Wind Slash
+14772,Thunder IV
+14773,Blizzard IV
+14774,Fire IV
+14777,Surface Missile
+14796,Shock
+14798,Sandplume
+14800,Beaksbane
+14801,Pyromagicks
+14802,Rainbow Road
+14803,Plasma
+14804,Hyperexplosive Plasma
+14805,Aether Surge
+14807,Aetherosote
+14810,Unmitigated Explosion
+14811,Hail of Thunder
+14812,Hyperconductive Plasma
+14813,Third Rail
+14814,Plummet
+14815,Lightning Burst
+14818,Ripper Claw
+14819,Archaeofury
+14822,Thunderbolt
+14824,Impassioned Sparks
+14825,Void Matter
+14826,Blessed Blast
+14827,Hair Shears
+14828,Poison Heart
+14829,Quad Rule
+14830,Horizontal Rule
+14831,Knowledge Level 5 Death
+14832,Knowledge Level 3 Flare
+14833,Knowledge Level 4 Holy
+14834,Prime Knowledge Level Death
+14835,Knowledge Level 3 Flare
+14836,Knowledge Level 4 Holy
+14838,??????
+14839,Massive Meteor
+14840,Weighty Impact
+14841,Sharp Taste
+14842,Explosion
+14843,Majestic Meteowrath
+14844,Foregone Fatality
+14845,Tough Break
+14846,Majestic Meteor
+14847,Two-way Fireball
+14848,Stinging Tentacle
+14850,Ecliptic Meteor
+14851,Liminal Lightning
+14852,Aqua Spear
+14853,Ceaseless Current
+14854,Surging Current
+14855,Cross Current
+14856,Malefic Influence
+14857,Malefic Influence
+14858,Malefic Influence
+14859,Malefic Influence
+14860,Crusher of Lions
+14861,Echoing Orbit
+14862,Echoing Hush
+14863,Waiting Wounds
+14864,Cutback Blaze
+14865,Cutback Blaze
+14867,Meltdown
+14868,Pyrotation
+14869,Reverse Alley-oop
+14870,Reverse Alley-oop
+14871,Blasting Snap
+14872,Wipeout
+14873,Bailout
+14876,Penetrating Pitch
+14878,Blast Beat
+14879,Hardcore
+14880,Hardcore
+14881,Brutal Rain
+14882,Sanguine Scratch
+14883,Ultrasonic Spread
+14884,Ultrasonic Spread
+14885,Aetherletting
+14886,Aetherletting
+14887,Aetherletting
+14888,Bloody Bondage
+14889,Unmitigated Explosion
+14890,Explosion
+14891,Pulping Pulse
+14892,Spinebreaking Stampede
+14893,Explosion
+14895,Echoed Serenade
+14896,Grave Mold
+14897,Dramatic Lysis
+14898,Dramatic Lysis
+14899,Fourth-wall Fusion
+14900,Hemorrhagic Projection
+14901,Dramatic Lysis
+14902,Phagocyte Spotlight
+14903,Metamitosis
+14904,Unmitigated Explosion
+14906,Visceral Burst
+14907,Mighty Magic
+14909,Mana Burst
+14910,Grotesquerie
+14911,Hemorrhagic Projection
+14912,Bloody Burst
+14913,Unmitigated Explosion
+14914,Scalding Waves
+14915,Thunder II
+14923,Tiny Meteor
+14924,Aetherial Ray
+14925,Impassioned Sparks
+14926,Bedrock Uplift
+14927,Bedrock Uplift
+14928,Bedrock Uplift
+14929,Bio II
+14930,Away with Thee
+14931,Calamitous Thunderclap
+14932,Ancient Aero
+14947,Blot
+14959,Hail of Hellflares
+14960,Dark Current
+14961,Bloody Bondage
+14965,Gardener's Hymn
+14966,Age of Endless Frost
+14967,Stone III
+14968,Dramatic Lysis
+14969,Ancient Aero
+14970,Inspirited Impact
+14971,Inhale
+14972,Rotten Tomato
+14973,????????
+14974,Heartbreak Kick
+14975,Ruby Reflection
+14976,Ruby Reflection
+14977,Ruby Reflection
+14978,Bad Breath
+14979,Levin Ring
+14980,Plaincracker
+14982,Roulette
+14983,Roulette
+14984,Lilliputian Lyric
+14985,Dry Typhoon
+14987,Occult Aero III
+14991,Re-entry Plunge
+14992,Re-entry Blast
+14996,Dramatic Lysis
+14998,Impact Zone
+15000,Metallic Miasma
+15001,Metallic Miasma
+15002,Gaze of the Void
+15003,Gaze of the Void
+15006,Deep Freeze
+15007,Voidal Vortex
+15008,Voidal Turbulence
+15009,???
+15010,Demon Eye
+15013,Ice Cluster
+15014,Lightning Cluster
+15015,Blaze
+15016,Blazeloop
+15017,Crossblaze
+15018,Aethersplit
+15024,Elemental Cascade
+15025,Elemental Cascade
+15026,Elemental Cascade
+15027,Elemental Cascade
+15028,Elemental Cascade
+15029,Shapeshifting Supercell
+15030,Shapeshifting Supercell
+15031,Shapeshifting Supercell
+15032,Cyclone Crossing
+15033,Hellfire Fetch
+15034,Tendon Ripper
+15035,Prime Knowledge Level Death
+15036,Naught Grows
+15037,Naught Grows
+15038,Wheel of Impregnability
+15039,Bastion of Twilight
+15040,Malevolent Blessing
+15042,Unmitigated Explosion
+15043,False Genesis
+15045,Winds of Promyvion
+15047,Super Nova
+15048,Starflare
+15050,Twin Blaze
+15051,Twin Blaze
+15052,Cosmic Flame
+15053,Twilight Radiance
+15054,Small Specimen
+15055,Stardust Specimen
+15057,Final Exam
+15058,Blizzard III Blowout
+15059,Double-trouble Trap
+15061,Idyllic Will
+15062,Tele-trouncing
+15063,Spelldriver
+15064,Spellscatter
+15065,Spellwave
+15066,_rsv_47850_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15067,_rsv_47851_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15068,_rsv_47857_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15069,_rsv_47860_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15070,_rsv_47861_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15071,_rsv_47864_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15072,_rsv_47866_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15073,_rsv_47927_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15074,_rsv_47928_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15075,_rsv_47929_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15076,_rsv_47933_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15077,_rsv_47935_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15078,_rsv_47939_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15079,_rsv_47940_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15080,_rsv_47941_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15081,_rsv_47954_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15082,_rsv_47955_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15083,_rsv_47956_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15084,_rsv_47957_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15085,_rsv_47958_-1_1_0_0_SE2DC5B04_EE2DC5B04
+15087,Divine Arrow
+15088,Divine Arrow
+15089,Divine Arrow
+15090,Divine Arrow
+15091,Radiant Sacrament
+15092,Holy Flame
+15093,Shock
+15094,Electrify
+15095,Circuit Shock
+15096,Reinforcements
+15097,Mega Holy
+15098,Pinning Shot
+15099,Gluttonous Wire
+15100,Wrathful Wire
+15101,Launch
+15103,Noble Blaster
+15104,Lindwurm's Dark II
+15130,Ave Maria
+15131,Indolent Will
+15134,Fire III
+15135,Blizzard III
+15136,Thunder III
+15137,Elementary Absorption
+15138,Sundering Spellblade
+15139,Bladeblitz
+15144,?????????
+15148,Tiny Blizzard III
+15149,Big Burst
+15151,Roulette
+15152,Plaincracker
+15157,Thunderbolt
+15158,Steelsforge
+15159,Divine Bolt
+15169,Jettatura
+15171,Disregard
+15172,Dance to Dust
+17011,Optic Induration
+17012,_rsv_47868_-1_1_0_0_SE2DC5B04_EE2DC5B04
+17013,Feather Breeze
+17014,Authority's Edge
+17015,Authority's Edge
+17016,False Spellblade Holy
+17017,False Spellblade Holy
+17018,Clearout
+17019,Elemental Cascade
+17020,Far-flung Eruption
+17021,Focused Tremor
+17022,Many-headed Breath
+17023,Many-headed Breath
+17024,2-snap Twist & Drop the Needle
+17025,Stonega IV
+17026,4-snap Twist & Drop the Needle
+17027,2-snap Twist & Drop the Needle
+17028,Crimson Riddle
+17029,4-snap Twist & Drop the Needle
+17030,Crimson Riddle
+17053,Disillusioning Swing

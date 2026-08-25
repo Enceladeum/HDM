@@ -1,0 +1,76 @@
+BaseId,TerritoryTypeId,Note
+# Curated BNpcBase -> TerritoryType tags for content NO automated tier can reach.
+# The location tiers (crowdsource, hunt-mark sheets, instanced BossMod roster, the
+# runtime harvester, Level Type 9, the web scrape) all resolve mobs that either spawn
+# in the overworld or are combatants in a duty. Cutscene-script PROPS are neither: they
+# have ModelChara=0 (identity = BNpcCustomize + NpcEquip on a default body) and are spawned
+# by an ArrayEventHandler event script, not placed in any static or roster table. So they
+# are unreachable by every tier and must be tagged by hand here. See project_hguise.md for
+# the full crack (the c0201 #13013 anchor).
+#
+# White YoRHa androids — YoRHa: Dark Apocalypse (NieR raid) questline cutscene props in
+# Kholusia (814 = n4f2, ShB). Same signature: ModelChara=0, BNpcCustomize 36, NpcEquip 940.
+# 12157/12160/13013/13072 carry ArrayEventHandler spawn hooks (854286/854287/854319 ->
+# "Reaching Out" / "Time to Focus" / "Signature Acquired" / "March of the Bloody Queen");
+# 11404/13302 share the look with no handler (static/secondary dressing).
+11404,814,White YoRHa android (YoRHa: Dark Apocalypse cutscene prop)
+12157,814,White YoRHa android (YoRHa: Dark Apocalypse cutscene prop)
+12160,814,White YoRHa android (YoRHa: Dark Apocalypse cutscene prop)
+13013,814,White YoRHa android (YoRHa: Dark Apocalypse cutscene prop)
+13072,814,White YoRHa android (YoRHa: Dark Apocalypse cutscene prop)
+13302,814,White YoRHa android (YoRHa: Dark Apocalypse cutscene prop)
+#
+# Aloalo Island VARIANT BOSSES — Variant dungeon (Endwalker), TerritoryType 1176 (o5d1, ExVersion
+# 4 EW, IntendedUse 'Variant & Criterion'). The 63 Aloalo TRASH mobs fall out automatically from
+# the 'Aloalo' name-stem rule (Data/mob-dungeon-stems.csv, Tier N). Only the NAMED bosses need
+# per-base tags (they carry no 'Aloalo' word, so a stem can't reach them).
+#
+# RE-HARVEST RECONCILIATION (0.8.29): BossMod ships a Criterion module (C03AAI = 'Another Aloalo
+# Island') but NO Variant module, so the folder-aware re-harvest (Tier A2) now covers the CRITERION
+# bosses at their own TTs — 1179 (Normal) / 1180 (Savage) — and those manual tags were REMOVED so
+# they no longer shadow the correct binding. What remains here is only the VARIANT-difficulty actors
+# (a disjoint base set that shares each boss's NameId with its Criterion twin: Lala 12639, Statice
+# 12506, Ketuduke 12605), which BossMod can't reach. ALSO REMOVED: 16107 — it was mis-tagged here as
+# an Aloalo 'Lyngbakr', but Lyngbakr is the AETHERFONT whale (the re-harvest files it correctly at
+# TT 1126, NameId 12336); it was never an Aloalo boss.
+16441,1176,Aloalo Island Variant boss: the Lala (EW V&C) — NameId 12639
+16464,1176,Aloalo Island Variant boss: Statice (EW V&C) — NameId 12506
+16496,1176,Aloalo Island Variant boss: Statice (EW V&C) — NameId 12506
+16529,1176,Aloalo Island Variant boss: Ketuduke (EW V&C) — NameId 12605
+#
+# The Weapons — Sorrow of Werlyt TRIALS (ShB 5.x). These are a HARVEST GAP, not a resolution bug:
+# the BossMod roster harvest (Tier A2) carried trial modules only for RealmReborn/Stormblood/
+# Dawntrail — Heavensward, Shadowbringers AND Endwalker trials are entirely absent — so these named
+# superboss combatants never resolved and fell to 'Unknown location'. Tagged by hand until a
+# re-harvest includes the trial module folders. TerritoryTypes confirmed via TerritoryType.csv
+# (zone code + ex3 path); every BaseId cross-checked BaseId->NameId against mob-model-index.csv.
+# Ruby Weapon (NameId 9250) -> Cinder Drift (897 = n4fe), ShB 5.2.
+11484,897,the Ruby Weapon — Cinder Drift trial (Sorrow of Werlyt, ShB 5.2)
+11487,897,the Ruby Weapon — Cinder Drift trial (Sorrow of Werlyt, ShB 5.2)
+11490,897,the Ruby Weapon — Cinder Drift trial (Sorrow of Werlyt, ShB 5.2)
+11494,897,the Ruby Weapon — Cinder Drift trial (Sorrow of Werlyt, ShB 5.2)
+# Emerald Weapon (NameId 9696) -> Castrum Marinum (934 = n4fg), ShB 5.3.
+12346,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12353,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12627,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12628,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12640,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12641,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12653,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12654,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12657,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12659,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+12660,934,the Emerald Weapon — Castrum Marinum trial (Sorrow of Werlyt, ShB 5.3)
+# Diamond Weapon (NameId 9953) -> The Cloud Deck (950 = n4fh), ShB 5.4.
+13020,950,the Diamond Weapon — The Cloud Deck trial (Sorrow of Werlyt, ShB 5.4)
+13023,950,the Diamond Weapon — The Cloud Deck trial (Sorrow of Werlyt, ShB 5.4)
+#
+# Shishio — Mount Rokkon VARIANT boss (Endwalker V&C, NOT Dawntrail), TerritoryType 1137 (ex4 EW
+# path). NameId 12428, McType 3.
+#
+# RE-HARVEST RECONCILIATION (0.8.29): same shape as Aloalo above. BossMod ships the Criterion
+# module (C02AMR = 'Another Mount Rokkon') but NO Variant module, so the re-harvest (Tier A2) now
+# covers the CRITERION Shishio at 1155 (Normal, base 16200) / 1156 (Savage, base 16205) — those two
+# manual tags were REMOVED so they don't shadow the correct binding. Only the VARIANT-difficulty
+# actor 16192 (same NameId 12428) remains here, since BossMod can't reach the Variant dungeon.
+16192,1137,Mount Rokkon Variant boss: Shishio (EW V&C) — NameId 12428

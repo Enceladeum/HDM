@@ -1,0 +1,92 @@
+Stem,TerritoryId,Label
+# Curated dungeon-NAME stems -> TerritoryType. Resolves a mob to its home duty by the
+# dungeon word in its NAME, the one authored signal that survives when every automated
+# location tier fails.
+#
+# THE CRACK: dungeon/raid TRASH is director-spawned at runtime. It appears in NO flat client
+# sheet (zero Level Type-9 rows), it is absent from the BossMod instanced roster (that only
+# lists bosses), and crowdsource telemetry SCATTERS it -- the same model is reused by overworld
+# mobs, so a "Babil slasher" gets reported wherever its shared model was last seen, not in the
+# Tower of Babil. But Square names dungeon mobs after the dungeon: "Babil slasher", "Aloalo
+# ogrebon". So ONE stem rule places the whole roster at once. This is why it scales where
+# per-base manual tags don't: the single "Aloalo,1176" line below replaces 63 hand tags, and
+# "Babil,969" catches all 18 Tower of Babil mobs with no per-mob work.
+#
+# AUTHORITY / TIER: matched as Tier N -- directly BELOW the Tier M per-base curated tags and
+# ABOVE crowdsource, deliberately overriding the scattered telemetry that would misfile the mob.
+# A stem asserts a hand-verified fact: "this word occurs ONLY on this duty's mobs." Matching is
+# whole-word, case-insensitive (see DungeonStemIndex): "Babil" matches "Babil slasher" but never
+# a mid-word coincidence.
+#
+# ADDING A STEM -- the one rule: grep the shipped catalog (Data/mob-model-index.csv) for the word
+# FIRST and confirm every hit is that duty's mob. A generic word a duty merely reuses is NOT a
+# valid stem: the Tower of Babil's "Tempered Imperial" machinists/lancers/etc. carry no dungeon
+# word, so they can't be reached here -- they are the irreducible exception, caught only by
+# crowdsource/harvester/manual. Do not invent a stem for them.
+#
+# Schema: Stem,TerritoryTypeId,Label  (Label is free text, may contain commas; #-lead = comment.)
+#
+# Babil -> Tower of Babil dungeon (969 = m5d2, EW 6.0, IntendedUse 3 Dungeon, CFC 785). Catches
+# the 18 "Babil <x>" trash bases (slasher/nimrod/bit/satellite/canis pugnax/predator/sky armor/
+# helldiver/rearguard/colossus/avenger/death machine/hexadrone/roader/gunship/armored weapon/
+# hypertuned specimen). Verified: no non-Babil mob carries the word. NOTE the extras the tiers
+# already place here (iron nail, dark sphere) don't carry "Babil" and are untouched by this rule.
+Babil,969,Tower of Babil — dungeon trash (name-stem rule; EW 6.0)
+# Aloalo -> Aloalo Island Variant dungeon (1176 = o5d1, EW 6.5, IntendedUse 4 Variant & Criterion).
+# Catches the 63 "Aloalo <x>" + "bird of Aloalo" bases; replaces the hand tags that used to live in
+# mob-location-manual.csv. The 4 named bosses (Ketuduke/Statice/Lyngbakr/the Lala) carry no "Aloalo"
+# word, so they STAY as manual tags -- the honest boundary of what a name-stem can reach.
+Aloalo,1176,Aloalo Island — Variant & Criterion (name-stem rule; EW 6.5)
+#
+# ============================================================================================
+# GENERATOR-SURFACED STEMS (offline candidate pass, then manually vetted for precision).
+# ============================================================================================
+# An offline pass over the game sheets (TerritoryType/PlaceName/ContentFinderCondition) x the
+# shipped catalog proposed every token that (a) maps to EXACTLY ONE duty territory, (b) is not an
+# overworld place word, and (c) whole-word-matches >=1 catalog mob. It proposed 118; most were
+# FALSE POSITIVES -- generic words leaking from a duty's flavor TITLE into unrelated mobs ("will"
+# from "The Will of the Moon" hits will-o'-the-wisp everywhere; "death"/"claw"/"blood"/"wall"
+# [demon wall]/"armor" [magitek sky armor] likewise). A stem is high-authority (overrides
+# crowdsource), so a false positive actively MISFILES a shared-model mob until a DM corrects it.
+# Only distinctive PLACE proper-nouns survive below -- words that occur solely on one duty's
+# roster. The generic-title tokens were dropped on purpose; those mobs stay harvester/manual.
+# To regenerate: re-run the candidate pass per patch, then hand-keep only place proper-nouns here.
+#
+# -- Field zones (Eureka / Bozja / Occult): mobs are uniformly "<Place> <x>". --
+Anemos,732,the Forbidden Land, Eureka Anemos — field mobs (auto name-stem, vetted)
+Pagos,763,the Forbidden Land, Eureka Pagos — field mobs (auto name-stem, vetted)
+Pyros,795,the Forbidden Land, Eureka Pyros — field mobs (auto name-stem, vetted)
+Hydatos,827,the Forbidden Land, Eureka Hydatos — field mobs (auto name-stem, vetted)
+Bozjan,920,the Bozjan Southern Front — field mobs (auto name-stem, vetted)
+Zadnor,975,Zadnor — field mobs (auto name-stem, vetted)
+crescent,1252,the Occult Crescent: South Horn — field mobs (auto name-stem, vetted)
+occult,1252,the Occult Crescent: South Horn — field mobs (auto name-stem, vetted)
+#
+# -- Dungeons with place-prefixed rosters. --
+Neverreap,420,Neverreap — dungeon trash (auto name-stem, vetted)
+Dun Scaith,627,Dun Scaith — alliance-raid trash (auto name-stem, vetted)
+Snowcloak,1062,Snowcloak — dungeon trash (auto name-stem, vetted)
+Aery,1065,the Aery — dungeon trash (auto name-stem, vetted)
+Xelphatol,1113,Xelphatol — dungeon trash (auto name-stem, vetted)
+Sohr,1112,Sohr Khai — dungeon trash (auto name-stem, vetted)
+Khai,1112,Sohr Khai — dungeon trash (auto name-stem, vetted)
+Gulg,822,Mt. Gulg — dungeon trash (auto name-stem, vetted)
+Qitana,823,the Qitana Ravel — dungeon trash (auto name-stem, vetted)
+Relict,933,Matoya's Relict — dungeon trash (auto name-stem, vetted)
+Stigma,986,the Stigma Dreamscape — dungeon trash (auto name-stem, vetted)
+Paglth,938,Paglth'an — dungeon trash (auto name-stem, vetted)
+Vanaspati,970,Vanaspati — dungeon trash (auto name-stem, vetted)
+drowned,1172,the Drowned City of Skalla — dungeon trash (auto name-stem, vetted)
+Skalla,1172,the Drowned City of Skalla — dungeon trash (auto name-stem, vetted)
+Ihuykatumu,1167,Ihuykatumu — dungeon trash (auto name-stem, vetted)
+Origenics,1208,Origenics — dungeon trash (auto name-stem, vetted)
+valley,1203,Tender Valley — dungeon trash (auto name-stem, vetted)
+Underkeep,1266,the Underkeep — dungeon trash (auto name-stem, vetted)
+terminal,1292,the Meso Terminal — dungeon trash (auto name-stem, vetted)
+Mistwake,1314,Mistwake — dungeon trash (auto name-stem, vetted)
+Shisui,1367,Shisui of the Violet Tides — dungeon trash (auto name-stem, vetted)
+#
+# -- Alliance raids / large instances with place-prefixed rosters. --
+labyrinth,174,the Labyrinth of the Ancients — alliance-raid trash (auto name-stem, vetted)
+cosmos,884,the Grand Cosmos — dungeon trash (auto name-stem, vetted)
+Aglaia,1054,Aglaia — alliance-raid trash (auto name-stem, vetted)

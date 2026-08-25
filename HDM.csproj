@@ -1,0 +1,86 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+
+  <PropertyGroup>
+    <!--
+      Match the Dalamud.NET.Sdk version to the Dalamud you load against (15.x ->
+      SDK 15.0.0 -> net10.0-windows). The SDK version drives the stamped
+      DalamudApiLevel; an older SDK stamps an older level and Dalamud flags the
+      plugin "outdated and incompatible" even though it runs. A TFM mismatch
+      trips CS1705 + MSB3277 9-vs-10 conflicts. See HOutfits.csproj for the full
+      write-up of this trap and of IconUrl mechanics.
+    -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>x64</Platforms>
+    <Version>0.9.4.0</Version>
+
+    <!--
+      Manifest metadata lives here, NOT in a hand-written .json — the SDK
+      generates the manifest at build time and stamps the correct DalamudApiLevel.
+      Author is SINGULAR; Tags semicolon-separated.
+    -->
+    <Name>HDM</Name>
+    <InternalName>HDM</InternalName>
+    <Author>The Enceladeum</Author>
+    <AssemblyVersion>0.9.4.0</AssemblyVersion>
+    <Punchline>Wear any monster's face. Client-side mob disguises with a searchable catalog and animation triggers.</Punchline>
+    <Description>A catalog of every mob in the game (16k+ models, 15.5k named) plus the full set of humanoid NPCs (Glamourer's NPC tab). Apply any mob's or NPC's look to yourself client-side (Brio-style ModelCharaId swap + redraw, or a Glamourer paint for humans), spawn disguised puppets, trigger action timelines for theatrics, and revert cleanly. Self-apply only, like Glamourer — never enforced on other players. Built for DM/event use — no mechanics, just the face.</Description>
+    <RepoUrl>https://github.com/Enceladeum/HDM</RepoUrl>
+    <IconUrl>https://raw.githubusercontent.com/Enceladeum/HDM/main/images/icon.png</IconUrl>
+    <Tags>disguise;mob;monster;transform;roleplay;dm;event</Tags>
+    <CategoryTags>other</CategoryTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Offline-generated catalogs ship with the plugin:
+        mob-model-index.csv — every BNpcBase with a model (the disguise catalog),
+        timeline-index.csv  — action-timeline ids -> names (the animation catalog).
+      Globbed so a per-patch regen of either (or a new Data file) is picked up
+      without touching this project. The Monster/Demihuman ModelCharaId write and
+      timeline calls go through FFXIVClientStructs (Dalamud-provided — never bundle
+      it), and the optional Penumbra redraw goes over raw IPC labels.
+    -->
+    <Content Include="Data\**\*.csv" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Glamourer.Api: the Human (ModelChara.Type==1, c-skeleton) guise path can't
+      render from a bare ModelCharaId swap — the c-body needs CustomizeData + an
+      equipment set, and a direct write of NPC customize doesn't persist in live
+      play (the game's FilterCustomizeData scrubs it). So HGuise paints human NPC
+      guises through Glamourer's ApplyState (customize + NPC-model CustomItemIds),
+      exactly as HOutfits does — deliberately self-contained here, no dependency on
+      HOutfits (see project note: duplication is preferred over the coupling).
+
+      Glamourer.Api.dll MUST ship next to HGuise.dll (do NOT add
+      ExcludeAssets="runtime"): each plugin loads in its own AssemblyLoadContext and
+      does not inherit Glamourer's copy. IPC crosses the ALC boundary by string
+      label with marshalled args, so our own copy never clashes with Glamourer's.
+      The Human path graceful-degrades when Glamourer is absent (see HumanGuise).
+    -->
+    <PackageReference Include="Glamourer.Api" Version="2.*" />
+
+    <!--
+      Penumbra.Api: HDM makes exactly ONE Penumbra call — RedrawObject(self) on a Human-guise
+      revert (PenumbraIpc). A DM confirmed the manual "/penumbra redraw self" is the ONLY thing that
+      restores their Penumbra-modded privacy glam after a disguise; HDM's own native draw-object
+      rebuild (GuiseService.Redraw) is NOT equivalent for a modded actor — it reuses Penumbra's
+      already-resolved file redirections, whereas Penumbra's redraw re-resolves them through its
+      collection system. So the "No penumbra workarounds" rule is relaxed for that single restore
+      path only. Pulled transitively already (via Glamourer.Api) but pinned explicitly here so the
+      dependency is intentional and visible.
+
+      Like Glamourer.Api, Penumbra.Api.dll MUST ship next to HDM.dll (do NOT add
+      ExcludeAssets="runtime"): each plugin loads in its own AssemblyLoadContext and does not inherit
+      Penumbra's copy. IPC crosses the ALC boundary by string label ("Penumbra.RedrawObject.V5") with
+      marshalled args, so our own copy never clashes. Inert (Redraw returns false → native fallback)
+      when Penumbra is absent.
+    -->
+    <PackageReference Include="Penumbra.Api" Version="5.*" />
+  </ItemGroup>
+
+</Project>
