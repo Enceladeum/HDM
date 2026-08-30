@@ -126,6 +126,36 @@ public sealed class HumanGuise : IDisposable
     public bool IsGuised(int objectIndex) => _guised.Contains(objectIndex);
 
     /// <summary>
+    /// Show / hide the weapon on a HUMAN-guised actor through Glamourer's single-meta setter — the fix for
+    /// the DM's "unticking Show weapon does nothing", and the correction of b6's broken attempt.
+    ///
+    /// Native HideWeapons (GuiseService.SetWeaponDrawn) can't win here: for a human guise Glamourer MANAGES
+    /// the actor, and its StateListener re-asserts a managed WeaponState on EVERY redraw — that reassertion
+    /// is exactly what snapped the native hide straight back to shown. b6 tried to cooperate with the lock
+    /// by pushing a minimal ApplyState (Weapon-only JObject); that FAILED two ways — a design with no
+    /// Customize block makes Glamourer log "the loaded design does not contain any customization data, reset
+    /// to default" and wipe the guise, and it still didn't move the toggle. The DM's steer was right: use
+    /// the same cross-link HMS uses. SetMetaState pokes the single WeaponState bit through Glamourer's own
+    /// setter with NO design load, overwriting the managed value so what it re-asserts each redraw is now
+    /// the DM's choice — the toggle tracks the user. MetaFlag sense is VISIBILITY (true = weapon shown).
+    ///
+    /// No-op (with a log) for a non-guised index or when Glamourer is absent; those go through the native
+    /// GuiseService.SetWeaponDrawn path at the call site.
+    /// </summary>
+    public void SetWeaponShown(int objectIndex, bool drawn)
+    {
+        if (!_guised.Contains(objectIndex) || !_glam.Available)
+        {
+            _log.Debug($"Guise[weapon-vis] obj#{objectIndex}: SetWeaponShown skipped (guised={_guised.Contains(objectIndex)}, glamourer={_glam.Available}).");
+            return;
+        }
+
+        var ok = _glam.SetMeta(objectIndex, MetaFlag.WeaponState, drawn);
+        _log.Information(
+            $"Guise[weapon-vis] obj#{objectIndex}: human guise WeaponState -> Show={drawn} via SetMetaState (ok={ok}).");
+    }
+
+    /// <summary>
     /// Paint a human NPC onto the actor at <paramref name="objectIndex"/> via Glamourer. Call from the
     /// framework thread (UI Draw is fine). No-op with a warning if Glamourer is absent or the actor's
     /// state can't be read. <paramref name="source"/> selects which sheet the customize+gear come from:
@@ -214,7 +244,13 @@ public sealed class HumanGuise : IDisposable
         _guise.Redraw(objectIndex, onSettled: () =>
         {
             if (_guised.Contains(objectIndex))
+            {
                 TryApplyOnce(objectIndex, baseId, displayName, source, verbose: false);
+                // #79: load the NPC's OWN weapon natively (Glamourer's cross-class gate rejects a weapon write —
+                // see TryApplyOnce). Puppet-only, like every caller of this method; the body redraw has settled so
+                // the weapon draw object can attach, and the now-unmanaged Glamourer weapon slots defer to it.
+                _guise.LoadNpcWeapon(objectIndex, baseId, source);
+            }
         });
         _log.Debug($"Guise: obj#{objectIndex} '{displayName}' painted — forcing a draw-object rebuild + re-assert so the NPC customize/Race renders (self: RevertToGameBase-vs-ApplyState race; puppet: cold-spawn render gap).");
     }
@@ -277,28 +313,25 @@ public sealed class HumanGuise : IDisposable
             SetHeadgearShown(equipObj, npcHeadModel != 0);
         }
 
-        // #79: adopt the NPC's native weapon(s). Every NPC carries a weapon (the game forbids
-        // weaponless characters); a Human guise that stops at armor leaves the puppet holding the
-        // DM's OWN weapon, breaking the disguise. Weapons live in the SAME Glamourer Equipment
-        // object under "MainHand"/"OffHand" with the identical per-slot schema as armor — the only
-        // differences are that the CustomItemId carries a NON-ZERO secondary (the weapon's Type/Base
-        // model, whereas armor's is 0) and a weapon FullEquipType sentinel (UnknownMainhand/
-        // UnknownOffhand: the NPC sheet doesn't carry the specific weapon category, but the sentinels
-        // route the model to the correct hand and the mesh loads from Set/Type/Variant — no ClassJob
-        // is involved, mirroring Glamourer's own NPC-tab weapon application). Encoding verified
-        // verbatim against HOutfits' NpcStateBuilder. Read independently of the armor block so a
-        // weapon still lands even if the armor read came back null. Applied under the existing
-        // ApplyFlag.Equipment (weapons share the Equipment object — no separate flag).
+        // #79 + Show-weapon: the puppet's weapon MODEL and weapon VISIBILITY are driven NATIVELY, not through
+        // Glamourer — Glamourer OWNS both for a managed actor and fights an HDM write on every redraw:
+        //  * MODEL — Glamourer's cross-class weapon gate silently DROPS a MainHand write whose type differs from
+        //    the actor's TRUE weapon (InternalStateEditor.ChangeItem/ChangeEquip: outside GPose,
+        //    !item.Type.IsCompatible(BaseData.MainhandType) => return false). A puppet is a DM clone, so its base
+        //    weapon = the DM's class weapon; an NPC sword is cross-class => rejected (the readback proved it:
+        //    written=NPC weapon, stored=DM weapon). GuiseService.LoadNpcWeapon builds it via the game's LoadWeapon
+        //    (the gate-free Monster/Demihuman path) in RedrawGuise's onSettled.
+        //  * VISIBILITY — the "Weapon" meta ({Show,Apply}) is re-asserted every redraw while its source IsFixed
+        //    (StateListener: a fixed WeaponState OVERRIDES a /displayarms hide straight back to the stored Show),
+        //    which LOCKED the "Show weapon" toggle ON. GuiseService.SetWeaponDrawn drives it via HideWeapons.
+        // Both land + persist only if Glamourer STOPS managing them: clear the Apply flags on the cloned
+        // MainHand/OffHand slots and the "Weapon" meta so their source stays Game and Glamourer defers to the
+        // native drives (leave them applied and IsFixed re-enforces the DM clone every redraw).
         if (state["Equipment"] is JObject weaponObj)
         {
-            var (mainHand, offHand) = _npc.TryGetWeapons(baseId, source);
-            if (mainHand is { } mh) WriteWeapon(weaponObj, "MainHand", mh, EquipTypeMainHand);
-            if (offHand  is { } oh) WriteWeapon(weaponObj, "OffHand",  oh, EquipTypeOffHand);
-            if (verbose && (mainHand != null || offHand != null))
-                _log.Information(
-                    $"Guise[weapon] obj#{objectIndex} '{displayName}' base {baseId} ({source}): " +
-                    $"MainHand={(mainHand is { } m ? $"{m.Set}-{m.Type}-{m.Variant} dye {m.Dye}/{m.Dye2}" : "none")} " +
-                    $"OffHand={(offHand is { } o ? $"{o.Set}-{o.Type}-{o.Variant} dye {o.Dye}/{o.Dye2}" : "none")}.");
+            UnmanageWeaponSlot(weaponObj, "MainHand");
+            UnmanageWeaponSlot(weaponObj, "OffHand");
+            if (weaponObj["Weapon"] is JObject wv) wv["Apply"] = false; // weapon-visibility meta -> native drives it
         }
 
         if (customize != null && state["Customize"] is JObject custObj)
@@ -651,8 +684,8 @@ public sealed class HumanGuise : IDisposable
     // and the Glamourer state's Equipment object keys. Each entry carries the
     // FullEquipType byte Glamourer's CustomItemId needs (Head=1..Finger=9), verified
     // verbatim against Glamourer's Penumbra.GameData FullEquipType enum. Weapons are
-    // NOT in this array — they use a 3-part (Set/Type/Variant) model and a weapon
-    // FullEquipType sentinel, so they're written separately by WriteWeapon (#79).
+    // NOT in this array — they use a 3-part (Set/Type/Variant) model and are loaded
+    // natively by GuiseService.LoadNpcWeapon (#79), not written through Glamourer.
     private static readonly (string Key, ulong EquipType)[] Slots =
     [
         ("Head",    1),
@@ -680,38 +713,16 @@ public sealed class HumanGuise : IDisposable
          | (equipType << 40)
          | CustomFlag;
 
-    // FullEquipType sentinels for weapons (Penumbra.GameData, verbatim from HOutfits' EquipTypeFor):
-    // the NPC sheet doesn't carry the specific weapon category (Sword=12, Bow=14, …), which is normally
-    // derived from an item's equip-category and NPC gear has no item. Penumbra ships UnknownMainhand=66 /
-    // UnknownOffhand=67 for exactly this case: ToSlot() maps them to MainHand/OffHand and the model loads
-    // from Set/Type/Variant (bits 0-39) — the mesh does NOT depend on the category byte. Stamping 0/Unknown
-    // instead would make ToSlot() return Unknown and the weapon would route nowhere.
-    private const ulong EquipTypeMainHand = 66; // FullEquipType.UnknownMainhand
-    private const ulong EquipTypeOffHand  = 67; // FullEquipType.UnknownOffhand
-
-    // Weapon variant of CustomItemId: unlike armor, a weapon carries a NON-ZERO secondary (its Type/Base
-    // model id), threaded through bits 16-31. Same shape as HOutfits' NpcStateBuilder.CustomItemId(NpcPiece):
-    //   set | (type<<16) | (variant<<32) | (equipType<<40) | CustomFlag.
-    private static ulong WeaponCustomItemId(ushort set, ushort type, byte variant, ulong equipType)
-        => set
-         | ((ulong)type << 16)
-         | ((ulong)variant << 32)
-         | (equipType << 40)
-         | CustomFlag;
-
-    // Overwrite one weapon slot ("MainHand"/"OffHand") in the Glamourer Equipment object with the NPC's
-    // weapon — same schema as armor's slot write (ItemId is the weapon CustomItemId, stains carry the NPC
-    // dyes). No-ops if the slot key is absent (a non-weapon-capable state), which the [weapon] diagnostic
-    // surfaces.
-    private static void WriteWeapon(JObject equip, string key, NpcData.NpcWeapon w, ulong equipType)
+    // Stop Glamourer MANAGING a weapon slot: clear its item + stain Apply flags so the slot's source stays
+    // Game and Glamourer defers to the game object, letting the native LoadWeapon (GuiseService.LoadNpcWeapon)
+    // drive the NPC weapon uncontested. (Enforcing an NPC weapon THROUGH Glamourer is impossible anyway — the
+    // cross-class gate rejects a cross-class MainHand write; see TryApplyOnce.) No-ops if the slot key is absent.
+    private static void UnmanageWeaponSlot(JObject equip, string key)
     {
         if (equip[key] is not JObject slot)
             return;
-        slot["ItemId"]     = WeaponCustomItemId(w.Set, w.Type, w.Variant, equipType);
-        slot["Apply"]      = true;
-        slot["Stain"]      = w.Dye;
-        slot["Stain2"]     = w.Dye2;
-        slot["ApplyStain"] = true;
+        slot["Apply"]      = false;
+        slot["ApplyStain"] = false;
     }
 
     private static void WriteEquipment(JObject equip, EquipmentModelId[] pieces)

@@ -72,6 +72,13 @@ public sealed class PuppetInfo
     public float Py { get; set; }
     public float Pz { get; set; }
     public float Rot { get; set; }
+
+    /// <summary>Whether this puppet's animation is currently FROZEN (playback speed pinned to 0). Like
+    /// <see cref="Atom"/> this is STATE, not an event: it rides the GetPuppets snapshot so a peer that starts
+    /// mirroring mid-session begins the puppet frozen. Toggled outbound on the FreezeChanged lane and applied
+    /// on the receiver via SetFrozen. Additive (MinorVersion ≥ 4); a JSON payload from an older sender leaves
+    /// it false. Defaults false — a fresh puppet plays normally.</summary>
+    public bool Frozen { get; set; }
 }
 
 /// <summary>
@@ -108,7 +115,7 @@ public sealed class HdmIpc : IDisposable
     // Bump Minor for additive changes (new label / new atom field), Major only for a breaking change to an
     // existing label's signature or semantics. HMS gates on Major and treats Minor as capability discovery.
     public const uint MajorVersion = 1;
-    public const uint MinorVersion = 2;   // 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
+    public const uint MinorVersion = 4;   // 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
     public const string NameSpace = "HDM";
 
     private readonly IDalamudPluginInterface _pi;
@@ -130,10 +137,12 @@ public sealed class HdmIpc : IDisposable
     private readonly ICallGateProvider<int, object?> _puppetDespawned;      // (slot)
     private readonly ICallGateProvider<int, float, float, float, float, object?> _puppetMoved; // (slot,x,y,z,rot)
     private readonly ICallGateProvider<bool, object?> _ownBodyHidden;       // (hidden) — hide the DM's own-body mirror on peers
+    private readonly ICallGateProvider<int, bool, object?> _freezeChanged;  // (slot: -1 = own body / N = puppet, frozen) — animation-freeze edge (MinorVersion>=4)
     // Snapshot getters (HMS pull).
     private readonly ICallGateProvider<string> _getDisguise;                // JSON atom, or "" if none
     private readonly ICallGateProvider<string> _getPuppets;                 // JSON PuppetInfo[]
     private readonly ICallGateProvider<bool> _getOwnBodyHidden;             // true if the DM's own body is hidden right now
+    private readonly ICallGateProvider<bool> _getFrozenOwnBody;             // true if the DM's own body is animation-frozen right now (MinorVersion>=4)
     // Receiver methods (HMS -> HDM).
     private readonly ICallGateProvider<int, string, object?> _applyDisguise;// (objectIndex, atomJson)
     private readonly ICallGateProvider<int, object?> _revertDisguise;       // (objectIndex)
@@ -142,6 +151,8 @@ public sealed class HdmIpc : IDisposable
     private readonly ICallGateProvider<string, float, float, float, float, int> _spawnPuppetAt; // (atomJson,x,y,z,rot) -> objectIndex, -1 fail (MinorVersion>=2)
     private readonly ICallGateProvider<int, float, float, float, float, object?> _movePuppet; // (idx,x,y,z,rot)
     private readonly ICallGateProvider<int, object?> _despawnPuppet;        // (objectIndex)
+    private readonly ICallGateProvider<bool, object?> _sanitizeSelf;        // (restoreVisual) — strip the DM's OWN disguise on an exit edge (logout / session teardown) (MinorVersion>=3)
+    private readonly ICallGateProvider<int, bool, object?> _setFrozen;      // (objectIndex, frozen) — freeze/unfreeze a specific local mirror actor; HDM re-holds it (MinorVersion>=4)
     // Lifecycle broadcasts (so a plugin that loads in either order can (re)bind).
     private readonly ICallGateProvider<object?> _ready;
     private readonly ICallGateProvider<object?> _disposing;
@@ -152,7 +163,15 @@ public sealed class HdmIpc : IDisposable
     private readonly Dictionary<int, DisguiseAtom> _lastApplied = new(); // objectIndex -> last atom we drove (mirrors)
     private uint _epoch;
     private bool _ownHidden;   // is the DM's own body currently hidden on peers (possession in progress)?
+    private bool _ownFrozen;   // is the DM's own body currently animation-frozen (speed pinned 0)?
     private bool _disposed;
+
+    /// <summary>Late-wired in Plugin to <c>PossessionService.Release</c>. Invoked by <see cref="SanitizeSelf"/>
+    /// so an exit that strips the DM's own disguise also ends any in-progress possession — necessary because an
+    /// HMS session teardown is NOT a Dalamud logout, so PossessionService's own Release edges (territory / logout
+    /// / puppet-removed / dispose) may not fire on that path. Null until wired; PossessionService is built after
+    /// this IPC, so it cannot be a constructor dependency (same late-wire idiom as GuiseService.SuppressReassert).</summary>
+    public Action? ReleasePossession { get; set; }
 
     public HdmIpc(IDalamudPluginInterface pi, MobIndex index, GuiseService guise, HumanGuise humanGuise,
                   AnimationService anim, SpawnService spawn, IObjectTable objects, IPluginLog log)
@@ -176,6 +195,7 @@ public sealed class HdmIpc : IDisposable
         _puppetDespawned = pi.GetIpcProvider<int, object?>($"{NameSpace}.PuppetDespawned");
         _puppetMoved = pi.GetIpcProvider<int, float, float, float, float, object?>($"{NameSpace}.PuppetMoved");
         _ownBodyHidden = pi.GetIpcProvider<bool, object?>($"{NameSpace}.OwnBodyHidden");
+        _freezeChanged = pi.GetIpcProvider<int, bool, object?>($"{NameSpace}.FreezeChanged");
 
         _getDisguise = pi.GetIpcProvider<string>($"{NameSpace}.GetDisguise");
         _getDisguise.RegisterFunc(GetDisguiseJson);
@@ -183,6 +203,8 @@ public sealed class HdmIpc : IDisposable
         _getPuppets.RegisterFunc(GetPuppetsJson);
         _getOwnBodyHidden = pi.GetIpcProvider<bool>($"{NameSpace}.GetOwnBodyHidden");
         _getOwnBodyHidden.RegisterFunc(() => !_disposed && _ownHidden);
+        _getFrozenOwnBody = pi.GetIpcProvider<bool>($"{NameSpace}.GetFrozenOwnBody");
+        _getFrozenOwnBody.RegisterFunc(() => !_disposed && _ownFrozen);
 
         _applyDisguise = pi.GetIpcProvider<int, string, object?>($"{NameSpace}.ApplyDisguise");
         _applyDisguise.RegisterAction((idx, json) => Guard(() => ApplyDisguise(idx, json)));
@@ -198,6 +220,10 @@ public sealed class HdmIpc : IDisposable
         _movePuppet.RegisterAction((idx, x, y, z, rot) => Guard(() => MovePuppet(idx, x, y, z, rot)));
         _despawnPuppet = pi.GetIpcProvider<int, object?>($"{NameSpace}.DespawnPuppet");
         _despawnPuppet.RegisterAction(idx => Guard(() => _spawn.Despawn((ushort)idx)));
+        _sanitizeSelf = pi.GetIpcProvider<bool, object?>($"{NameSpace}.SanitizeSelf");
+        _sanitizeSelf.RegisterAction(rv => Guard(() => SanitizeSelf(rv)));
+        _setFrozen = pi.GetIpcProvider<int, bool, object?>($"{NameSpace}.SetFrozen");
+        _setFrozen.RegisterAction((idx, frozen) => Guard(() => SetFrozen(idx, frozen)));
 
         _ready = pi.GetIpcProvider<object?>($"{NameSpace}.Ready");
         _disposing = pi.GetIpcProvider<object?>($"{NameSpace}.Disposing");
@@ -327,6 +353,30 @@ public sealed class HdmIpc : IDisposable
         if (_disposed || _ownHidden == hidden) return;
         _ownHidden = hidden;
         _ownBodyHidden.SendMessage(hidden);
+    }
+
+    /// <summary>Report an animation-FREEZE toggle on the DM's own body (<paramref name="slot"/> null) or one of
+    /// their puppets (slot = the puppet's <see cref="SpawnService.SlotOf"/>). Freeze is a per-actor visual STATE
+    /// (a pinned playback speed of 0), so it is stored for late-join — own body in <see cref="_ownFrozen"/>
+    /// (served by <see cref="_getFrozenOwnBody"/>), a puppet in its <see cref="PuppetInfo.Frozen"/> (served by the
+    /// GetPuppets snapshot) — and emitted on the FreezeChanged lane as an EDGE. Deduped on the stored state so a
+    /// redundant toggle is a cheap no-op (mirrors <see cref="ReportOwnBodyHidden"/>). A puppet slot not in
+    /// <see cref="_puppets"/> is not one of the DM's own puppets (no mirror exists on peers), so it neither
+    /// stores nor emits — matching the scale/voffset reporters that no-op on an untracked subject.</summary>
+    public void ReportFrozen(int? slot, bool frozen)
+    {
+        if (_disposed) return;
+        if (slot is null)
+        {
+            if (_ownFrozen == frozen) return;
+            _ownFrozen = frozen;
+        }
+        else
+        {
+            if (!_puppets.TryGetValue(slot.Value, out var p) || p.Frozen == frozen) return;
+            p.Frozen = frozen;
+        }
+        _freezeChanged.SendMessage(slot ?? -1, frozen);
     }
 
     // SpawnService lifecycle → outbound, but ONLY for the DM's OWN puppets (those in _puppets). A puppet
@@ -620,6 +670,31 @@ public sealed class HdmIpc : IDisposable
         catch (Exception e) { _log.Error(e, "HDM IPC: receiver call threw."); }
     }
 
+    // HMS -> HDM exit-edge sanitiser (HMS calls this on its known-body-live logout / session-teardown edge as
+    // the reliable belt for HDM's own best-effort OnLogout). Ends any in-progress possession FIRST — un-hides +
+    // un-pins the DM's own body — because an HMS teardown is not a Dalamud logout, so PossessionService's own
+    // Release edges may not fire on this path. THEN strips the DM's own disguise via the shared sanitiser:
+    // restoreVisual=false is the cheap logout path (scale/offset/hidden field writes only, the model self-heals
+    // on relog); true also reverts the model + Human-guise appearance WITH a redraw (map-hop / teardown where
+    // the body persists and would NOT self-heal). Self-only + idempotent; runs on HMS's framework thread.
+    private void SanitizeSelf(bool restoreVisual)
+    {
+        ReleasePossession?.Invoke();
+        _guise.SanitizeLocalPlayer(restoreVisual);
+    }
+
+    // HMS -> HDM freeze receiver: freeze (frozen=true → speed 0) or resume (false → speed 1) the animation of a
+    // SPECIFIC local mirror actor HMS drives for a remote DM (that DM's synced body, or one of their mirror
+    // puppets). Routes through the SAME AnimationService.SetSpeed the DM uses on their own actors, so the pin is
+    // RE-ASSERTED every frame by the two speed hooks — that is the persistence contract HMS relies on (it re-calls
+    // this on rebind rather than per-frame poking). Actor-general: the hooks force the pin for any ObjectIndex in
+    // _speedPin, self or not. No-op if the actor isn't resolvable (a mirror not yet drawn / already gone).
+    private void SetFrozen(int objectIndex, bool frozen)
+    {
+        if (ResolveChara(objectIndex) is { } chara)
+            _anim.SetSpeed(chara, frozen ? 0f : 1f);
+    }
+
     // Flat JSON discriminator for the DisguiseChanged payload: Slot null = the DM's own body, N = puppet N.
     private sealed class DisguiseChangeDto
     {
@@ -668,6 +743,7 @@ public sealed class HdmIpc : IDisposable
         _getDisguise.UnregisterFunc();
         _getPuppets.UnregisterFunc();
         _getOwnBodyHidden.UnregisterFunc();
+        _getFrozenOwnBody.UnregisterFunc();
         _spawnPuppet.UnregisterFunc();
         _spawnPuppetAt.UnregisterFunc();
         _applyDisguise.UnregisterAction();
@@ -675,6 +751,8 @@ public sealed class HdmIpc : IDisposable
         _playAction.UnregisterAction();
         _movePuppet.UnregisterAction();
         _despawnPuppet.UnregisterAction();
+        _sanitizeSelf.UnregisterAction();
+        _setFrozen.UnregisterAction();
 
         _puppets.Clear();
         _lastApplied.Clear();

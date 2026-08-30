@@ -14,12 +14,12 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>x64</Platforms>
-    <Version>1.0.1.0</Version>
+    <Version>1.0.2.0</Version>
 
     <!--
       HDMT testing-identity gate. A Debug build (what runs locally as a dev plugin) defines
       HDM_TESTING, which flips the window header to the "HDMT v<Version> b<InternalBuild>"
-      provenance stamp (see MainWindow.cs). A Release build — what GHC packages for the public
+      provenance stamp (see MainWindow.cs). A Release build — what ships to the public
       feed — leaves the symbol undefined, so the header compiles to the plain public
       "HDM v<Version>" shape. The testing identity therefore auto-normalizes on promotion with
       no manual strip, mirroring the HMST<->HMS convention (testing identity is symbol-gated,
@@ -36,7 +36,7 @@
     <Name>HDM</Name>
     <InternalName>HDM</InternalName>
     <Author>The Enceladeum</Author>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <Punchline>Wear any monster's face. Client-side mob disguises with a searchable catalog and animation triggers.</Punchline>
     <Description>A catalog of every mob in the game (16k+ models, 15.5k named) plus the full set of humanoid NPCs (Glamourer's NPC tab). Apply any mob's or NPC's look to yourself client-side (Brio-style ModelCharaId swap + redraw, or a Glamourer paint for humans), spawn disguised puppets, trigger action timelines for theatrics, and revert cleanly. Self-apply only, like Glamourer — never enforced on other players. Built for DM/event use — no mechanics, just the face.</Description>
     <RepoUrl>https://github.com/Enceladeum/HDM</RepoUrl>
@@ -63,12 +63,12 @@
       Glamourer.Api: the Human (ModelChara.Type==1, c-skeleton) guise path can't
       render from a bare ModelCharaId swap — the c-body needs CustomizeData + an
       equipment set, and a direct write of NPC customize doesn't persist in live
-      play (the game's FilterCustomizeData scrubs it). So HGuise paints human NPC
+      play (the game's FilterCustomizeData scrubs it). So HDM paints human NPC
       guises through Glamourer's ApplyState (customize + NPC-model CustomItemIds),
       exactly as HOutfits does — deliberately self-contained here, no dependency on
       HOutfits (see project note: duplication is preferred over the coupling).
 
-      Glamourer.Api.dll MUST ship next to HGuise.dll (do NOT add
+      Glamourer.Api.dll MUST ship next to HDM.dll (do NOT add
       ExcludeAssets="runtime"): each plugin loads in its own AssemblyLoadContext and
       does not inherit Glamourer's copy. IPC crosses the ALC boundary by string
       label with marshalled args, so our own copy never clashes with Glamourer's.

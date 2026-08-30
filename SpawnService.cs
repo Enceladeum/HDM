@@ -287,6 +287,28 @@ public sealed unsafe class SpawnService : IDisposable
         native->CharacterSetup.CopyFromCharacter(meNative, CopyFlags.WeaponHiding);
         native->CharacterSetup.CopyFromCharacter(native, CopyFlags.None);
 
+        // Start the clone from the DM's TRUE body, not their current disguise. CopyFromCharacter copies the
+        // DM's LIVE model state, so if the DM is self-disguised (their own ModelCharaId swapped to a mob) the
+        // clone is born as THAT mob and EnableDraw builds a MONSTER draw object. A Monster guise would overwrite
+        // it, but a Human (Glamourer) guise paints via ApplyState, which only registers a HUMAN draw object:
+        // GetState returns null on the monster clone and the paint no-ops, so the puppet keeps the DM's disguise
+        // instead of the selected row (the "first spawn is the mob I'm disguised as / a previously-summoned mob"
+        // report). Reset to the player baseline (ModelCharaId 0, scale 1) so every puppet draws as a clean human
+        // the guise then builds from — a blank puppet becomes a copy of the DM's REAL body, and the guise apply
+        // (Monster OR Human) starts from the same clean skeleton an un-disguised clone would give. No-op when the
+        // DM isn't disguised (already 0/1). Customize/equipment stay the DM's (correct for a human baseline); a
+        // rare demihuman self-disguise leaves transient odd gear that the puppet's own guise immediately rewrites.
+        native->ModelContainer.ModelCharaId = 0;
+        native->GameObject.Scale = 1.0f;
+
+        // Weapon SHOWN by default (Issue 2 "weapon should be shown by default"). The clone copied the DM's
+        // weapon-hiding state (CopyFlags.WeaponHiding above), so a DM playing with /displayarms off would spawn
+        // every puppet holding an INVISIBLE weapon. Clear the inherited hide bit so puppets are born weapon-
+        // visible independent of the DM's own setting; the Spawn-tab "Show weapon" toggle drives it per-puppet
+        // after. A field write (not the HideWeapons game call) because the draw object doesn't exist yet — the
+        // flag is simply read when EnableDraw + LoadWeapon build the weapon a few ticks later.
+        native->DrawData.IsWeaponHidden = false;
+
         // Classify: a non-targetable, player-skeleton BattleNpc — a set-piece the DM drives, not a mob.
         native->GameObject.ObjectKind = ObjectKind.BattleNpc;
         native->GameObject.BattleNpcSubKind = BattleNpcSubKind.Player;

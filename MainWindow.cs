@@ -54,9 +54,9 @@ public sealed class MainWindow : Window, IDisposable
     // Bump by 1 for every test build cut.
     //
     // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
-    // the public Release build GHC packages compiles the plain "HDM v<Version>" header with no b-tag. The
+    // the public Release build compiles the plain "HDM v<Version>" header with no b-tag. The
     // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
-    private const int InternalBuild = 1;
+    private const int InternalBuild = 10;
 #endif
 
     private readonly MobIndex _index;
@@ -92,10 +92,10 @@ public sealed class MainWindow : Window, IDisposable
     private string _animFilter = string.Empty;
     private string _animGroup = "All"; // Animations tab: which Common-timeline semantic group is shown
     private bool _loopMode;            // Animations tab: named-timeline buttons loop (true) vs play once (false)
-    // Favourites tab (4a): the focused surface's apply target — false = YOU, true = the Spawn tab's focused
-    // puppet. The scale/elevation/animation funnels are all target-generic, so one fav drives either; forced
-    // back to self when no puppet is spawned. Revert/Hide/Freeze stay self-only (in the tab's self-cue strip).
-    private bool _favApplyToPuppet;
+    // Animation tab: the animation SUBJECT — false = YOU, true = the Spawn tab's focused puppet. The
+    // target-generic funnels let one selection drive either; forced back to self when no puppet is spawned.
+    // Surfaces a spawned humanoid puppet's emotes.
+    private bool _animApplyToPuppet;
     private bool _showAllTimelines;    // Animations tab: escape hatch — show the full Common pile instead of
                                        // trimming it to what the selected skeleton's .pap set can actually play
     private int? _animPlayableCount;   // Animations tab: cached count of playable (non-Move/React) Common rows
@@ -109,13 +109,6 @@ public sealed class MainWindow : Window, IDisposable
                                        // Normal" card is now the primary unstick, so the raw Stop needn't sit open.
     private bool _hideUnnamed;
     private MobRow? _selected;
-    // Favourites-tab focus, decoupled from the volatile _selected the same way _wornGuise is: _selected is the
-    // catalog browse-cursor, so a Revert NULLS it (see RevertGuise) and any catalog click MOVES it. The focused
-    // fav must not ride on that. Holds the BaseId of the fav whose focused surface (and its "Spawn puppet") is
-    // shown; set by clicking a Library row and self-healed to a live fav each draw. Without it the surface
-    // silently snapped to favRows[0] whenever _selected wasn't a fav, so "Spawn puppet" spawned that fallback
-    // (the alphabetical-first fav) instead of the one on screen.
-    private uint? _favFocusBase;
     // batch-3 (item #6): what the LOCAL PLAYER is actually WEARING, decoupled from _selected (which is the
     // catalog browse-cursor — a plain click moves it). Set ONLY at the ApplyGuise self choke-point and
     // cleared in RevertGuise; null = real model (no disguise). The Animations tab scopes to THIS, so browsing
@@ -145,7 +138,7 @@ public sealed class MainWindow : Window, IDisposable
     //                    pruned to live puppets each draw (PrunePuppetLabels).
     private string _spawnFilter = string.Empty;
     private int _puppetTimelineId = 3; // 3 = idle/normal — the shared "apply to all" id
-    private readonly Dictionary<ushort, string> _puppetGuise = new();
+    private readonly Dictionary<ushort, MobRow> _puppetGuise = new();
     private readonly Dictionary<ushort, int> _puppetTid = new();
     private readonly Dictionary<ushort, float> _puppetSpeed = new();
     private readonly Dictionary<ushort, float> _puppetScale = new();
@@ -361,6 +354,16 @@ public sealed class MainWindow : Window, IDisposable
         if (TrySyncSubject(actor, out var slot)) _ipc.ReportVOffset(slot, voffset);
     }
 
+    /// <summary>Emit a freeze STATE change (animation-hold) for the subject. Mirror of
+    /// <see cref="ReportElevationChange"/>: no-op on a non-sync actor and (inside HdmIpc, which dedupes) on an
+    /// unchanged value. Unlike scale/elev — which are HMS-applied field writes — freeze is HDM-applied on the
+    /// receiver (HdmIpc.SetFrozen pins speed 0/1 through AnimationService, the mechanism HMS can't reach), so the
+    /// wire only carries the edge and the peer re-drives it. Own body → slot null; a driven puppet → slot N.</summary>
+    private void ReportFreezeChange(ICharacter actor, bool frozen)
+    {
+        if (TrySyncSubject(actor, out var slot)) _ipc.ReportFrozen(slot, frozen);
+    }
+
     /// <summary>Report a puppet the DM just spawned (or a blank clone dummy when <paramref name="row"/> is
     /// null). Reads the puppet's slot + spawn transform; no-op if the slot isn't tracked yet (shouldn't
     /// happen — SpawnService registers it inside TrySpawn before returning).</summary>
@@ -415,17 +418,11 @@ public sealed class MainWindow : Window, IDisposable
                 ImGui.EndTabItem();
             }
             // Spawn Management: the DM's set-piece workshop — spawn blank puppets, then per-puppet disguise /
-            // move / rotate / animate them. Sits after Animations (the self-apply workflow) and before the
-            // Favourites library.
+            // move / rotate / animate them. Sits after Animations (the self-apply workflow). Starred favourites
+            // are pinned as fixtures at the top of its spawn catalog (the old Favourites tab, merged in).
             if (ImGui.BeginTabItem("Spawn"))
             {
                 DrawSpawnTab();
-                ImGui.EndTabItem();
-            }
-            // Favourites: the focused library — a curated after-thought to the Catalog/Animations workflow.
-            if (ImGui.BeginTabItem("Favourites"))
-            {
-                DrawFavouritesTab();
                 ImGui.EndTabItem();
             }
             // Config LAST: theme accent (+ HM-Sync sync) and any future settings. Rightmost, out of the
@@ -724,8 +721,8 @@ public sealed class MainWindow : Window, IDisposable
         {
             var fpup = FocusedPuppet();
             bool canPup = _selected is not null && fpup is not null;
-            string pupName = fpup is { } fpc && _puppetGuise.TryGetValue(fpc.ObjectIndex, out var pwl) && !string.IsNullOrEmpty(pwl)
-                ? pwl : "the focused puppet";
+            string pupName = fpup is { } fpc && _puppetGuise.TryGetValue(fpc.ObjectIndex, out var pwl)
+                ? pwl.DisplayName : "the focused puppet";
             ImGui.Spacing();
             if (HmUi.PrimaryButton("Disguise focused puppet", "disguisepup", acc, ImGui.GetContentRegionAvail().X, canPup)
                 && fpup is { } pup && _selected is { } prow)
@@ -733,7 +730,7 @@ public sealed class MainWindow : Window, IDisposable
                 // Preserve a dialed puppet size across the re-guise (matches the Spawn-tab per-puppet Apply).
                 var forced = _puppetScale.TryGetValue(pup.ObjectIndex, out var ps) ? (float?)ps : null;
                 ApplyGuise(pup, prow, forcedScale: forced);
-                _puppetGuise[pup.ObjectIndex] = prow.DisplayName; // keep the Spawn roster chip in sync
+                _puppetGuise[pup.ObjectIndex] = prow; // keep the Spawn roster chip in sync
             }
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip(canPup
@@ -894,15 +891,16 @@ public sealed class MainWindow : Window, IDisposable
         if (commit) ReportElevationChange(target, voffset);
     }
 
-    /// <summary>THE single self-Freeze toggle every surface calls (Animations + Favourites tabs) — pins
+    /// <summary>THE single self-Freeze funnel the Animations tab calls (for self or the driven puppet) — pins
     /// <see cref="_speed"/> to 0 (hold) or 1 (resume) and pushes it live; AnimationService re-asserts
-    /// OverallSpeed every frame so the hold sticks. Deliberately LOCAL-only (no HMS report) — unlike the
-    /// scale/elev funnels, Freeze is a local speed pin, not synced state. Puppets keep their OWN freeze
-    /// (per-idx <see cref="_puppetSpeed"/>), a distinct state holder, so they don't route through here.</summary>
+    /// OverallSpeed every frame so the hold sticks. Also reports the edge to HMS so the hold mirrors across a
+    /// session (peers re-drive it via HdmIpc.SetFrozen). Puppets keep their OWN freeze (per-idx
+    /// <see cref="_puppetSpeed"/>), a distinct state holder, and report through their own checkbox site.</summary>
     private void ApplyFreeze(ICharacter target, bool frozen)
     {
         _speed = frozen ? 0f : 1f;
         _anim.SetSpeed(target, _speed);
+        ReportFreezeChange(target, frozen);
     }
 
     /// <summary>
@@ -1067,8 +1065,8 @@ public sealed class MainWindow : Window, IDisposable
         }
         else
         {
-            // forcedScale overrides the global scale mode for canned presets (Wisp) and the
-            // per-favourite scale in the Favourites tab; null falls back to the current scale mode.
+            // forcedScale overrides the global scale mode for canned presets (Wisp) and a
+            // per-puppet re-guise's forced scale; null falls back to the current scale mode.
             _humanGuise.Revert(target.ObjectIndex); // drop any Glamourer face before swapping the model
             _guise.Apply(target, row, forcedScale ?? ResolveScale(row));
         }
@@ -1188,7 +1186,7 @@ public sealed class MainWindow : Window, IDisposable
         // once the clone is drawn — the correct, safe moment. We still record what it wears right away.
         if (!_spawn.TrySpawn(out var puppet, onReady: p => ApplyGuise(p, row)) || puppet is null)
             return null;
-        _puppetGuise[(ushort)puppet.ObjectIndex] = row.DisplayName;
+        _puppetGuise[(ushort)puppet.ObjectIndex] = row;
         // Announce the new puppet to HMS with its target atom + spawn transform (the disguise lands later
         // via the onReady ApplyGuise → DisguiseChanged; that's diffed to a no-op against this atom).
         ReportPuppetSpawn(puppet, row);
@@ -1354,7 +1352,7 @@ public sealed class MainWindow : Window, IDisposable
         {
             var obj = _objects[idx];
             var name = obj?.Name.TextValue;
-            var worn = _puppetGuise.TryGetValue(idx, out var w) ? w : null;
+            var worn = _puppetGuise.TryGetValue(idx, out var w) ? w.DisplayName : null;
             var possessed = _possession.IsPossessing && _possession.PossessedIndex == idx;
 
             ImGui.PushID(idx);
@@ -1427,7 +1425,7 @@ public sealed class MainWindow : Window, IDisposable
         if (_possession.IsPossessing)
         {
             var pi = (ushort)_possession.PossessedIndex;
-            var label = _puppetGuise.TryGetValue(pi, out var g) ? $"{g} (obj#{pi})" : $"obj#{pi}";
+            var label = _puppetGuise.TryGetValue(pi, out var g) ? $"{g.DisplayName} (obj#{pi})" : $"obj#{pi}";
             PushRed();
             var release = ImGui.Button("Release##possess");
             PopColors();
@@ -1447,7 +1445,7 @@ public sealed class MainWindow : Window, IDisposable
     /// with the last mob picked here. Matches renderable rows on name or BaseId, capped for a light list.</summary>
     private void DrawSpawnList(ICharacter? self)
     {
-        if (!ImGui.CollapsingHeader("Spawn a mob (search)", ImGuiTreeNodeFlags.DefaultOpen))
+        if (!ImGui.CollapsingHeader("Spawn a mob (favourites + search)", ImGuiTreeNodeFlags.DefaultOpen))
             return;
 
         ImGui.SetNextItemWidth(260);
@@ -1458,41 +1456,175 @@ public sealed class MainWindow : Window, IDisposable
             if (ImGui.Button("X##clearspawnfilter")) _spawnFilter = string.Empty;
         }
 
+        // Starred favourites, pinned as permanent fixtures at the top of the spawn catalog (the merged-away
+        // Favourites tab). Resolve the saved ids to renderable rows and order them by a strict total key —
+        // name, then BaseId — so a curated shelf reads A→Z and never reshuffles (the same tiebreaker the
+        // Location tree now uses). Shown always, independent of the search box.
+        var favRows = new List<MobRow>();
+        foreach (var id in _config.Favorites)
+            if (_index.TryGetByBase(id, out var fr) && IsRenderable(fr)) favRows.Add(fr);
+        favRows.Sort(static (a, b) =>
+        {
+            var c = string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+            return c != 0 ? c : a.BaseId.CompareTo(b.BaseId);
+        });
+
         const int cap = 60;
         var q = _spawnFilter.Trim();
-        var matches = MatchSpawnRows(q, cap + 1);
+        // Search matches EXCLUDING anything already pinned above, so a starred mob shows once (pinned), not twice.
+        var matches = MatchSpawnRows(q, cap + 1, _config.Favorites);
         var truncated = matches.Count > cap;
         if (truncated) matches.RemoveAt(matches.Count - 1);
 
-        ImGui.BeginChild("##spawnresults", new Vector2(0, 160), true);
+        ImGui.BeginChild("##spawnresults", new Vector2(0, favRows.Count > 0 ? 240 : 160), true);
+
+        if (favRows.Count > 0)
+        {
+            ImGui.TextDisabled($"Favourites · {favRows.Count}");
+            foreach (var r in favRows)
+                DrawFavouriteChip(r, self);
+            ImGui.Separator();
+        }
+
         if (matches.Count == 0)
         {
-            ImGui.TextDisabled(q.Length == 0 ? "Type to search the catalog." : "No renderable mob matches.");
+            ImGui.TextDisabled(q.Length == 0
+                ? (favRows.Count > 0 ? "Type to search the rest of the catalog." : "Type to search the catalog.")
+                : "No renderable mob matches.");
         }
         else
         {
             foreach (var r in matches)
-            {
-                ImGui.PushID((int)r.BaseId);
-                using (new Disabled(self == null))
-                {
-                    if (ImGui.SmallButton("Spawn")) { _selected = r; SpawnPuppetAs(r); }
-                }
-                ImGui.SameLine();
-                if (ImGui.Selectable($"{r.DisplayName}  ·  {r.SkeletonCode} mc{r.ModelCharaId} #{r.BaseId}", _selected?.BaseId == r.BaseId))
-                    _selected = r;
-                ImGui.PopID();
-            }
+                DrawSpawnRow(r, self);
             if (truncated)
                 ImGui.TextDisabled($"…more than {cap} matches. Refine the search.");
         }
         ImGui.EndChild();
     }
 
+    /// <summary>One SEARCH-MATCH row in the Spawn list (favourites render as pretty chips via
+    /// <see cref="DrawFavouriteChip"/>; a 60-row search stays compact here rather than a wall of tall chips): a ★
+    /// star toggle (curate the pinned favourites shelf without leaving this tab — same add/remove + save +
+    /// filter-invalidate as the Catalog's star, so both stay in sync), the Spawn button (clones a puppet already
+    /// wearing this row via the shared SpawnPuppetAs funnel), and a click-to-select label that sets the browse
+    /// cursor for the per-puppet "Apply {name}" action. PushID(BaseId) namespaces the widgets so rows that share a
+    /// Name don't collide — and since favourites are excluded from the search matches, a given BaseId appears at
+    /// most once per frame, so no id clash.</summary>
+    private void DrawSpawnRow(MobRow r, ICharacter? self)
+    {
+        ImGui.PushID((int)r.BaseId);
+
+        var fav = _config.Favorites.Contains(r.BaseId);
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
+        ImGui.PushStyleColor(ImGuiCol.Text, fav ? _accent.Primary : new Vector4(0.45f, 0.47f, 0.52f, 1f));
+        var favToggled = ImGui.SmallButton(fav ? "★" : "☆");
+        ImGui.PopStyleColor(4);
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unpin from favourites" : "Pin to favourites");
+        if (favToggled)
+        {
+            if (fav) _config.Favorites.Remove(r.BaseId);
+            else _config.Favorites.Add(r.BaseId);
+            _pi.SavePluginConfig(_config);
+            _cachedFilterKey = "\0"; // catalog star state changed (the Catalog tab shares this set)
+        }
+        ImGui.SameLine();
+
+        using (new Disabled(self == null))
+        {
+            if (ImGui.SmallButton("Spawn")) { _selected = r; SpawnPuppetAs(r); }
+        }
+        ImGui.SameLine();
+        if (ImGui.Selectable($"{r.DisplayName}  ·  {r.SkeletonCode} mc{r.ModelCharaId} #{r.BaseId}", _selected?.BaseId == r.BaseId))
+            _selected = r;
+
+        ImGui.PopID();
+    }
+
+    /// <summary>One favourite in the Spawn tab's starred shelf, rendered as the accent name-chip the old
+    /// Favourites tab had (restored on the consolidated tab) PLUS the two per-row actions the shelf lost when it
+    /// merged in — the DM's ask, "control distinction between disguise self from favs or spawn from favs":
+    ///   ★ unpin · [name chip → click SELECTS] · Disguise · Spawn.
+    /// Disguise wears the mob on YOU via the shared <see cref="ApplyGuise"/> funnel; Spawn drops a puppet wearing
+    /// it via <see cref="SpawnPuppetAs"/> — the exact funnels the Catalog uses, so scale/elevation and the HMS
+    /// report ride along unchanged (this is pure UI; no IPC touched). The appearance/animation levers the release
+    /// Favourites tab carried are deliberately NOT restored — the Animations tab owns those now. Every element is
+    /// drawn at the chip height (<c>GetFrameHeight()+6</c>, matching RowNameButton) so the row aligns on one line;
+    /// PushID(BaseId) namespaces the widgets. Search matches stay compact on <see cref="DrawSpawnRow"/>.</summary>
+    private void DrawFavouriteChip(MobRow r, ICharacter? self)
+    {
+        ImGui.PushID((int)r.BaseId);
+
+        float rowH   = ImGui.GetFrameHeight() + 6f;          // == RowNameButton's internal height
+        var   style  = ImGui.GetStyle();
+        float gap    = style.ItemSpacing.X;
+        float pad2   = style.FramePadding.X * 2f;
+        float starW  = ImGui.GetFrameHeight();
+        float disgW  = ImGui.CalcTextSize("Disguise").X + pad2 + 6f;
+        float spawnW = ImGui.CalcTextSize("Spawn").X + pad2 + 6f;
+        float chipW  = ImGui.GetContentRegionAvail().X - (starW + disgW + spawnW + gap * 3f);
+        if (chipW < 60f) chipW = 60f;
+
+        // ── ★ unpin (frameless glyph, rowH-tall for line alignment) — same add/remove + save + filter-invalidate
+        // as the Catalog's star, so both shelves stay in sync. Rows here are all favourites, so it always reads ★.
+        var fav = _config.Favorites.Contains(r.BaseId);
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
+        ImGui.PushStyleColor(ImGuiCol.Text, fav ? _accent.Primary : new Vector4(0.45f, 0.47f, 0.52f, 1f));
+        var favToggled = ImGui.Button(fav ? "★" : "☆", new Vector2(starW, rowH));
+        ImGui.PopStyleColor(4);
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unpin from favourites" : "Pin to favourites");
+        if (favToggled)
+        {
+            if (fav) _config.Favorites.Remove(r.BaseId);
+            else _config.Favorites.Add(r.BaseId);
+            _pi.SavePluginConfig(_config);
+            _cachedFilterKey = "\0"; // catalog star state changed (the Catalog tab shares this set)
+        }
+
+        // ── Name chip: a plain click SELECTS (sets the browse cursor the per-puppet "Apply {name}" reads); the
+        // chip fills accent while selected. Meta rides a tooltip so the chip stays clean, like the release Library.
+        ImGui.SameLine();
+        if (HmUi.RowNameButton(r.DisplayName, _selected?.BaseId == r.BaseId, _accent.Primary, chipW, "favchip"))
+            _selected = r;
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip($"{r.DisplayName}\n{r.SkeletonCode} · mc{r.ModelCharaId} · #{r.BaseId}\nClick to select for the per-puppet Apply.");
+
+        // ── Disguise: wear this mob YOURSELF — the action the merged shelf dropped. Same funnel as the Catalog's
+        // Disguise, so scale/elevation and the HMS report all match.
+        ImGui.SameLine();
+        using (new Disabled(self == null))
+        {
+            if (ImGui.Button("Disguise", new Vector2(disgW, rowH)) && self is { } s)
+            { _selected = r; ApplyGuise(s, r); }
+        }
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip(self == null
+                ? "Be present in the world to disguise."
+                : $"Wear {r.DisplayName} yourself. Revert (Catalog tab) drops it.");
+
+        // ── Spawn: drop a puppet already wearing this mob (unchanged funnel). ──
+        ImGui.SameLine();
+        using (new Disabled(self == null))
+        {
+            if (ImGui.Button("Spawn", new Vector2(spawnW, rowH)))
+            { _selected = r; SpawnPuppetAs(r); }
+        }
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip(self == null
+                ? "Be present in the world to spawn."
+                : $"Spawn a non-targetable puppet wearing {r.DisplayName}, a step ahead of you.");
+
+        ImGui.PopID();
+    }
+
     /// <summary>Renderable catalog rows matching the Spawn-tab search (name or BaseId, case-insensitive),
-    /// capped. Empty query returns nothing (the list prompts the DM to type). A cheap linear scan — the cap
-    /// keeps the child list light without needing the Catalog's filter cache.</summary>
-    private List<MobRow> MatchSpawnRows(string query, int cap)
+    /// capped, minus any pinned-favourite ids (those show once, pinned above). Empty query returns nothing (the
+    /// list prompts the DM to type). A cheap linear scan — the cap keeps the child list light without needing
+    /// the Catalog's filter cache.</summary>
+    private List<MobRow> MatchSpawnRows(string query, int cap, HashSet<uint>? exclude = null)
     {
         var results = new List<MobRow>();
         if (query.Length == 0) return results;
@@ -1500,6 +1632,7 @@ public sealed class MainWindow : Window, IDisposable
         foreach (var r in _index.Rows)
         {
             if (!IsRenderable(r)) continue;
+            if (exclude != null && exclude.Contains(r.BaseId)) continue;
             if (!(r.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase)
                   || (byId && r.BaseId == qid)
                   || r.BaseId.ToString().Contains(query)))
@@ -1534,7 +1667,7 @@ public sealed class MainWindow : Window, IDisposable
         var obj = _objects[idx];
         var chara = obj as ICharacter;
         var name = obj?.Name.TextValue;
-        var worn = _puppetGuise.TryGetValue(idx, out var w) ? w : null;
+        var worn = _puppetGuise.TryGetValue(idx, out var w) ? w.DisplayName : null;
 
         // Header: identity, the Possess/Release menu control (the DM's ask — a secondary path to the world
         // dot), and Despawn. Defer the ACTUAL despawn to the end of this block so it can't invalidate the
@@ -1589,7 +1722,7 @@ public sealed class MainWindow : Window, IDisposable
                     // falls back to the global scale mode, unchanged from before.
                     var forced = _puppetScale.TryGetValue(idx, out var ps) ? (float?)ps : null;
                     ApplyGuise(chara, row, forcedScale: forced);
-                    _puppetGuise[idx] = row.DisplayName;
+                    _puppetGuise[idx] = row;
                 }
             }
             if (ImGui.IsItemHovered() && _selected == null)
@@ -1625,7 +1758,7 @@ public sealed class MainWindow : Window, IDisposable
 
             // ── Freeze + speed + draw-elevation (the Animations-tab levers, per puppet) ──
             var frozen = _anim.IsFrozen(idx);
-            if (ImGui.Checkbox("Freeze", ref frozen)) { var s = frozen ? 0f : 1f; _puppetSpeed[idx] = s; _anim.SetSpeed(chara, s); }
+            if (ImGui.Checkbox("Freeze", ref frozen)) { var s = frozen ? 0f : 1f; _puppetSpeed[idx] = s; _anim.SetSpeed(chara, s); ReportFreezeChange(chara, frozen); }
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Hold the puppet on a still frame (pins animation speed 0 every frame). Toggle off to resume.");
             ImGui.SameLine();
@@ -1694,9 +1827,19 @@ public sealed class MainWindow : Window, IDisposable
             ImGui.AlignTextToFramePadding();
             ImGui.TextUnformatted("Set piece:");
             ImGui.SameLine();
-            if (ImGui.SmallButton("Draw weapon")) { _anim.Loop(chara, LocomotionData.BtlIdle); ReportHeldLoop(chara, LocomotionData.BtlIdle); }
+            // Draw weapon is a TOGGLE (DM ask): press once to hold the weapon-drawn battle idle, press again to
+            // sheathe. "Drawn" is read live from the actor's held base loop (IsHoldingLoop), so the label always
+            // mirrors the real stance with no shadow flag; sheathing routes through the same StopAnim funnel as
+            // the Stop button (blends back to idle + clears the peer loop state).
+            var wpnDrawn = _anim.IsHoldingLoop(chara, LocomotionData.BtlIdle);
+            if (ImGui.SmallButton((wpnDrawn ? "Sheathe weapon" : "Draw weapon") + "##drawwpn"))
+            {
+                if (wpnDrawn) StopAnim(chara);
+                else { _anim.Loop(chara, LocomotionData.BtlIdle); ReportHeldLoop(chara, LocomotionData.BtlIdle); }
+            }
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Hold a weapon-drawn battle idle stance. Press Stop to clear.");
+                ImGui.SetTooltip("Toggle a weapon-drawn battle idle stance — press again to sheathe and return to\n" +
+                                 "the neutral idle. (Stop clears it too.)");
             ImGui.SameLine();
             ushort dieIntro = (ushort)_timeline.ResolveCommonId("battle/dead");
             ushort dieHold  = (ushort)_timeline.ResolveCommonId("battle/dead_pose");
@@ -1706,6 +1849,37 @@ public sealed class MainWindow : Window, IDisposable
             }
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Play the death fall, then hold the lying dead pose. Press Stop to clear.");
+
+            // Cycle pose — the DM's "/cpose button", within the limit of what a PUPPET can be driven to hold.
+            // Steps through the standing idle-pose ActionTimeline variants (normal/idle -> idle_inactive1/2/3) and
+            // HOLDS the next one via the same Loop/BaseOverride funnel "Draw weapon"/"Die" use. It clears any held
+            // base lane first, so it also drops a held "Draw weapon" stance back to idle. Honesty note: this is NOT
+            // the true /cpose axis — real /cpose is applied by an unmapped game function (EmoteController.SetPose)
+            // that no-ops when written to a puppet, so we cycle the real idle CLIPS instead (drivable, held, testable).
+            ImGui.SameLine();
+            if (ImGui.SmallButton("Cycle pose")) _anim.CyclePose(chara);
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Step this puppet through the standing idle-pose variants (normal idle + the three\n" +
+                                 "idle_inactive clips) and hold it. Clears a held stance first, so a drawn weapon\n" +
+                                 "returns to the neutral idle.");
+
+            // Weapon VISIBILITY (the /displayarms axis), read LIVE from the actor so the box always mirrors
+            // reality — distinct from the "Draw weapon" STANCE beside it. Puppets equip their OWN mob weapon
+            // (Issue 1) shown by default (SpawnService clears the clone's inherited hide bit); this hides/shows it.
+            ImGui.SameLine();
+            var wpnShown = _guise.GetWeaponDrawn(idx);
+            if (ImGui.Checkbox("Show weapon", ref wpnShown))
+            {
+                // A HUMAN guise is MANAGED by Glamourer, whose StateListener re-asserts a fixed WeaponState every
+                // redraw and slams a native hide straight back on (that reassertion is what froze this toggle ON for
+                // the DM). So for a human guise drive VISIBILITY through Glamourer's own Weapon meta — cooperate with
+                // the lock instead of losing to it. Monster/Demihuman guises aren't Glamourer-managed: native path.
+                if (_humanGuise.IsGuised(idx)) _humanGuise.SetWeaponShown(idx, wpnShown);
+                else _guise.SetWeaponDrawn(idx, wpnShown);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Show or hide this puppet's weapon (sheathed-on-body visibility, the /displayarms\n" +
+                                 "axis). On by default. Distinct from \"Draw weapon\", which holds a weapon-drawn stance.");
         }
         else
         {
@@ -2159,355 +2333,11 @@ public sealed class MainWindow : Window, IDisposable
         }
     }
 
-    // ---- Favourites tab ------------------------------------------------------
-
-    /// <summary>
-    /// The Favourites tab (mockup 4a) — a saved LIBRARY of starred mobs feeding ONE focused surface, the same
-    /// list-plus-focus idiom as the Spawn tab's roster + live surface. The library is a compact click-to-focus
-    /// list; the surface below gives the focused fav an apply target (YOU or the Spawn tab's focused puppet),
-    /// its saved per-mob Scale + Elevation, and its playable animations — so a DM who curated a handful of
-    /// set-piece disguises applies, resizes and animates any of them without bouncing between tabs. Star a row
-    /// (☆) in the Catalog to add it here. Self-apply only, same as everything else.
-    /// </summary>
-    private void DrawFavouritesTab()
-    {
-        var self = Self();
-
-        if (_config.Favorites.Count == 0)
-        {
-            ImGui.TextWrapped("No favourites yet. In the Catalog tab, click a mob's ☆ star to add it here, " +
-                              "then this tab keeps it in a saved library with per-mob scale, elevation and " +
-                              "one-tap animations for your set pieces.");
-            return;
-        }
-
-        // Resolve fav ids to rows (skip any not in this data drop), sorted by shown name for a stable list.
-        var favRows = new List<MobRow>();
-        foreach (var id in _config.Favorites)
-            if (_index.TryGetByBase(id, out var r)) favRows.Add(r);
-        favRows.Sort((a, b) => string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase));
-
-        if (favRows.Count == 0)
-        {
-            ImGui.TextWrapped("Your starred mobs aren't in this data drop (a patch may have moved them). " +
-                              "Re-star from the Catalog to rebuild the library.");
-            return;
-        }
-
-        // The focused entry the surface below edits. Prefer the DURABLE per-tab focus (_favFocusBase) — it
-        // SURVIVES a Revert (which nulls _selected) and catalog browsing, so "Spawn puppet" always fires the fav
-        // on screen. Fall back to a just-starred catalog pick (_selected), then the first row. Self-heal the
-        // stored id to whatever we resolved, so an unstarred/stale focus lands on a live fav rather than nothing.
-        var focused = favRows.FirstOrDefault(fr => fr.BaseId == _favFocusBase)
-                   ?? favRows.FirstOrDefault(fr => fr.BaseId == _selected?.BaseId)
-                   ?? favRows[0];
-        _favFocusBase = focused.BaseId;
-
-        // ── Self-cue strip: Revert / Hide + Loop + Freeze. These govern YOUR own guise regardless of which fav
-        // is focused (Loop governs whether an Animation button below holds/loops or plays once), so they sit
-        // above the library. Revert/Hide/Freeze are self-only; the focused surface owns the per-target apply. ──
-        if (self != null)
-        {
-            var guised = _guise.IsGuised(self.ObjectIndex) || _humanGuise.IsGuised(self.ObjectIndex);
-            if (Chip("Revert", "revert_fav", guised)) RevertGuise(self);
-            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Restore your real model + size and un-stick any animation.");
-            ImGui.SameLine();
-            var hidden = _guise.IsHidden(self.ObjectIndex);
-            if (Chip(hidden ? "Unhide" : "Hide", "hide_fav", hidden)) _guise.SetHidden(self, !hidden);
-            ImGui.SameLine(0f, 18f); // clear gap: the self-only chips (Revert/Hide) vs the global Loop/Freeze toggles
-        }
-        ImGui.Checkbox("Loop", ref _loopMode);
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("Checked: an animation button below holds/loops the pose (Stop to end).\n" +
-                             "Unchecked: it plays once, then blends back to idle.");
-        ImGui.SameLine();
-        // Freeze: the same persistent speed-0 pin as the Animations tab (AnimationService re-asserts
-        // OverallSpeed 0 every frame). Governs the local player; disabled when there's no player to act on.
-        using (new Disabled(self == null))
-        {
-            var favFrozen = self != null && _anim.IsFrozen(self.ObjectIndex);
-            if (ImGui.Checkbox("Freeze", ref favFrozen) && self != null)
-                ApplyFreeze(self, favFrozen); // single self-Freeze funnel (shared with the Animations tab)
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Hold YOUR animation on a still frame (pins speed 0 every frame).\n" +
-                                 "Use it to 'stand perfectly still'. Toggle off to resume.");
-        }
-
-        ImGui.Spacing();
-
-        // ── LIBRARY: the saved list. One tidy click-to-focus row per starred mob; ★ removes it. Auto-fits up to
-        // ~8 rows then scrolls, so a big library never eats the tab. Subtract PanelPad on the right so the child
-        // mirrors the panel's left inset (UI-tidiness rule). ──
-        using (HmUi.Panel($"Library · {favRows.Count}"))
-        {
-            // Rows are tall rounded name-chips (frame + 6), so size the auto-fit child off the chip height, not a
-            // bare line — otherwise 8 chips would clip. Auto-fits up to 8, then scrolls.
-            var rowH = ImGui.GetFrameHeight() + 6f + ImGui.GetStyle().ItemSpacing.Y;
-            var rows = Math.Clamp(favRows.Count, 1, 8);
-            ImGui.BeginChild("##favlibrary", new Vector2(ImGui.GetContentRegionAvail().X - HmUi.PanelPad, rows * rowH + 4f));
-            foreach (var r in favRows)
-                DrawFavLibraryRow(r, focused);
-            ImGui.EndChild();
-        }
-
-        ImGui.Spacing();
-
-        // ── The focused surface: apply target, identity + Apply, Appearance, Animation — for the ONE focused fav.
-        DrawFavFocused(focused, self);
-    }
-
-    /// <summary>One Library row: ★ remove · a tall rounded, filled name-CHIP that click-focuses this fav in the
-    /// surface below (sets the browse-cursor <see cref="_selected"/>) WITHOUT wearing it — applying is the
-    /// surface's prominent gold Apply. The chip fills accent when it's the focused entry and keeps the slate
-    /// heuristic tint for guessed names, so a curated library reads as a stack of chips (not a flat text list)
-    /// and the focused one is obvious at a glance. Skeleton/base/MC meta rides the tooltip (and repeats in the
-    /// focused surface), keeping each row to one clean chip.</summary>
-    private void DrawFavLibraryRow(MobRow r, MobRow focused)
-    {
-        ImGui.PushID((int)r.BaseId);
-
-        // ★ unstar — remove from the library (and drop its saved scale/elevation). Nudged down to sit centred
-        // against the taller name-chip so the row reads level.
-        float chipH = ImGui.GetFrameHeight() + 6f;
-        float y0    = ImGui.GetCursorPosY();
-        ImGui.SetCursorPosY(y0 + (chipH - ImGui.GetTextLineHeight()) * 0.5f);
-        if (ImGui.SmallButton("★"))
-        {
-            _config.Favorites.Remove(r.BaseId);
-            _config.FavScales.Remove(r.BaseId);
-            _config.FavElevations.Remove(r.BaseId);
-            _pi.SavePluginConfig(_config);
-            _cachedFilterKey = "\0"; // catalog star state changed
-        }
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Remove from favourites.");
-        ImGui.SameLine();
-        ImGui.SetCursorPosY(y0); // chip back to the row top; the ★ stays vertically centred against it
-
-        bool heur = r.NameIsHeuristic;
-        float w   = ImGui.GetContentRegionAvail().X - 2f; // fill the rest of the line (child already insets; 2px keeps the border off the clip edge)
-        if (HmUi.RowNameButton(r.DisplayName, r.BaseId == focused.BaseId, _accent.Primary, w, "favlibsel",
-                               heur ? HeuristicNameTint : (Vector4?)null))
-            { _favFocusBase = r.BaseId; _selected = r; } // durable fav focus (survives Revert) + browse-cursor
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip($"Base {r.BaseId} · {r.SkeletonCode} · MC {r.ModelCharaId}\nClick to focus below." +
-                             (heur ? "\nName is a heuristic guess." : ""));
-
-        ImGui.PopID();
-    }
-
-    /// <summary>The focused surface for ONE favourite (mockup 4a): choose the apply target (YOU or the Spawn
-    /// tab's focused puppet), the identity + prominent gold Apply, an Appearance panel (saved per-mob Scale +
-    /// Elevation, live on the target when it wears this fav), and an Animation panel (the mob's playable
-    /// timelines in a 2-col grid) with a full-width red Stop. Every knob routes through the shared
-    /// target-generic funnels (ApplyGuise / ApplyScaleTo / ApplyElevationTo / TriggerTimeline), never a copy —
-    /// so the same fav drives self OR a puppet with one code path (single-control-mechanism rule).</summary>
-    private void DrawFavFocused(MobRow r, ICharacter? self)
-    {
-        ImGui.PushID("favfocus"); // one focused surface per frame — distinct id-space from the library rows
-
-        // Apply target: YOU, or the Spawn tab's focused puppet. Forced back to self when nothing is spawned.
-        var focusedPuppet = FocusedPuppet();
-        bool canPuppet = focusedPuppet != null;
-        if (!canPuppet) _favApplyToPuppet = false;
-        ICharacter? target = _favApplyToPuppet && canPuppet ? focusedPuppet : self;
-
-        // Does the CURRENT target already wear this fav? (Gates the live scale/elevation drags below.) Self keys
-        // off _wornGuise (what YOU wear); a puppet off its roster label.
-        bool TargetWearsFav()
-        {
-            if (target == null) return false;
-            if (self != null && target.ObjectIndex == self.ObjectIndex) return _wornGuise?.BaseId == r.BaseId;
-            return _puppetGuise.TryGetValue(target.ObjectIndex, out var w) && w == r.DisplayName;
-        }
-        // Keep the Spawn tab's per-puppet scale slider coherent when we live-size a puppet through a fav.
-        void MirrorPuppetScale(float s)
-        {
-            if (target != null && (self == null || target.ObjectIndex != self.ObjectIndex))
-                _puppetScale[target.ObjectIndex] = s;
-        }
-
-        // ── Apply-to toggle: two equal accent buttons (You | Focused puppet). ──
-        const float gap = 6f;
-        ImGui.AlignTextToFramePadding();
-        ImGui.TextDisabled("Apply to");
-        ImGui.SameLine();
-        float toW = MathF.Min(150f, (ImGui.GetContentRegionAvail().X - HmUi.PanelPad - gap) / 2f);
-        if (HmUi.AccentButton("You", "fav_to_self", !_favApplyToPuppet, _accent.Primary, toW))
-            _favApplyToPuppet = false;
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Apply this favourite to yourself.");
-        ImGui.SameLine(0, gap);
-        using (new Disabled(!canPuppet))
-        {
-            if (HmUi.AccentButton("Focused puppet", "fav_to_pup", _favApplyToPuppet && canPuppet, _accent.Primary, toW))
-                _favApplyToPuppet = true;
-        }
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip(canPuppet
-                ? "Apply this favourite to the puppet selected in the Spawn tab's roster."
-                : "Spawn a puppet (Spawn tab) to enable this.");
-
-        ImGui.Spacing();
-
-        // ── Identity + Apply: the marker (gender/minion icon), the name (heuristic-tinted) and dim meta, then a
-        // prominent full-width, taller gold Apply — the tab's hero action, unmistakable and mirroring the
-        // full-width red Stop at the foot of this surface. It wears this fav on the chosen target with its saved
-        // per-fav scale + elevation; dims (but stays clickable) when there's no target so the tooltip can explain. ──
-        DrawRowMarker(r);
-        ImGui.AlignTextToFramePadding();
-        bool heur = r.NameIsHeuristic;
-        if (heur) ImGui.PushStyleColor(ImGuiCol.Text, HeuristicNameTint);
-        ImGui.TextUnformatted(r.DisplayName);
-        if (heur) ImGui.PopStyleColor();
-        ImGui.TextDisabled($"Base {r.BaseId} · {r.SkeletonCode} · MC {r.ModelCharaId}");
-
-        float applyW = ImGui.GetContentRegionAvail().X - HmUi.PanelPad;
-        if (HmUi.PrimaryButton("Apply", "fav_apply", _accent.Primary, applyW, target != null, ImGui.GetFrameHeight() + 8f) && target != null)
-        {
-            _selected = r;
-            ApplyGuise(target, r, r.McType == 1 ? null : FavScale(r), FavElevation(r));
-            if (self == null || target.ObjectIndex != self.ObjectIndex)
-                _puppetGuise[target.ObjectIndex] = r.DisplayName; // keep the Spawn roster chip in sync
-        }
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip(target != null
-                ? $"Wear {r.DisplayName} on {(_favApplyToPuppet && canPuppet ? "the focused puppet" : "yourself")}."
-                : "Log in (or spawn a puppet) to apply.");
-
-        // ── Spawn puppet: create a NEW set-piece puppet already wearing this fav (independent of the Apply-to
-        // target above) — the DM's "spawn several centurions / galatea magnas from favs" ask. Routes through the
-        // SAME SpawnPuppetAs funnel the Catalog CTA and Spawn tab use (single-control-mechanism rule), so blanks
-        // vs disguised and self vs puppet all share one placement path; click again for each extra copy. Needs a
-        // local player to clone (SpawnService seeds from you), so it dims when logged out but stays clickable. A
-        // neutral accent pill under the gold Apply: a clearly-secondary action, not a rival hero. ──
-        using (new Disabled(self == null))
-        {
-            if (HmUi.AccentButton("Spawn puppet", "fav_spawn", false, _accent.Primary, applyW) && self != null)
-            {
-                _selected = r;      // keep the Catalog/Spawn selection coherent with what we just spawned
-                SpawnPuppetAs(r);   // the shared disguised-spawn funnel (records _puppetGuise + ReportPuppetSpawn)
-            }
-        }
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip(self != null
-                ? $"Spawn a new puppet already wearing {r.DisplayName} (Base {r.BaseId}).\n" +
-                  "Click again for each extra copy — then manage them in the Spawn tab."
-                : "Log in to spawn a puppet.");
-
-        bool wears = TargetWearsFav();
-
-        // ── Appearance: saved per-mob Scale (Monster/Demi only; Human sizes via Glamourer) + Elevation, live on
-        // the target when it wears this fav. Sliders carry an empty format (the Readout shows the value) with a
-        // right-side reset each — the PLAYBACK idiom (an explicit width leaves room for the reset button). ──
-        using (HmUi.Panel("Appearance"))
-        {
-            var st = ImGui.GetStyle();
-            if (r.McType != 1)
-            {
-                var scale = FavScale(r);
-                ImGui.TextUnformatted("Scale");
-                HmUi.Readout($"x{scale:0.00}");
-                float natW = ImGui.CalcTextSize("Native").X + st.FramePadding.X * 2f;
-                ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - natW - st.ItemSpacing.X - HmUi.PanelPad);
-                if (ImGui.SliderFloat("##favscale", ref scale, 0.1f, 5f, ""))
-                {
-                    _config.FavScales[r.BaseId] = scale;
-                    _pi.SavePluginConfig(_config);
-                    if (wears && target != null) { ApplyScaleTo(target, scale, commit: false); MirrorPuppetScale(scale); }
-                }
-                if (ImGui.IsItemDeactivatedAfterEdit() && wears && target != null)
-                    ApplyScaleTo(target, FavScale(r), commit: true); // release: live write + sync
-                ImGui.SameLine();
-                if (ImGui.Button("Native##favsc"))
-                {
-                    _config.FavScales.Remove(r.BaseId);
-                    _pi.SavePluginConfig(_config);
-                    if (wears && target != null) { ApplyScaleTo(target, r.Scale, commit: true); MirrorPuppetScale(r.Scale); }
-                }
-                if (ImGui.IsItemHovered()) ImGui.SetTooltip($"Reset to the mob's authored scale (x{r.Scale:0.##}).");
-            }
-            else
-            {
-                ImGui.TextDisabled("Human guise · sized through Glamourer.");
-            }
-
-            var elev = FavElevation(r);
-            ImGui.TextUnformatted("Elevation");
-            HmUi.Readout($"{elev:+0.00;-0.00;+0.00}");
-            float grdW = ImGui.CalcTextSize("Ground").X + st.FramePadding.X * 2f;
-            ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - grdW - st.ItemSpacing.X - HmUi.PanelPad);
-            if (ImGui.SliderFloat("##favelev", ref elev, -3f, 5f, ""))
-            {
-                if (MathF.Abs(elev) < 0.05f) _config.FavElevations.Remove(r.BaseId);
-                else                         _config.FavElevations[r.BaseId] = elev;
-                _pi.SavePluginConfig(_config);
-                if (wears && target != null) ApplyElevationTo(target, elev, commit: false);
-            }
-            if (ImGui.IsItemDeactivatedAfterEdit() && wears && target != null)
-                ApplyElevationTo(target, FavElevation(r), commit: true); // release: live write + sync
-            ImGui.SameLine();
-            if (ImGui.Button("Ground##favel"))
-            {
-                _config.FavElevations.Remove(r.BaseId);
-                _pi.SavePluginConfig(_config);
-                if (wears && target != null) ApplyElevationTo(target, 0f, commit: true);
-            }
-            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Drop back to native ground height.");
-        }
-
-        // ── Animation: the mob's playable timelines (its specials, plus its caps-trimmed playable Common when
-        // the skeleton has a caps profile), one tap each in a 2-col accent grid; Loop (strip above) governs
-        // hold-vs-once. A human c-skeleton has no caps profile, so its ~440-row Common belongs in the Animations
-        // tab — that shows a note here. Routes through the shared TriggerTimeline funnel. Full-width red Stop. ──
-        using (HmUi.Panel("Animation"))
-        {
-            var specials = _timeline.ForSkeleton(r.SkeletonCode);
-            var hasCaps  = _timeline.HasCaps(r.SkeletonCode);
-            IReadOnlyList<TimelineRow> animRows = hasCaps
-                ? specials.Concat(_timeline.ValidCommonFor(r.SkeletonCode)).ToList()
-                : specials;
-
-            if (animRows.Count == 0)
-            {
-                ImGui.TextDisabled(hasCaps ? "(no playable animations)" : "(this skeleton animates in the Animations tab)");
-            }
-            else
-            {
-                float cellW = (ImGui.GetContentRegionAvail().X - HmUi.PanelPad - gap) / 2f;
-                for (int i = 0; i < animRows.Count; i++)
-                {
-                    var t = animRows[i];
-                    if ((i & 1) == 1) ImGui.SameLine(0, gap);
-                    if (HmUi.AccentButton(t.Name, $"favanim{t.Id}", false, _accent.Primary, cellW) && target != null)
-                        TriggerTimeline(t, target);
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip($"id {t.Id} · {t.Key}\n{(IsResidentSpecialLoop(t.Key) ? "Hold pose (Stop to end)." : _loopMode ? "Loop full timeline (Stop to end)." : "Play once.")}");
-                }
-            }
-
-            ImGui.Spacing();
-            PushRed();
-            float stopW = ImGui.GetContentRegionAvail().X - HmUi.PanelPad;
-            var favStop = ImGui.Button("Stop##favstop", new Vector2(stopW, 0f));
-            PopColors();
-            if (favStop && target != null) StopAnim(target);
-            if (ImGui.IsItemHovered()) ImGui.SetTooltip("End a held/looping animation and blend back to idle.");
-        }
-
-        ImGui.PopID();
-    }
-
-    /// <summary>Per-favourite scale: the saved override, else the mob's authored native scale.</summary>
-    private float FavScale(MobRow r) => _config.FavScales.TryGetValue(r.BaseId, out var s) ? s : r.Scale;
-
-    /// <summary>Per-favourite draw-elevation: the saved lift, else 0 (native ground height). Passed as the
-    /// forcedElevation on apply, so an unset fav sanitises the offset to the floor.</summary>
-    private float FavElevation(MobRow r) => _config.FavElevations.TryGetValue(r.BaseId, out var e) ? e : 0f;
-
     /// <summary>The puppet the Spawn tab's roster currently focuses (its selection if still live, else the first
-    /// spawned), resolved to an ICharacter — or null when nothing is spawned. Lets the Favourites focused surface
-    /// apply/scale/animate "the focused puppet" through the same target-generic funnels the Spawn surface uses,
-    /// so there's no duplicate puppet control (single-control-mechanism rule). Mirrors
-    /// <see cref="ResolveRosterSelection"/> without its side effect of writing back <see cref="_selectedPuppet"/>.</summary>
+    /// spawned), resolved to an ICharacter — or null when nothing is spawned. Lets a control act on "the focused
+    /// puppet" through the same target-generic funnels the Spawn surface uses, so there's no duplicate puppet
+    /// control (single-control-mechanism rule). Mirrors <see cref="ResolveRosterSelection"/> without its side
+    /// effect of writing back <see cref="_selectedPuppet"/>.</summary>
     private ICharacter? FocusedPuppet()
     {
         var idx = _spawn.IsSpawned(_selectedPuppet) ? _selectedPuppet
@@ -2887,7 +2717,17 @@ public sealed class MainWindow : Window, IDisposable
         // Alphabetize the leaf's rows by the label the DM actually reads (DisplayName). Only expanded nodes
         // reach here, so this per-frame sort touches a handful of small lists at most — and it gives every
         // open zone / minion / NPC leaf the "secondary sort is alphabetical" ordering the DM asked for.
-        n.Items.Sort(static (a, b) => string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase));
+        // BaseId is a TIEBREAKER, not decoration: List.Sort is an unstable introsort, and leaves like "Antling
+        // Worker" carry many rows with the IDENTICAL DisplayName. Comparing on name alone leaves those ties in
+        // an arbitrary relative order that introsort re-permutes on each per-frame call, so a selected row
+        // visibly hops between positions ("jitter"). Adding BaseId makes the comparison a strict total order —
+        // no two rows tie, the sorted permutation is unique, and re-sorting the already-sorted list every frame
+        // is a fixpoint, so the order (and the selection highlight) holds still.
+        n.Items.Sort(static (a, b) =>
+        {
+            var c = string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+            return c != 0 ? c : a.BaseId.CompareTo(b.BaseId);
+        });
         foreach (var r in n.Items)
             DrawMobRow(r, indented: true);
     }
@@ -3245,20 +3085,33 @@ public sealed class MainWindow : Window, IDisposable
 
     private void DrawAnimTab()
     {
-        // Self-apply only: animations play on YOUR disguise, same subject as the guise itself. The
-        // local `target` below is the animation subject — always the local player.
-        var target = Self();
-        var selfLabel = target?.Name.TextValue ?? "(no local player)";
-        var playing = target != null && _anim.IsPlaying(target.ObjectIndex);
+        // The animation SUBJECT is normally YOU, but when a puppet is spawned the DM can retarget the whole
+        // playback surface onto "the focused puppet" (the Spawn roster's selection) via the "Drive" selector
+        // below — the same target-generic funnels the Spawn per-puppet surface uses, so one code path drives
+        // self OR a puppet (single-control-mechanism rule). This is what surfaces a spawned humanoid puppet's
+        // emote list here: the specials/emotes/common lists scope to the SUBJECT's worn guise (subjectGuise),
+        // not just _wornGuise. The header (identity + Revert) stays SELF-bound — RevertGuise is a local-player
+        // hard revert by construction (it nulls _wornGuise + your Moniker), never safe to point at a puppet.
+        var self = Self();
+        var focusedPuppet = FocusedPuppet();
+        var canPuppet = focusedPuppet != null;
+        if (!canPuppet) _animApplyToPuppet = false;
+        var toPuppet = _animApplyToPuppet && canPuppet;
+        var target = toPuppet ? focusedPuppet : self;              // subject the playback panel + lists drive
+        var subjectGuise = target == null ? null
+                         : toPuppet ? _puppetGuise.GetValueOrDefault(target.ObjectIndex) : _wornGuise;
+
+        var selfLabel = self?.Name.TextValue ?? "(no local player)";
+        var playing = self != null && _anim.IsPlaying(self.ObjectIndex);
 
         var acc = _accent.Primary;
         // Lit (accented) while guised — the same "you're disguised; click to drop it" cue the Catalog Revert uses.
-        var guised = target != null && (_guise.IsGuised(target.ObjectIndex) || _humanGuise.IsGuised(target.ObjectIndex));
+        var guised = self != null && (_guise.IsGuised(self.ObjectIndex) || _humanGuise.IsGuised(self.ObjectIndex));
 
         // ── Header: "● You · <name>" (green presence dot) on the left; self-actions (Revert / Dump state)
         // right-aligned on the same line. (2a mockup.) Revert and Dump stay ENABLED with no target below.
         {
-            var dotCol = target != null ? new Vector4(0.36f, 0.80f, 0.45f, 1f) : new Vector4(0.45f, 0.47f, 0.52f, 1f);
+            var dotCol = self != null ? new Vector4(0.36f, 0.80f, 0.45f, 1f) : new Vector4(0.45f, 0.47f, 0.52f, 1f);
             var hdl = ImGui.GetWindowDrawList();
             var dpos = ImGui.GetCursorScreenPos();
             float lh = ImGui.GetTextLineHeight();
@@ -3281,7 +3134,7 @@ public sealed class MainWindow : Window, IDisposable
             // Revert — same RevertGuise the Catalog chip calls (sanitises animation, drops BOTH guise families,
             // clears the active-disguise identity, mirrors to HMS, clears any Moniker nameplate). Distinct from
             // "Reset to Normal" below: unstick clears a STUCK ANIMATION but KEEPS the disguise; Revert drops it.
-            if (HmUi.AccentButton("Revert", "revert_anim", guised, acc) && target != null) RevertGuise(target);
+            if (HmUi.AccentButton("Revert", "revert_anim", guised, acc) && self != null) RevertGuise(self);
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Restore your real model + size and un-stick any animation, the same Revert as the\n" +
                                  "Catalog tab. (\"Reset to Normal\" below only clears a stuck animation; Revert\n" +
@@ -3297,6 +3150,30 @@ public sealed class MainWindow : Window, IDisposable
         }
 
         ImGui.Spacing();
+
+        // ── Drive selector: play animations on YOU, or on the Spawn tab's focused puppet. Only shown once a
+        // puppet is live so the common self-only flow stays uncluttered (mirrors the Catalog's "Disguise focused
+        // puppet" gate). Retargets `target` — and with it the whole PLAYBACK panel + every timeline list below,
+        // since they already route through the target-generic funnels — so a spawned humanoid puppet's emotes
+        // become searchable and playable here (the DM's "I can't see a puppet's emotes" ask). ──
+        if (canPuppet)
+        {
+            const float driveGap = 6f;
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextDisabled("Drive");
+            ImGui.SameLine();
+            float driveW = MathF.Min(150f, (ImGui.GetContentRegionAvail().X - HmUi.PanelPad - driveGap) / 2f);
+            if (HmUi.AccentButton("You", "anim_to_self", !_animApplyToPuppet, acc, driveW))
+                _animApplyToPuppet = false;
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Play animations on yourself.");
+            ImGui.SameLine(0f, driveGap);
+            if (HmUi.AccentButton("Focused puppet", "anim_to_pup", _animApplyToPuppet, acc, driveW))
+                _animApplyToPuppet = true;
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Play animations on the puppet selected in the Spawn tab's roster.\n" +
+                                 "Its specials/emotes and the Common list below follow the puppet's own guise.");
+            ImGui.Spacing();
+        }
 
         // ── Red "Reset to Normal" card — the prominent unstick. Sanitize() forces the actor back to a normal,
         // unlocked idle (clears BaseOverride/OverallSpeed, SetMode Normal); we also clear any held loop for peers.
@@ -3360,7 +3237,7 @@ public sealed class MainWindow : Window, IDisposable
             // that used to sit beside this was removed — it never reliably fired the jump .pap.)
             var frozen = target != null && _anim.IsFrozen(target.ObjectIndex);
             if (ImGui.Checkbox("Freeze", ref frozen) && target != null)
-                ApplyFreeze(target, frozen); // single self-Freeze funnel (shared with the Favourites tab)
+                ApplyFreeze(target, frozen); // single self-Freeze funnel (target-generic: self or the driven puppet)
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Hold the animation on a still frame (pins speed 0 every frame).\n" +
                                  "Use it to make a boss 'stand perfectly still'. Toggle off to resume.");
@@ -3407,66 +3284,77 @@ public sealed class MainWindow : Window, IDisposable
 
         ImGui.Spacing();
 
-        // ── This mob's specials (or a hint to pick one), now BELOW the search that filters it. Scopes to the
-        // WORN model (_wornGuise), not the catalog browse-cursor: browsing while disguised no longer drifts this
-        // list off what you're wearing, and shedding/changing the disguise updates it (batch-3 item #6).
-        if (_wornGuise is { } sel)
+        // ── The subject's specials (or a hint to pick one), now BELOW the search that filters it. Scopes to the
+        // SUBJECT's WORN model (subjectGuise = your _wornGuise, or the focused puppet's guise), not the catalog
+        // browse-cursor: browsing while disguised no longer drifts this list off what the subject wears, and
+        // shedding/changing the disguise updates it (batch-3 item #6).
+        // A blank (untracked) puppet is a clone of the local player — a human body that plays emotes even
+        // though it carries no mob identity, so treat it as human here. This is the DM's exact case: "spawned
+        // a humanoid dummy (elezen), I cannot see emotes." Every DISGUISE path records _puppetGuise (spawn-as,
+        // per-row apply, fav, re-guise), so a null guise on a puppet means genuinely blank, never a dressed one
+        // we failed to track. Its Common list falls to the human "playables" view below because its empty
+        // SkeletonCode has no caps profile. (If the DM is themselves monster-disguised when they drop a blank
+        // dummy the clone inherits that body and these emotes won't visibly fire — a rare corner; disguising
+        // the puppet through its row records the real guise and swaps this to the correct specials.)
+        var subjectIsBlankPuppet = toPuppet && subjectGuise is null;
+        var subjectIsHuman = subjectGuise is { McType: 1 } || subjectIsBlankPuppet;
+
+        if (subjectIsHuman)
         {
-            var skel = sel.SkeletonCode;
-            if (sel.McType == 1)
+            // Human body (a cNNNN NPC guise OR a blank DM-clone puppet): no monster specials, but it DOES play
+            // emotes — /point, /wave, /dance &c. Surface the full emote set here; each is a TimelineRow that
+            // rides the SAME TriggerTimeline funnel (Rule 1) so the global Loop toggle and the search box below
+            // govern it with no bespoke path. Scroll-boxed like Common so ~100 rows don't shove the rest of the
+            // tab off-screen.
+            var emotes = _timeline.Emotes;
+            if (HmUi.GroupHeader("Emotes", $"human · {emotes.Count}", ref _emotesOpen, "emotehdr"))
             {
-                // Human guise: a cNNNN body has no monster specials (ForSkeleton is empty for it), but it DOES
-                // play emotes — /point, /wave, /dance &c. Surface the full emote set here; each is a TimelineRow
-                // that rides the SAME TriggerTimeline funnel (Rule 1) so the global Loop toggle and the search
-                // box below govern it with no bespoke path. Scroll-boxed like Common so ~100 rows don't shove
-                // the rest of the tab off-screen.
-                var emotes = _timeline.Emotes;
-                if (HmUi.GroupHeader("Emotes", $"human · {emotes.Count}", ref _emotesOpen, "emotehdr"))
+                if (emotes.Count == 0)
+                    ImGui.TextDisabled("No emotes loaded.");
+                else
                 {
-                    if (emotes.Count == 0)
-                        ImGui.TextDisabled("No emotes loaded.");
-                    else
-                    {
-                        ImGui.BeginChild("##emotelist", new Vector2(0f, 220f), true, ImGuiWindowFlags.None);
-                        DrawTimelineButtons(emotes, target);
-                        ImGui.EndChild();
-                    }
+                    ImGui.BeginChild("##emotelist", new Vector2(0f, 220f), true, ImGuiWindowFlags.None);
+                    DrawTimelineButtons(emotes, target);
+                    ImGui.EndChild();
                 }
             }
-            else
+        }
+        else if (subjectGuise is { } sel)
+        {
+            // Monster/demihuman guise: list the skeleton's catalogued specials, then any glued combos.
+            var skel = sel.SkeletonCode;
+            var specials = _timeline.ForSkeleton(skel);
+            if (HmUi.GroupHeader($"This mob · {sel.DisplayName}", skel, ref _specialsOpen, "skelhdr"))
             {
-                var specials = _timeline.ForSkeleton(skel);
-                if (HmUi.GroupHeader($"This mob · {sel.DisplayName}", skel, ref _specialsOpen, "skelhdr"))
-                {
-                    if (specials.Count == 0)
-                        ImGui.TextDisabled($"No catalogued specials for {skel}. Try the Common set below.");
-                    else
-                        DrawTimelineButtons(specials, target);
-                }
+                if (specials.Count == 0)
+                    ImGui.TextDisabled($"No catalogued specials for {skel}. Try the Common set below.");
+                else
+                    DrawTimelineButtons(specials, target);
+            }
 
-                // Combos: one-click compound gestures that glue an intro clip to its terminal pose — "Die" =
-                // play the death FALL once, then HOLD the lying dead_pose (the pair a DM would otherwise fire by
-                // hand, and "never uses separately"). Shown ONLY when BOTH constituents resolve as caps-valid for
-                // this skeleton (ResolveCombos), so it never offers a Die the model can't actually perform. Each
-                // rides AnimationService.PlaySequence (the single compound-gesture funnel, Rule 1); the terminal
-                // HOLD is mirrored to peers via ReportHeldLoop so a synced viewer sees the pose held.
-                var combos = ResolveCombos(skel);
-                if (combos.Count > 0 && HmUi.GroupHeader("Combos", $"{combos.Count}", ref _combosOpen, "combohdr"))
+            // Combos: one-click compound gestures that glue an intro clip to its terminal pose — "Die" =
+            // play the death FALL once, then HOLD the lying dead_pose (the pair a DM would otherwise fire by
+            // hand, and "never uses separately"). Shown ONLY when BOTH constituents resolve as caps-valid for
+            // this skeleton (ResolveCombos), so it never offers a Die the model can't actually perform. Each
+            // rides AnimationService.PlaySequence (the single compound-gesture funnel, Rule 1); the terminal
+            // HOLD is mirrored to peers via ReportHeldLoop so a synced viewer sees the pose held.
+            var combos = ResolveCombos(skel);
+            if (combos.Count > 0 && HmUi.GroupHeader("Combos", $"{combos.Count}", ref _combosOpen, "combohdr"))
+            {
+                foreach (var (label, introId, holdId) in combos)
                 {
-                    foreach (var (label, introId, holdId) in combos)
-                    {
-                        if (HmUi.AccentButton(label, $"combo_{label}", false, acc) && target != null)
-                            { _anim.PlaySequence(target, introId, holdId); ReportHeldLoop(target, holdId); }
-                        if (ImGui.IsItemHovered())
-                            ImGui.SetTooltip($"Play the '{label}' sequence: the intro animation once, then hold its final pose.\n" +
-                                             "Press \"Reset to Normal\" above to release the hold.");
-                    }
+                    if (HmUi.AccentButton(label, $"combo_{label}", false, acc) && target != null)
+                        { _anim.PlaySequence(target, introId, holdId); ReportHeldLoop(target, holdId); }
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip($"Play the '{label}' sequence: the intro animation once, then hold its final pose.\n" +
+                                         "Press \"Reset to Normal\" above to release the hold.");
                 }
             }
         }
         else
         {
-            // Not wearing a disguise: prompt the DM to apply one (the tab tracks the WORN model now).
+            // Only reached for an undisguised SELF — a blank puppet is handled as human above. Prompt to apply
+            // a disguise so the mob's animations list here.
             ImGui.BeginChild("##nospecials", new Vector2(0f, ImGui.GetFrameHeightWithSpacing() + 4f), true, ImGuiWindowFlags.None);
             ImGui.TextDisabled("Disguise yourself from the Catalog to list the mob's animations here.");
             ImGui.EndChild();
@@ -3487,7 +3375,7 @@ public sealed class MainWindow : Window, IDisposable
         //    defines (ValidCommonFor) — a handful of rows, no chips needed;
         //  - a HUMAN (cNNNN) guise has no caps, so instead we hide the pure locomotion/reaction junk
         //    (IsPlayable) and let the provenance chips navigate the ~353 playable rows that remain.
-        var skelSel = _wornGuise?.SkeletonCode ?? "";
+        var skelSel = subjectGuise?.SkeletonCode ?? "";
         var hasCaps = _timeline.HasCaps(skelSel);
         var capsTrim = hasCaps && !_showAllTimelines;
         var playTrim = !hasCaps && !_showAllTimelines;
@@ -3587,7 +3475,7 @@ public sealed class MainWindow : Window, IDisposable
 
     /// <summary>
     /// Fire a timeline on the target per the Loop toggle and the row's nature — the single routing point
-    /// both the Animations tab and the Favourites tab go through:
+    /// the Animations tab goes through (self or the driven puppet):
     ///  - a resident-special HOLD pose (mon_sp_X_loop, which only renders while held) always holds via
     ///    <see cref="AnimationService.Loop"/> (BaseOverride); replaying it would flicker a frame at a time;
     ///  - otherwise, with Loop CHECKED, <see cref="AnimationService.LoopReplay"/> replays the WHOLE
@@ -3855,6 +3743,22 @@ public sealed class MainWindow : Window, IDisposable
             _pi.SavePluginConfig(_config);
         }
         ImGui.TextDisabled("Off by default. When on, HDM passively samples live enemies while you're in a duty\nand records their names and home instance to fill the catalog's instanced tail.");
+
+        // ── Disguise · session ────────────────────────────────────────────────────────────────────────
+        ImGui.Spacing();
+        ImGui.Spacing();
+        ImGui.TextDisabled("Disguise · session");
+        ImGui.Separator();
+        ImGui.Spacing();
+
+        var clearOnMap = _guise.ClearDisguiseOnMapChange;
+        if (ImGui.Checkbox("Clear disguises on map change", ref clearOnMap))
+        {
+            _guise.ClearDisguiseOnMapChange = clearOnMap;
+            _config.ClearDisguisesOnMapChange = clearOnMap;
+            _pi.SavePluginConfig(_config);
+        }
+        ImGui.TextDisabled("Off by default, so a disguise stays on across a zone line (walk between areas in character).\nWhen on, your own look, scale, and elevation revert at every map change, to re-apply by hand.\nLogging out always reverts either way.");
     }
 
     public void Dispose() { }

@@ -54,6 +54,16 @@ public static class LocomotionData
 
     // ── Ground: Unarmed ──
     public const ushort GndIdle = 3;
+    // Standing idle-pose VARIANTS (the "idle set" the Cycle-pose button steps through). These are the game's
+    // foundational low-id "common" idle timelines — normal/idle_inactive1..3 (index rows 4/5/6) — as stable as
+    // GndIdle/BtlIdle above, so hardcoding them here matches the established LocomotionData precedent rather than
+    // resolving by key (that per-patch-safety discipline is for the higher, driftable combo ids like battle/dead).
+    // NOTE: these are the native idle-animation variants, which are NOT guaranteed identical to the /cpose axis
+    // (that axis is applied by the unmapped EmoteController.SetPose); they hold cleanly via the Loop funnel and
+    // give a puppet real standing-pose variety for a set-piece. See MainWindow "Cycle pose".
+    public const ushort IdleInactive1 = 4;
+    public const ushort IdleInactive2 = 5;
+    public const ushort IdleInactive3 = 6;
     public const ushort GndTurnL = 7;
     public const ushort GndTurnR = 8;
     public const ushort GndWalkF = 13;

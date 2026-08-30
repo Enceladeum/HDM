@@ -131,8 +131,9 @@ public sealed class NpcData
     /// One NPC weapon's three-part model (Set / Type / Variant) plus its two dyes. Unlike armor
     /// (a 2-part model+variant packed in 32 bits), a weapon packs a THIRD component — the secondary
     /// "Type"/"Base" model — into a 64-bit column, so it can't reuse <see cref="EquipmentModelId"/>
-    /// (which has no secondary field). The Human guise writes these into Glamourer's MainHand/OffHand
-    /// slots (see HumanGuise.WriteWeapon).
+    /// (which has no secondary field). Every guise path (Monster/Demihuman AND Human) loads these
+    /// natively via the game's LoadWeapon; a Human puppet's weapon can't go through Glamourer (its
+    /// cross-class gate rejects a cross-class MainHand write — see GuiseService.LoadNpcWeapon).
     /// </summary>
     public readonly record struct NpcWeapon(ushort Set, ushort Type, byte Variant, byte Dye, byte Dye2);
 

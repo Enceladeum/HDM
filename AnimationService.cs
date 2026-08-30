@@ -161,6 +161,18 @@ public sealed unsafe class AnimationService : IDisposable
     /// <summary>True if we've driven a timeline on this actor since the last sanitise.</summary>
     public bool IsPlaying(int objectIndex) => _touched.Contains(objectIndex);
 
+    /// <summary>True if this actor's forced base loop is CURRENTLY <paramref name="timelineId"/> — i.e. we're
+    /// actively holding that specific clip (read live from <c>Timeline.BaseOverride</c>, no shadow flag). A plain
+    /// <see cref="Loop"/> pins BaseOverride and OnUpdate leaves it alone, so the field is a faithful "what's held
+    /// right now" read; <see cref="Sanitize"/> zeroes it. Lets the UI expose one button that TOGGLES a held stance
+    /// on/off (Draw ⇄ Sheathe weapon) without tracking a parallel bool that could drift from the actor.</summary>
+    public bool IsHoldingLoop(ICharacter chara, ushort timelineId)
+    {
+        var n = (CSCharacter*)chara.Address;
+        if (n == null || timelineId == 0) return false;
+        return n->Timeline.BaseOverride == timelineId;
+    }
+
     /// <summary>
     /// Play a timeline once, blended over the current base. Does not change Mode.
     /// Clears any held pose first: a one-shot (e.g. Battle Idle) must SUPERSEDE a held Special,
@@ -178,6 +190,53 @@ public sealed unsafe class AnimationService : IDisposable
         _sequences.Remove(idx);
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId);
         _touched.Add(idx);
+    }
+
+    // The standing idle-pose ring the "Cycle pose" button walks: the default idle plus its inactive variants,
+    // all foundational low-id "common" ActionTimeline rows (LocomotionData). Ordered so a press steps 3→4→5→6→3.
+    private static readonly ushort[] IdlePoseCycle =
+        [LocomotionData.GndIdle, LocomotionData.IdleInactive1, LocomotionData.IdleInactive2, LocomotionData.IdleInactive3];
+
+    /// <summary>
+    /// Step this puppet through the standing idle-pose VARIANTS — the DM's "Cycle pose" button, rebuilt on the
+    /// proven Loop funnel after the b6 approach did nothing.
+    ///
+    /// b6 drove the EmoteController triplet (EmoteId@0x14 / CurrentPoseType@0x20 / CPoseState@0x21) directly. On
+    /// a puppet that is INERT — the game applies a /cpose change through <c>EmoteController.SetPose</c>, which is
+    /// UNMAPPED in FFXIVClientStructs (no signature), so writing the bytes alone changes nothing. That is exactly
+    /// why the DM saw the pose "never advance". The true /cpose axis is therefore out of reach without that
+    /// function; what IS reachable and actually renders is the game's idle-animation set as ActionTimeline rows
+    /// (normal/idle + normal/idle_inactive1..3). So we cycle THOSE through <c>BaseOverride</c> + a gap-free blend —
+    /// the identical path "Draw weapon"/"Die" use to HOLD a puppet pose for a set-piece. Not byte-for-byte /cpose,
+    /// but real, visible standing-pose variety that holds (a puppet has no native input loop to settle it — guide
+    /// Principle 1 — so the pose must be driven and held).
+    ///
+    /// Stateless, like <see cref="IsHoldingLoop"/>: the CURRENT variant is read live from <c>BaseOverride</c> (no
+    /// shadow flag), so a press advances to the next in the ring; if the puppet is holding something else (a
+    /// drawn-weapon battle idle, a special), <see cref="Array.IndexOf{T}(T[],T)"/> returns −1 and the press starts
+    /// at the first idle pose — matching the button's "clears a held stance first" promise. Any replay / sequence /
+    /// loco state underneath is dropped so <see cref="OnUpdate"/> can't re-issue a loop (same discipline as
+    /// <see cref="PlayOnce"/>).
+    /// </summary>
+    public void CyclePose(ICharacter chara)
+    {
+        var n = (CSCharacter*)chara.Address;
+        if (n == null) return;
+        var idx = chara.ObjectIndex;
+
+        var cur = n->Timeline.BaseOverride;
+        var pos = Array.IndexOf(IdlePoseCycle, cur);          // −1 when holding a non-idle clip (or nothing)
+        var next = IdlePoseCycle[(pos + 1) % IdlePoseCycle.Length];
+
+        _replays.Remove(idx);            // no replay loop underneath
+        _sequences.Remove(idx);          // no compound gesture underneath
+        _locoLastApplied.Remove(idx);    // drop §4b one-writer state (BaseOverride re-pinned below)
+
+        n->Timeline.BaseOverride = next;                       // hold the pose (proven Loop funnel)
+        n->Timeline.TimelineSequencer.PlayTimeline(next);      // gap-free start
+        _touched.Add(idx);
+
+        _log.Information($"Anim: obj#{idx} cpose cycle idle-timeline {cur}->{next} (ring: {string.Join(",", IdlePoseCycle)}).");
     }
 
     /// <summary>

@@ -71,7 +71,7 @@ def unique_name(tid):
     if c and len(c) == 1: return next(iter(c))
     return None
 
-# HGuise Common rows (id, key)
+# HDM Common rows (id, key)
 common = []
 with open(HG, encoding="utf-8") as f:
     r = csv.reader(f); next(r)

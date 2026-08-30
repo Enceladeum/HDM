@@ -219,9 +219,17 @@ public sealed class Plugin : IDalamudPlugin
         // that redraw would null the Timeline its driven animation reads. The DM's own body isn't driven, so it
         // still self-heals normally; only the actively possessed index is suppressed.
         _guise.SuppressReassert = idx => _possession.PossessedIndex == idx;
+        // Exit-edge sanitiser wiring (the "own body left downsized + floating past logout" fix):
+        //  - ReleasePossession lets HDM.SanitizeSelf end an in-progress possession on an HMS teardown that isn't a
+        //    Dalamud logout (PossessionService is built after _ipc, so it can't be a ctor dep — late-wire here).
+        //  - RevertHumanAppearance lets the shared SanitizeLocalPlayer drop a Human (Glamourer) guise on the redraw
+        //    path (map-hop / teardown); a Glamourer guise has no _originals capture, so the model revert misses it.
+        _ipc.ReleasePossession = _possession.Release;
+        _guise.RevertHumanAppearance = _humanGuise.Revert;
         _possession.OverlayEnabled = config.ShowPossessionDots; // seed the possess-dot overlay from the persisted preference (default on)
         _possession.AllowPossessOthers = config.AllowPossessOthersPuppets; // seed the ownership gate (default off — only a puppet's originator drives it)
         _harvest.Enabled = config.HarvestMobNames; // seed the runtime name/territory harvester (default off — opt in via Config)
+        _guise.ClearDisguiseOnMapChange = config.ClearDisguisesOnMapChange; // seed the opt-in map-hop own-body strip (default off — keep disguise across zones)
         _main         = new MainWindow(index, timeline, content, territory, manual, stems, instanced, lore, level, webloc, companion, enpcLoc, _harvest, _guise, _humanGuise, _anim, _spawn, _possession, _ipc, moniker, config, PluginInterface, Objects, Targets, ClientState, Textures, Log, accent);
 
         _windows.AddWindow(_main);

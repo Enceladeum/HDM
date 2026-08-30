@@ -27,13 +27,15 @@ public sealed class GlamourerIpc
     private readonly RevertState _revert;
     private readonly GetState _getState;
     private readonly ApplyState _applyState;
+    private readonly SetMetaState _setMetaState;
 
     public GlamourerIpc(IDalamudPluginInterface pi)
     {
-        _apiVersion = new ApiVersion(pi);
-        _revert     = new RevertState(pi);
-        _getState   = new GetState(pi);
-        _applyState = new ApplyState(pi);
+        _apiVersion   = new ApiVersion(pi);
+        _revert       = new RevertState(pi);
+        _getState     = new GetState(pi);
+        _applyState   = new ApplyState(pi);
+        _setMetaState = new SetMetaState(pi);
     }
 
     /// <summary>
@@ -84,6 +86,34 @@ public sealed class GlamourerIpc
     /// </summary>
     public GlamourerApiEc ApplyState(JObject state, int objectIndex, ApplyFlag flags)
         => _applyState.Invoke(state, objectIndex, key: 0, flags: flags);
+
+    /// <summary>
+    /// Set ONE meta-visibility flag (weapon / hat / visor / …) on an actor, surgically — the correct
+    /// tool for toggling a human guise's drawn-weapon, borrowed from HMS's GlamourerIpc.SetMeta.
+    ///
+    /// Why not ApplyState (the b6 attempt): a hand-built JObject carrying only Equipment.Weapon.Show
+    /// is a partial design with no Customize block, which Glamourer rejects with "the loaded design
+    /// does not contain any customization data, reset to default" — it wiped the guise instead of
+    /// toggling the weapon. SetMetaState pokes the single meta bit through Glamourer's own setter with
+    /// no design load, so it never disturbs customize/equipment. It also OVERWRITES a Fixed WeaponState
+    /// (which the StateListener re-asserts every redraw); an omitted/Apply=false block cannot clear a
+    /// Fixed meta, which is why the b5 "unmanage by omission" path was inert.
+    ///
+    /// Flag sense is VISIBILITY (true = shown), matching Glamourer's own checkbox. Returns true on
+    /// Success; false (caught) when Glamourer is absent so the caller can log and no-op.
+    /// </summary>
+    public bool SetMeta(int objectIndex, MetaFlag flag, bool visible)
+    {
+        try
+        {
+            var ec = _setMetaState.Invoke(objectIndex, flag, visible, key: 0, flags: ApplyFlag.Equipment);
+            return ec == GlamourerApiEc.Success;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     /// <summary>
     /// Revert this actor fully back to game/automation state — equipment AND

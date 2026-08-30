@@ -5,8 +5,8 @@ BaseId,TerritoryTypeId,Note
 # in the overworld or are combatants in a duty. Cutscene-script PROPS are neither: they
 # have ModelChara=0 (identity = BNpcCustomize + NpcEquip on a default body) and are spawned
 # by an ArrayEventHandler event script, not placed in any static or roster table. So they
-# are unreachable by every tier and must be tagged by hand here. See project_hguise.md for
-# the full crack (the c0201 #13013 anchor).
+# are unreachable by every tier and must be tagged by hand here (the c0201 #13013 anchor
+# identifies this prop set).
 #
 # White YoRHa androids — YoRHa: Dark Apocalypse (NieR raid) questline cutscene props in
 # Kholusia (814 = n4f2, ShB). Same signature: ModelChara=0, BNpcCustomize 36, NpcEquip 940.

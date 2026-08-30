@@ -170,4 +170,17 @@ public sealed class Configuration : IPluginConfiguration
     /// Config toggle flips. New key — absent in older configs deserializes to false, so no migration is needed.
     /// </summary>
     public bool HarvestMobNames { get; set; } = false;
+
+    /// <summary>
+    /// Opt-in (default OFF): also strip the DM's OWN disguise (model + scale + elevation + hidden) when they
+    /// change zones, not only on logout. OFF preserves HDM's intentional cross-zone persistence — a disguise
+    /// (e.g. the territorial wisp) survives a zone line so a DM stays in character walking between areas (the
+    /// "stuck m_ across a zone" fix keeps the local player's tracking through a territory change). ON reverts
+    /// to the DM's real body at every map-hop, to be re-applied manually. The logout/exit revert is
+    /// unconditional either way (a disguise never persists past logout); this toggle governs ONLY the
+    /// territory-change edge. Seeded into <see cref="GuiseService.ClearDisguiseOnMapChange"/> at startup and
+    /// written back when the Config toggle flips. New key — absent in older configs deserializes to false, so
+    /// no migration is needed.
+    /// </summary>
+    public bool ClearDisguisesOnMapChange { get; set; } = false;
 }

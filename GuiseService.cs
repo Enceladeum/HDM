@@ -6,6 +6,8 @@ using CSCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
 using CSVector3 = FFXIVClientStructs.FFXIV.Common.Math.Vector3;
 using CharacterBase = FFXIVClientStructs.FFXIV.Client.Graphics.Scene.CharacterBase;
 using EquipmentModelId = FFXIVClientStructs.FFXIV.Client.Game.Character.EquipmentModelId;
+using WeaponModelId = FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId;
+using WeaponSlot = FFXIVClientStructs.FFXIV.Client.Game.Character.DrawDataContainer.WeaponSlot;
 
 namespace HDM;
 
@@ -82,6 +84,14 @@ public sealed unsafe class GuiseService : IDisposable
     // objectIndex -> pre-guise state (the TRUE original; preserved across re-applies
     // so revert always restores the real body, never an intermediate guise).
     private readonly Dictionary<int, Original> _originals = [];
+    // objectIndex -> the actor's pre-guise MAIN/OFF weapon models, captured when a Monster/Demihuman guise
+    // overwrites them with the disguised NPC's OWN weapon (WriteNpcWeapons). A spawned puppet is a clone of
+    // the DM (SpawnService CopyFromCharacter copies the DM's _weaponData), so without this it was left holding
+    // the DM's blade. Parallel to _originals (seeded together in ApplyNow, kept across re-applies, dropped on
+    // the same paths) rather than a field ON Original, so the Original seed sites that never touch weapons —
+    // Resize / SetScale — stay untouched. Restored on Revert.
+    private readonly Dictionary<int, OrigWeapons> _originalWeapons = [];
+    private readonly record struct OrigWeapons(WeaponModelId Main, WeaponModelId Off);
     // objectIndex -> McType of the guise CURRENTLY applied (1/2/3). Lets Apply spot a
     // demihuman-involved re-apply, which needs the clean revert-first rebuild.
     private readonly Dictionary<int, int> _currentKind = [];
@@ -159,6 +169,21 @@ public sealed unsafe class GuiseService : IDisposable
     /// reads the very Timeline a re-assert's redraw would null. Returns true to SUPPRESS the re-assert for
     /// that index. Null (default) never suppresses. Wired in Plugin to the possessed index.</summary>
     public Func<int, bool>? SuppressReassert { get; set; }
+
+    /// <summary>Runtime mirror of <see cref="Configuration.ClearDisguisesOnMapChange"/> (seeded at startup,
+    /// written back when the Config checkbox flips). When true, <see cref="OnTerritoryChanged"/> strips the
+    /// local DM's own disguise at a zone line instead of keeping it across the zone. Default false preserves
+    /// the intentional cross-zone persistence (the "stuck m_ across a zone" fix). The logout revert is
+    /// unconditional regardless of this flag.</summary>
+    public bool ClearDisguiseOnMapChange { get; set; }
+
+    /// <summary>Late-wired in Plugin to <c>HumanGuise.Revert</c>. Called by <see cref="SanitizeLocalPlayer"/>
+    /// on the redraw path (restoreVisual = true) so an exit that strips the DM's own disguise also drops a
+    /// Human (Glamourer) guise's appearance — which does NOT live in <c>_originals</c> and so is invisible to
+    /// <see cref="RevertLocalPlayerHard"/>. A no-op for a Monster/Demihuman guise (nothing Glamourer-side to
+    /// revert), so calling it unconditionally on that path is safe. Null until wired; never called on the cheap
+    /// logout path, where the Glamourer look self-heals on relog.</summary>
+    public Action<int>? RevertHumanAppearance { get; set; }
 
     /// <summary>
     /// A one-line, READ-ONLY snapshot of an actor's live draw/identity state — the diagnostic
@@ -291,9 +316,16 @@ public sealed unsafe class GuiseService : IDisposable
                 native->DrawData.IsHatHidden = false;
         }
 
+        // Give the puppet the disguised NPC's OWN weapon instead of the DM's inherited one (thread #1). Runs
+        // for both Monster (McType 3) and Demihuman (McType 2) — every actor that reaches ApplyNow; Human goes
+        // through HumanGuise. Resolve + capture now, but LOAD the weapon in the post-redraw continuation: the
+        // body redraw rebuilds the body draw object, NOT the separate weapon draw object (Weapon* at
+        // DrawObjectData+0x08), and the game's LoadWeapon only attaches once the body draw object is present.
+        var (mainW, offW) = ResolveNpcWeapons(native, idx, row);
+
         _currentKind[idx] = row.McType;
         _appliedGuises[idx] = new AppliedGuise(row, scale); // remember it so ReassertModel can heal a drift
-        BeginRedraw(idx, native, null, null);
+        BeginRedraw(idx, native, null, null, thenApply: () => LoadWeaponsNow(idx, mainW, offW));
         _log.Information($"Guise: obj#{idx} -> ModelChara {row.ModelCharaId} ({row.DisplayName}), {row.Kind}, scale {(scale?.ToString("0.##") ?? "unchanged")}");
     }
 
@@ -313,6 +345,124 @@ public sealed unsafe class GuiseService : IDisposable
         var span = native->DrawData.EquipmentModelIds;
         for (var i = 0; i < equip.Length && i < span.Length; i++)
             span[i] = equip[i];
+    }
+
+    /// <summary>
+    /// Resolve the disguised NPC's OWN main+off-hand weapon models (from the SAME NpcEquip source the body
+    /// uses) and capture the puppet's pre-guise weapon once so Revert can restore it. Does NOT touch the game
+    /// object — the actual build happens later in <see cref="LoadWeaponsNow"/>, after the body redraw settles,
+    /// because the weapon draw object (Weapon* at DrawObjectData+0x08) is SEPARATE from the ModelId spec and is
+    /// only (re)built by the game's LoadWeapon, which needs the body draw object present to attach to. (The
+    /// earlier field-write of DrawData.Weapon(slot).ModelId + a body redraw did NOT rebuild the weapon — the
+    /// clone-inherited DM weapon persisted; that was the "spawns inherit DM's weapon" report.) When the NPC has
+    /// no weapon in a slot the model is <c>default</c> (empty) so LoadWeapon CLEARS the inherited DM weapon
+    /// rather than leaving a weaponless beast holding the DM's sword. Human (McType 1) puppets take the parallel
+    /// <see cref="LoadNpcWeapon"/> entry (Glamourer's cross-class gate rejects a weapon write, so the model is
+    /// driven natively there too, not through Glamourer — #79).
+    /// </summary>
+    private (WeaponModelId Main, WeaponModelId Off) ResolveNpcWeapons(CSCharacter* native, int idx, MobRow row)
+    {
+        var (main, off) = _npc.TryGetWeapons(row.BaseId);
+
+        // Capture the TRUE pre-guise weapon once (kept across re-applies, like _originals) so Revert restores it.
+        if (!_originalWeapons.ContainsKey(idx))
+            _originalWeapons[idx] = new OrigWeapons(
+                native->DrawData.Weapon(WeaponSlot.MainHand).ModelId,
+                native->DrawData.Weapon(WeaponSlot.OffHand).ModelId);
+
+        var mainModel = main is { } m ? ToWeaponModel(m) : default;
+        var offModel  = off  is { } o ? ToWeaponModel(o) : default;
+        _log.Information($"Guise[weapon] obj#{idx} '{row.DisplayName}' (base {row.BaseId}): " +
+                         $"main {(main is { } mm ? $"{mm.Set}/{mm.Type}/{mm.Variant}" : "none -> cleared")}, " +
+                         $"off {(off is { } oo ? $"{oo.Set}/{oo.Type}/{oo.Variant}" : "none -> cleared")}");
+        return (mainModel, offModel);
+    }
+
+    /// <summary>
+    /// Build the resolved weapon(s) onto a puppet/actor via the game's <c>LoadWeapon</c> — the ONLY thing that
+    /// (re)creates the weapon draw object (a body redraw does not). Fired from the post-redraw continuation so
+    /// the body draw object exists to attach to; re-fetches the actor from its index because the continuation
+    /// runs a few ticks later and the object may be gone. <c>skipGameObject=0</c> writes the weapon into the
+    /// game object too, so the puppet's stored weapon state matches what's drawn (survives draw/sheathe
+    /// re-derivation and any external redraw) — safe here because a puppet has no authoritative weapon to
+    /// protect, unlike Glamourer's human targets. Other params match Glamourer's proven call
+    /// (redrawOnEquality=1). An empty (<c>default</c>) model clears the slot.
+    /// </summary>
+    private void LoadWeaponsNow(int idx, WeaponModelId main, WeaponModelId off)
+    {
+        if (_objects[idx] is not ICharacter c || c.Address == nint.Zero) return;
+        var native = (CSCharacter*)c.Address;
+        native->DrawData.LoadWeapon(WeaponSlot.MainHand, main, 1, 0, 0, 0, false);
+        native->DrawData.LoadWeapon(WeaponSlot.OffHand,  off,  1, 0, 0, 0, false);
+        _log.Debug($"Guise[weapon] obj#{idx}: LoadWeapon main {main.Id}/{main.Type}/{main.Variant}, off {off.Id}/{off.Type}/{off.Variant}");
+    }
+
+    /// <summary>
+    /// Public parallel to <see cref="ResolveNpcWeapons"/>+<see cref="LoadWeaponsNow"/> for a HUMAN (McType 1)
+    /// puppet, whose weapon CANNOT be driven through Glamourer: Glamourer's cross-class gate silently DROPS a
+    /// MainHand write whose type differs from the actor's true (DM-clone) weapon, so the model is loaded NATIVELY
+    /// here via the game's <c>LoadWeapon</c> — the same gate-free path the Monster/Demihuman guise uses. Called
+    /// from HumanGuise's post-redraw continuation (puppet-only), AFTER the body redraw settles so the weapon draw
+    /// object can attach and AFTER the cloned Glamourer weapon slots have been un-managed (Apply flags cleared) so
+    /// they defer to this native drive instead of re-asserting the DM weapon every redraw. Captures the pre-guise
+    /// weapon once (like <see cref="ResolveNpcWeapons"/>) so Revert restores it; a <c>default</c> model CLEARS the
+    /// slot when the NPC has no weapon there.
+    /// </summary>
+    public void LoadNpcWeapon(int objectIndex, uint baseId, NpcSource source)
+    {
+        if (_objects[objectIndex] is not ICharacter c || c.Address == nint.Zero) return;
+        var native = (CSCharacter*)c.Address;
+        var (main, off) = _npc.TryGetWeapons(baseId, source);
+
+        // Capture the TRUE pre-guise weapon once (kept across re-applies) so Revert restores it.
+        if (!_originalWeapons.ContainsKey(objectIndex))
+            _originalWeapons[objectIndex] = new OrigWeapons(
+                native->DrawData.Weapon(WeaponSlot.MainHand).ModelId,
+                native->DrawData.Weapon(WeaponSlot.OffHand).ModelId);
+
+        var mainModel = main is { } m ? ToWeaponModel(m) : default;
+        var offModel  = off  is { } o ? ToWeaponModel(o) : default;
+        LoadWeaponsNow(objectIndex, mainModel, offModel);
+        _log.Information($"Guise[weapon] obj#{objectIndex} human puppet base {baseId} ({source}): " +
+                         $"main {(main is { } mm ? $"{mm.Set}/{mm.Type}/{mm.Variant}" : "none -> cleared")}, " +
+                         $"off {(off is { } oo ? $"{oo.Set}/{oo.Type}/{oo.Variant}" : "none -> cleared")}");
+    }
+
+    /// <summary>Map an <see cref="NpcData.NpcWeapon"/> (Set/Type/Variant + 2 dyes) to the native
+    /// <see cref="WeaponModelId"/> a draw-data slot holds (1:1: Set-&gt;Id, Type-&gt;Type, Variant-&gt;Variant,
+    /// Dye-&gt;Stain0, Dye2-&gt;Stain1).</summary>
+    private static WeaponModelId ToWeaponModel(NpcData.NpcWeapon w) => new()
+    {
+        Id      = w.Set,
+        Type    = w.Type,
+        Variant = w.Variant,
+        Stain0  = w.Dye,
+        Stain1  = w.Dye2,
+    };
+
+    /// <summary>
+    /// Read whether an actor's weapon is currently DRAWN/visible — the inverse of the DrawData
+    /// <c>IsWeaponHidden</c> bit. The LIVE actor is the source of truth, so the Spawn-tab checkbox reflects
+    /// reality each frame without a shadow flag that could drift. False for a missing/undrawable actor.
+    /// </summary>
+    public bool GetWeaponDrawn(int objectIndex)
+    {
+        if (_objects[objectIndex] is not ICharacter c || c.Address == nint.Zero) return false;
+        return !((CSCharacter*)c.Address)->DrawData.IsWeaponHidden;
+    }
+
+    /// <summary>
+    /// Toggle whether an actor's weapon is DRAWN/visible — the /displayarms axis (<c>HideWeapons</c> /
+    /// <c>IsWeaponHidden</c>). This is weapon VISIBILITY, NOT the weapon MODEL (Issue 1's
+    /// <see cref="LoadWeaponsNow"/>) nor the combat STANCE (the BtlIdle "Draw weapon" animation). Calls the
+    /// game's <c>HideWeapons</c> so the change re-derives on the drawn body immediately. Puppets are born
+    /// weapon-shown (SpawnService clears the clone's inherited hide bit); this drives per-puppet changes after.
+    /// </summary>
+    public void SetWeaponDrawn(int objectIndex, bool drawn)
+    {
+        if (_objects[objectIndex] is not ICharacter c || c.Address == nint.Zero) return;
+        ((CSCharacter*)c.Address)->DrawData.HideWeapons(!drawn);
+        _log.Debug($"Guise[weapon] obj#{objectIndex}: weapon {(drawn ? "shown" : "hidden")}");
     }
 
     /// <summary>
@@ -508,13 +658,23 @@ public sealed unsafe class GuiseService : IDisposable
         native->GameObject.Scale = orig.Scale;
         if (orig.Equipment != null)
             WriteEquipment(native, orig.Equipment);
+        // Restore the actor's own weapon if a Monster/Demihuman guise overwrote it (ResolveNpcWeapons captured
+        // it). Like the body, the weapon draw object is only rebuilt by LoadWeapon AFTER the redraw settles — a
+        // field-write wouldn't rebuild the separate Weapon* draw object. Only restore when reverting to the DM's
+        // true self (onSettled == null); a revert that continues into a Human paint lets HumanGuise/Glamourer
+        // set the weapon, so don't fight it here (just drop the tracking).
+        var haveWeapon = _originalWeapons.Remove(chara.ObjectIndex, out var ow);
         // Restore the player's own head-gear-visibility preference (a demihuman guise
         // forces it visible so the head mesh shows; put it back on the way out).
         if (native->DrawData.IsHatHidden != orig.HatHidden)
             native->DrawData.IsHatHidden = orig.HatHidden;
         // BeginRedraw overwrites any in-flight job for this index, which cancels a
         // queued re-apply if the user reverts mid-sequence — the desired behaviour.
-        BeginRedraw(chara.ObjectIndex, native, null, null, onSettled);
+        int revIdx = chara.ObjectIndex;
+        Action? cont = onSettled;
+        if (onSettled == null && haveWeapon)
+            cont = () => LoadWeaponsNow(revIdx, ow.Main, ow.Off);
+        BeginRedraw(chara.ObjectIndex, native, null, null, cont);
         _log.Information($"Guise: obj#{chara.ObjectIndex} reverted to ModelChara {orig.ModelCharaId}{(onSettled != null ? " (then paint human)" : "")}");
     }
 
@@ -547,7 +707,66 @@ public sealed unsafe class GuiseService : IDisposable
         _vOffsets.Remove(localPlayer.ObjectIndex);
         _hidden.Remove(localPlayer.ObjectIndex);
         _appliedGuises.Remove(localPlayer.ObjectIndex);
-        BeginRedraw(localPlayer.ObjectIndex, native, null, null, onSettled);
+        // If a self-disguise had written an NPC weapon, restore the DM's own via LoadWeapon after the rebuild
+        // (a field-write wouldn't rebuild the separate Weapon* draw object) so the force-unstick doesn't leave
+        // them holding a mob weapon (usually a no-op here — the untracked path means _originalWeapons rarely has
+        // the index — but drops any stale capture defensively).
+        var haveWeapon = _originalWeapons.Remove(localPlayer.ObjectIndex, out var ow);
+        int revIdx = localPlayer.ObjectIndex;
+        Action? cont = onSettled;
+        if (onSettled == null && haveWeapon)
+            cont = () => LoadWeaponsNow(revIdx, ow.Main, ow.Off);
+        BeginRedraw(localPlayer.ObjectIndex, native, null, null, cont);
+    }
+
+    /// <summary>Return the LOCAL player's own body to clean baseline — the exit-edge sanitiser that
+    /// <see cref="OnLogout"/>, the opt-in map-hop revert, and <c>HDM.SanitizeSelf</c> all route through.
+    /// Zeroes the PERSISTENT own-body fields that survive a logout — <c>GameObject.Scale</c> and the vertical
+    /// draw offset — plus any hidden hold, ALWAYS; those are the fields that stranded a DM downsized + floating
+    /// past logout (ModelCharaId is NOT among them: the login rebuild resets it to 0, so the look self-heals).
+    /// <paramref name="restoreVisual"/> true additionally reverts the model WITH a redraw (map-hop: the body
+    /// persists and the DM must see their real self); false skips the redraw (logout: the screen is fading and
+    /// relog rebuilds the model anyway) while still writing the cheap scale/offset fields. Idempotent and
+    /// self-only; guarded field writes no-op if the local player isn't resolvable, so it is safe on a teardown
+    /// edge before native despawn. Framework thread.</summary>
+    public void SanitizeLocalPlayer(bool restoreVisual)
+    {
+        if (_objects.LocalPlayer is not { } lp || lp.Address == nint.Zero) return;
+        int idx = lp.ObjectIndex;
+        var native = (CSCharacter*)lp.Address;
+        if (native == null) return;
+
+        // Persistent fields FIRST — the ones that leak past logout, and the Human-guise elevation the model
+        // path below wouldn't cover (a Glamourer guise lifts through GuiseService with no _originals capture).
+        // Zero the managed lift and un-hide unconditionally.
+        if (_vOffsets.Remove(idx))
+        {
+            var cur = native->GameObject.DrawOffset;
+            native->GameObject.SetDrawOffset(cur.X, 0f, cur.Z);
+        }
+        if (_hidden.Remove(idx))
+            native->GameObject.EnableDraw();
+
+        if (restoreVisual)
+        {
+            // Model + scale + equipment + weapon WITH the native redraw (tracked -> precise Revert; untracked-
+            // but-stuck -> force baseline). Scale is restored by that path.
+            RevertLocalPlayerHard(lp);
+            // A Human (Glamourer) guise carries no _originals capture, so RevertLocalPlayerHard leaves its
+            // appearance untouched — drop it here too. No-op for a Monster/Demihuman guise.
+            RevertHumanAppearance?.Invoke(idx);
+        }
+        else
+        {
+            // Cheap exit path: write the persistent Scale field directly (a player's true scale is 1.0 — the
+            // same value RevertLocalPlayerHard forces) and drop local tracking WITHOUT queuing a redraw the
+            // fading logout frame would waste. The model is left as-is; the login rebuild resets ModelCharaId.
+            native->GameObject.Scale = 1.0f;
+            _originals.Remove(idx);
+            _originalWeapons.Remove(idx);
+            _currentKind.Remove(idx);
+            DropApplied(idx, "SanitizeLocalPlayer (logout cheap path)");
+        }
     }
 
     /// <summary>
@@ -587,6 +806,7 @@ public sealed unsafe class GuiseService : IDisposable
     public void Forget(int objectIndex)
     {
         _originals.Remove(objectIndex);
+        _originalWeapons.Remove(objectIndex);
         _currentKind.Remove(objectIndex);
         DropApplied(objectIndex, "Forget (puppet despawn/cleanup)");
         _redraws.Remove(objectIndex);
@@ -605,6 +825,7 @@ public sealed unsafe class GuiseService : IDisposable
             else
             {
                 _originals.Remove(idx);
+                _originalWeapons.Remove(idx);
                 _currentKind.Remove(idx);
                 DropApplied(idx, "RevertAll (actor gone)");
             }
@@ -900,19 +1121,36 @@ public sealed unsafe class GuiseService : IDisposable
     // a zone, nothing to revert to" bug. So keep the local player's disguise state across a zone (it stays
     // valid and revertable) and drop only the freed NPC/puppet indices. Redraw jobs are always dropped —
     // the zone reload redraws every actor, so an in-flight DisableDraw→Enable job is moot.
+    // OPT-IN (Config "Clear disguises on map change", off by default): also strip the DM's OWN disguise at the
+    // zone line. The local player persists WITH its swapped ModelCharaId here (the model will NOT self-heal,
+    // unlike a logout where the login rebuild resets it), so that revert needs a real redraw — it runs AFTER
+    // _redraws.Clear() so the revert's own redraw job survives instead of being wiped with the moot NPC jobs.
     private void OnTerritoryChanged(uint _)
     {
         var me = _objects.LocalPlayer?.ObjectIndex ?? 0;
         DropAllExcept(me);
         _redraws.Clear();
+
+        if (ClearDisguiseOnMapChange)
+        {
+            try { SanitizeLocalPlayer(restoreVisual: true); }
+            catch (Exception e) { _log.Error(e, "Guise: OnTerritoryChanged SanitizeLocalPlayer failed"); }
+        }
     }
 
-    // A true logout DESTROYS the local player object; the next login rebuilds it with the real model
-    // (ModelCharaId 0). Nothing survives, and writing back would touch a dying object — so drop everything.
+    // A logout resets the local player's MODEL (the login rebuild puts ModelCharaId back to 0, so the look
+    // self-heals) but NOT GameObject.Scale or the vertical DrawOffset — those are plain object fields that
+    // SURVIVE the round trip, so dropping tracking without reverting stranded the DM downsized + floating (the
+    // "wisp still downsized and raised after logout" bug). Sanitise the own body FIRST via the cheap field path
+    // (no redraw, safe while the object is live, a guarded no-op if it is already gone) THEN drop the rest of
+    // the now-dying actors' tracking. HMS also fires HDM.SanitizeSelf on its own known-body-live logout edge as
+    // the reliable belt; this is HDM's best-effort self-trigger.
     private void OnLogout(int type, int code)
     {
-        if (_appliedGuises.Count > 0) _log.Information($"Guise: OnLogout dropping all heal-tracking ({_appliedGuises.Count} guise(s)).");
-        _originals.Clear(); _currentKind.Clear(); _appliedGuises.Clear(); _redraws.Clear(); _vOffsets.Clear(); _hidden.Clear();
+        if (_appliedGuises.Count > 0) _log.Information($"Guise: OnLogout sanitising own body + dropping heal-tracking ({_appliedGuises.Count} guise(s)).");
+        try { SanitizeLocalPlayer(restoreVisual: false); }
+        catch (Exception e) { _log.Error(e, "Guise: OnLogout SanitizeLocalPlayer failed"); }
+        _originals.Clear(); _originalWeapons.Clear(); _currentKind.Clear(); _appliedGuises.Clear(); _redraws.Clear(); _vOffsets.Clear(); _hidden.Clear();
     }
 
     /// <summary>Drop every tracked index EXCEPT <paramref name="keep"/> (the local player) across all the
@@ -920,8 +1158,9 @@ public sealed unsafe class GuiseService : IDisposable
     /// freed and its index recycled.</summary>
     private void DropAllExcept(int keep)
     {
-        foreach (var k in new List<int>(_originals.Keys))     if (k != keep) _originals.Remove(k);
-        foreach (var k in new List<int>(_currentKind.Keys))   if (k != keep) _currentKind.Remove(k);
+        foreach (var k in new List<int>(_originals.Keys))       if (k != keep) _originals.Remove(k);
+        foreach (var k in new List<int>(_originalWeapons.Keys)) if (k != keep) _originalWeapons.Remove(k);
+        foreach (var k in new List<int>(_currentKind.Keys))     if (k != keep) _currentKind.Remove(k);
         foreach (var k in new List<int>(_appliedGuises.Keys)) if (k != keep) DropApplied(k, "DropAllExcept (zone change)");
         foreach (var k in new List<int>(_vOffsets.Keys))      if (k != keep) _vOffsets.Remove(k);
         _hidden.RemoveWhere(k => k != keep);
