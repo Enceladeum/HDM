@@ -56,7 +56,7 @@ public sealed class MainWindow : Window, IDisposable
     // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
     // the public Release build compiles the plain "HDM v<Version>" header with no b-tag. The
     // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
-    private const int InternalBuild = 10;
+    private const int InternalBuild = 11;
 #endif
 
     private readonly MobIndex _index;
@@ -528,7 +528,9 @@ public sealed class MainWindow : Window, IDisposable
                                      "An unobtrusive marker for a DM who isn't physically in the scene.");
                 ImGui.SameLine(0, gap);
                 var hidden = _guise.IsHidden(self.ObjectIndex);
-                if (HmUi.AccentButton(hidden ? "Unhide" : "Hide", "hide", hidden, acc, bw)) _guise.SetHidden(self, !hidden);
+                // Local draw-disable (self only) + the HMS OwnBodyHidden peer lane (mirror suppressed on peers,
+                // lobby-wide, in or out of a loaded map session) so "Hide" reads as absent to everyone, not just us.
+                if (HmUi.AccentButton(hidden ? "Unhide" : "Hide", "hide", hidden, acc, bw)) { _guise.SetHidden(self, !hidden); _ipc.ReportManualHidden(!hidden); }
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Pull your character out of the render entirely: a DM 'here but not\n" +
                                      "physically present' switch. Click again to reappear.");
@@ -1993,6 +1995,7 @@ public sealed class MainWindow : Window, IDisposable
         if (Self() is not { } self) return "no local player.";
         var hide = !_guise.IsHidden(self.ObjectIndex);
         _guise.SetHidden(self, hide);
+        _ipc.ReportManualHidden(hide);   // + HMS peer lane, matching the Catalog Hide button
         return hide ? $"hidden, you're invisible now. '{Plugin.Command} hide' again to show." : "shown.";
     }
 

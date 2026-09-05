@@ -162,7 +162,15 @@ public sealed class HdmIpc : IDisposable
     private readonly Dictionary<int, PuppetInfo> _puppets = new();  // slot -> the DM's own puppet
     private readonly Dictionary<int, DisguiseAtom> _lastApplied = new(); // objectIndex -> last atom we drove (mirrors)
     private uint _epoch;
-    private bool _ownHidden;   // is the DM's own body currently hidden on peers (possession in progress)?
+    // The DM's own body is suppressed on peers if EITHER source wants it: possession (the client-side Alpha=0
+    // fade during a pilot) OR a manual Catalog "Hide" toggle (a "here but not physically present" DM switch).
+    // Each source is a separate intent; _ownHidden is the effective OR that actually rides the OwnBodyHidden lane
+    // and is served for late-join. Keeping them separate stops the two writers from clobbering each other — a
+    // possession-release must NOT reveal a body the DM hid by hand, and a manual unhide must NOT reveal a body
+    // possession is still fading. See ReportOwnBodyHidden / ReportManualHidden / RecomputeOwnBodyHidden.
+    private bool _ownHidden;         // effective (possession OR manual) — the bit on the wire + served for late-join
+    private bool _possessionHidden;  // source: possession is fading the DM to Alpha=0
+    private bool _manualHidden;      // source: the DM toggled the Catalog "Hide" button / '/hdm hide'
     private bool _ownFrozen;   // is the DM's own body currently animation-frozen (speed pinned 0)?
     private bool _disposed;
 
@@ -343,16 +351,43 @@ public sealed class HdmIpc : IDisposable
         _puppetMoved.SendMessage(slot, pos.X, pos.Y, pos.Z, rot);
     }
 
-    /// <summary>Report whether the DM's OWN body is currently hidden — true when possession fades the DM to
-    /// Alpha=0 (that fade is client-side only, so a peer's HMS-driven mirror of the DM keeps rendering the
-    /// frozen body next to the moving puppet unless HMS is told to suppress it). Stored for late-join
-    /// (<see cref="_getOwnBodyHidden"/>) and emitted on the OwnBodyHidden lane. PossessionService dedupes on
-    /// the transition, but we guard the stored state here too so a redundant call is a cheap no-op.</summary>
+    /// <summary>Report the POSSESSION source of own-body hide — true when possession fades the DM to Alpha=0
+    /// (that fade is client-side only, so a peer's HMS-driven mirror of the DM keeps rendering the frozen body
+    /// next to the moving puppet unless HMS is told to suppress it). One of two independent sources (the other
+    /// is <see cref="ReportManualHidden"/>); both fold into the effective OR that rides the wire — see
+    /// <see cref="RecomputeOwnBodyHidden"/>. PossessionService dedupes on its own transition, but we guard the
+    /// stored source here too so a redundant call is a cheap no-op.</summary>
     public void ReportOwnBodyHidden(bool hidden)
     {
-        if (_disposed || _ownHidden == hidden) return;
-        _ownHidden = hidden;
-        _ownBodyHidden.SendMessage(hidden);
+        if (_disposed || _possessionHidden == hidden) return;
+        _possessionHidden = hidden;
+        RecomputeOwnBodyHidden();
+    }
+
+    /// <summary>Report the MANUAL source of own-body hide — the Catalog "Hide" toggle (and <c>/hdm hide</c>), a
+    /// DM "here but not physically present" switch. Distinct from the local <see cref="GuiseService.SetHidden"/>
+    /// draw-disable (which only pulls the body from the DM's OWN client): this drives the same peer-suppression
+    /// lane possession uses, so HMS peers stop rendering the DM's mirror lobby-wide, in or out of a loaded map
+    /// session. One of two independent sources (the other is <see cref="ReportOwnBodyHidden"/>); both fold into
+    /// the effective OR — see <see cref="RecomputeOwnBodyHidden"/>. Guarded so a redundant toggle is a no-op.</summary>
+    public void ReportManualHidden(bool hidden)
+    {
+        if (_disposed || _manualHidden == hidden) return;
+        _manualHidden = hidden;
+        RecomputeOwnBodyHidden();
+    }
+
+    /// <summary>Fold the two independent hide sources (<see cref="_possessionHidden"/>, <see cref="_manualHidden"/>)
+    /// into the effective <see cref="_ownHidden"/> and emit an EDGE on the OwnBodyHidden lane only when that OR
+    /// actually flips. The OR is the correct semantics: the DM's body stays suppressed on peers while EITHER
+    /// source wants it, so releasing one source never reveals a body the other still hides. The stored effective
+    /// bit is what <see cref="_getOwnBodyHidden"/> serves for late-join.</summary>
+    private void RecomputeOwnBodyHidden()
+    {
+        var effective = _possessionHidden || _manualHidden;
+        if (_ownHidden == effective) return;
+        _ownHidden = effective;
+        _ownBodyHidden.SendMessage(effective);
     }
 
     /// <summary>Report an animation-FREEZE toggle on the DM's own body (<paramref name="slot"/> null) or one of
