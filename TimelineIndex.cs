@@ -9,9 +9,35 @@ using Lumina.Excel.Sheets;
 
 namespace HDM;
 
-/// <summary>One catalogued action timeline: a game ActionTimeline row with a
-/// friendly, heuristically-derived name.</summary>
-public sealed record TimelineRow(uint Id, string Cat, string Skel, string Key, string Name);
+/// <summary>One catalogued action timeline: a game ActionTimeline row with a friendly,
+/// heuristically-derived name. The trailing fields are meaningful only for emote rows and drive the
+/// puppet/self emote paths (<see cref="AnimationService.PlayEmote"/>, <see cref="AnimationService.DriveEmote"/>,
+/// <see cref="AnimationService.PlaySelfEmote"/>):
+///  - <c>DrawsWeapon</c> (the Emote sheet's own flag) stamps the weapon posture so the emote plays with the
+///    stance the game gives it (/wave sheathed, a battle-flourish emote drawn) instead of firing the raw clip id blind.
+///  - <c>EmoteConditionMode</c>/<c>EmoteModeParam</c> carry the Emote sheet's <c>EmoteMode</c> (the
+///    <c>CharacterModes</c> ConditionMode byte and its row id). A PERSISTENT emote (/atease, sit) only holds its
+///    loop while the actor sits in that mode via <c>SetMode</c>; without it the native resolver snaps back to idle
+///    right after the intro (the "plays partially, never loops" bug). 0 for one-shot emotes (ConditionMode 0) and
+///    every non-emote row.
+///  - <c>EmoteIntro</c> is the emote's <c>ActionTimeline[1]</c> (transition-in) clip. The puppet paths PLAY THIS,
+///    not the loop (<c>Id</c> = <c>ActionTimeline[0]</c>): the SetMode-driven resolver then blends intro -> loop
+///    -> hold. Playing the loop directly SNAPS into the pose with no wind-up (the "at ease pops into position"
+///    bug). 0 when the emote has no intro clip (then the loop is the only clip).
+///  - <c>EmoteRowId</c> is the Emote sheet RowId (e.g. At Ease = 165), the id the game's native ExecuteEmote takes.
+///    SELF emotes route through that native path (<see cref="AnimationService.PlaySelfEmote"/>) so a disguised
+///    local player emotes with full engine fidelity, exactly as if the slash command were typed.</summary>
+public sealed record TimelineRow(uint Id, string Cat, string Skel, string Key, string Name, bool DrawsWeapon = false, byte EmoteConditionMode = 0, byte EmoteModeParam = 0, ushort EmoteIntro = 0, ushort EmoteRowId = 0)
+{
+    /// <summary>A generic <c>mon_sp/[SKL_ID]/...</c> template row (the engine substitutes the caster's
+    /// skeleton). <see cref="Key"/> holds the concrete per-skeleton form for display/dedupe; <see cref="Id"/>
+    /// is the generic row that is actually fired.</summary>
+    public bool IsTemplate { get; init; }
+
+    /// <summary>Template rows only: the skeleton also ships the external .tmb timeline that carries the
+    /// skill's VFX + sound cues. False = body animation only (some specials genuinely have no effects).</summary>
+    public bool HasTmb { get; init; }
+}
 
 /// <summary>
 /// Loads Data/timeline-index.csv (columns <c>Id,Cat,Skel,Key</c>), the offline
@@ -49,6 +75,12 @@ public sealed class TimelineIndex
     // mNNNN -> that skeleton's specials, in id order.
     private readonly Dictionary<string, List<TimelineRow>> _bySkel;
     private static readonly IReadOnlyList<TimelineRow> Empty = Array.Empty<TimelineRow>();
+
+    // EmoteController.EmoteId (the Emote sheet RowId a natively-emoting actor carries) -> its standing clip row.
+    // The possession CHAT path resolves the DM's LIVE /emote through this to mirror it onto the puppet (ARR's
+    // approach), rather than reading the pilot's tl0 (which holds the resolved locomotion clip, not reliably the
+    // emote). Keyed by EVERY emote id (not de-duped by clip like the Emotes catalog), so any /emote resolves.
+    private readonly Dictionary<ushort, TimelineRow> _emoteById;
 
     // mNNNN/dNNNN -> the internal HAVOK animation names its resident .pap bundles define
     // (Data/skel-anim-caps.csv, an offline extraction of every monster/demihuman resident
@@ -140,8 +172,19 @@ public sealed class TimelineIndex
         ["battle/mon_sp_l_start"] = "cbbm_sp_l_1", ["battle/mon_sp_l_loop"] = "cbbm_sp_l_2lp",
     };
 
+    // Template lane (ForSkeleton(skel, mc)): generic mon_sp/[SKL_ID]/... rows, boss-scoped names, the
+    // data handle for file-existence gating, and a per-(skeleton, ModelChara) memo of the merged list.
+    private readonly IDataManager _data;
+    private readonly IPluginLog _log;
+    private readonly List<(uint Id, string Slot)> _templates = new(512);
+    private readonly Dictionary<(string Skel, uint Id), string> _bossNames = new(4096);
+    private readonly Dictionary<(string Skel, uint Mc), IReadOnlyList<TimelineRow>> _specialsMemo = new(64);
+
     public TimelineIndex(IDalamudPluginInterface pi, IDataManager data, IPluginLog log)
     {
+        _data = data;
+        _log = log;
+        LoadTemplates(data, log);
         var common = new List<TimelineRow>(512);
         _bySkel = new Dictionary<string, List<TimelineRow>>(256);
         _capsBySkel = new Dictionary<string, HashSet<string>>(2048, StringComparer.Ordinal);
@@ -151,13 +194,16 @@ public sealed class TimelineIndex
         // Emotes come LIVE from the game's Emote sheet (not the offline CSVs) — small, stable, and it lets
         // the catalog track the client's own patch without a regen. Independent of the CSV load below and
         // self-guarded, so a sheet miss just yields an empty Emotes group, never a dead plugin.
-        Emotes = LoadEmotes(data, log);
+        var (emotes, emoteById) = LoadEmotes(data, log);
+        Emotes = emotes;
+        _emoteById = emoteById;
 
         var dataDir = Path.Combine(pi.AssemblyLocation.DirectoryName!, "Data");
         // Side catalogs first so specials/common rows can be relabelled with real skill names as rows load.
         LoadSpecialNames(Path.Combine(dataDir, "special-names.csv"), log);
         LoadCaps(Path.Combine(dataDir, "skel-anim-caps.csv"), log);
         LoadCommonSkillNames(Path.Combine(dataDir, "common-skill-names.csv"), log);
+        LoadBossNames(Path.Combine(dataDir, "boss-skill-names.csv"), log);
 
         var path = Path.Combine(dataDir, "timeline-index.csv");
         try
@@ -189,9 +235,11 @@ public sealed class TimelineIndex
                     // _hit sub-timelines are damage-reaction helpers, never a standalone button,
                     // and would only dupe their parent's skill name — drop them here.
                     if (key.Contains("_hit", StringComparison.Ordinal)) continue;
-                    // Prefer the real ability name (special-names.csv); else the "Special NNN" heuristic.
-                    var name = _specialNames.TryGetValue(id, out var skill) && skill.Length > 0
-                        ? skill : Prettify(key);
+                    // Prefer the boss-scoped name (BossMod caster join, exact for THIS skeleton), then the
+                    // global Action-join name (special-names.csv), else the "Special NNN" heuristic.
+                    var name = _bossNames.TryGetValue((skel, id), out var scoped) ? scoped
+                        : _specialNames.TryGetValue(id, out var skill) && skill.Length > 0 ? skill
+                        : Prettify(key);
                     if (!_bySkel.TryGetValue(skel, out var list))
                         _bySkel[skel] = list = new List<TimelineRow>(16);
                     list.Add(new TimelineRow(id, cat, skel, key, name));
@@ -224,7 +272,10 @@ public sealed class TimelineIndex
     /// Build the emote catalog from the live Emote sheet. Each emote's STANDING animation is its
     /// <c>ActionTimeline[0]</c> (validated against Brio's ActionTimelineSelector and ARealmRepopulated's
     /// NPC emote path, which fires exactly this id through <c>TimelineSequencer.PlayTimeline</c> — the same
-    /// call HDM's <see cref="AnimationService.PlayOnce"/> makes). We take index 0 only: the sitting/chair
+    /// call HDM's <see cref="AnimationService.PlayOnce"/> makes). Each row also carries the emote's
+    /// <c>DrawsWeapon</c> flag so the puppet emote path (<see cref="AnimationService.PlayEmote"/>) can stamp
+    /// the weapon stance the game performs it with — the other half of ARR's recipe (PlayTimeline + set
+    /// IsWeaponDrawn) that firing the bare clip id omitted. We take index 0 only: the sitting/chair
     /// variants ([1..4]) are stateful poses that need the EmoteController triplet, not a one-shot blend, so
     /// they'd only play their intro here — out of scope, and skipping a 0-timeline row drops the pure
     /// facial-expression emotes cleanly. Rows are de-duped by timeline id (two emotes that resolve to the
@@ -232,9 +283,10 @@ public sealed class TimelineIndex
     /// carries the "/point" text command when present so the Animations-tab search matches either the label
     /// or the slash-command. Self-guarded: a sheet failure logs and yields an empty list.
     /// </summary>
-    private static List<TimelineRow> LoadEmotes(IDataManager data, IPluginLog log)
+    private static (List<TimelineRow> List, Dictionary<ushort, TimelineRow> ById) LoadEmotes(IDataManager data, IPluginLog log)
     {
         var list = new List<TimelineRow>(256);
+        var byId = new Dictionary<ushort, TimelineRow>(512); // EmoteController.EmoteId -> row (the chat-mirror resolver)
         try
         {
             var seen = new HashSet<uint>(256);
@@ -244,24 +296,171 @@ public sealed class TimelineIndex
                 if (tid == 0) continue;
                 var name = e.Name.ExtractText();
                 if (string.IsNullOrWhiteSpace(name)) continue;
-                if (!seen.Add(tid)) continue;              // one button per distinct clip
                 var cmd = e.TextCommand.IsValid ? e.TextCommand.Value.Command.ExtractText() : "";
                 var key = !string.IsNullOrEmpty(cmd) ? cmd : "emote/" + name.ToLowerInvariant().Replace(' ', '_');
-                list.Add(new TimelineRow(tid, "emote", "", key, name));
+                // EmoteMode carries the CharacterModes ConditionMode + its row id. A persistent emote (/atease,
+                // sit) must SetMode(ConditionMode, param) to HOLD its loop or the native resolver snaps back to
+                // idle after the intro (ARR NpcAppearanceService recipe). 0/0 for one-shots (ConditionMode 0) and
+                // invalid refs — PlayEmote then skips SetMode and the emote plays once as an expression.
+                byte cond = 0, modeParam = 0;
+                if (e.EmoteMode.RowId != 0 && e.EmoteMode.IsValid)
+                {
+                    cond = (byte)e.EmoteMode.Value.ConditionMode;
+                    modeParam = (byte)e.EmoteMode.RowId;
+                }
+                // ActionTimeline[1] = the transition-in clip. The puppet paths play THIS (not the loop) so the
+                // pose blends in; 0 when the emote has none. e.RowId is the Emote sheet id ExecuteEmote takes (self).
+                var intro = (ushort)e.ActionTimeline[1].RowId;
+                var row = new TimelineRow(tid, "emote", "", key, name, e.DrawsWeapon, cond, modeParam, intro, (ushort)e.RowId);
+                byId[(ushort)e.RowId] = row;               // chat path: resolve THIS emote id -> its clip (every id, pre-dedupe)
+                if (seen.Add(tid)) list.Add(row);          // catalog: one button per distinct clip (lowest emote id wins)
             }
             list.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
-            log.Information($"TimelineIndex: {list.Count} emotes from Emote sheet");
+            log.Information($"TimelineIndex: {list.Count} emotes from Emote sheet ({byId.Count} resolvable by id)");
         }
         catch (Exception e)
         {
             log.Error(e, "TimelineIndex: failed to load emotes (Emotes group will be empty)");
         }
-        return list;
+        return (list, byId);
     }
+
+    /// <summary>
+    /// Resolve a live <c>EmoteController.EmoteId</c> (the Emote sheet RowId a natively-emoting actor carries) to
+    /// its standing clip row: the <c>ActionTimeline[0]</c> id plus the emote's persistence mode + weapon stance.
+    /// The possession CHAT path uses this to mirror the DM's own /emote onto the puppet by RESOLVING the emote
+    /// (ARR's approach), instead of reading the pilot's tl0 (which carries the resolved LOCOMOTION clip, not
+    /// reliably the emote clip — the "/atease plays on self, nothing on the puppet" bug). Null for a facial-only
+    /// emote (tid 0, never mapped), id 0 (not emoting), or an unknown id — the caller then falls through to
+    /// locomotion.
+    /// </summary>
+    public (ushort Tl, ushort Intro, bool DrawsWeapon, byte ConditionMode, byte ModeParam)? ResolveEmote(ushort emoteId)
+        => emoteId != 0 && _emoteById.TryGetValue(emoteId, out var r)
+            ? ((ushort)r.Id, r.EmoteIntro, r.DrawsWeapon, r.EmoteConditionMode, r.EmoteModeParam)
+            : null;
 
     /// <summary>This skeleton's catalogued specials (empty if none/unknown).</summary>
     public IReadOnlyList<TimelineRow> ForSkeleton(string skeletonCode)
         => skeletonCode.Length > 0 && _bySkel.TryGetValue(skeletonCode, out var list) ? list : Empty;
+
+    /// <summary>
+    /// This skeleton's specials INCLUDING the template lane: the literal per-skeleton rows from
+    /// timeline-index.csv, plus every generic <c>mon_sp/[SKL_ID]/mon_spNNN</c> ActionTimeline row whose
+    /// concrete animation package this skeleton actually ships. Modern bosses (the Weapons, every
+    /// Dawntrail dungeon boss) play their attacks ONLY through these template rows - the engine substitutes
+    /// the caster's skeleton for <c>[SKL_ID]</c> at play time - so the literal catalog alone lists nothing
+    /// for them (0 of the 440 template rows are in timeline-index.csv).
+    ///
+    /// Gate: a template row is offered only when
+    /// <c>chara/monster/{skel}/animation/aVVVV/bt_common/mon_sp/{skel}/{slot}.pap</c> exists in the game
+    /// files (an index lookup, no extraction), preferring the model's OWN animation variant
+    /// (<c>ModelChara.AnimationVariant</c>). A slot found only under a sibling variant is still offered but
+    /// labelled with that variant, since it may not play on this body (Emerald's Special 017 lives in
+    /// a0002). Literal duplicates of the same key are skipped. Fired by the GENERIC id, exactly as the
+    /// boss's own Action does. Memoized per (skeleton, ModelChara).
+    /// </summary>
+    public IReadOnlyList<TimelineRow> ForSkeleton(string skel, uint modelCharaId)
+    {
+        if (skel.Length == 0) return Empty;
+        if (_specialsMemo.TryGetValue((skel, modelCharaId), out var hit)) return hit;
+
+        IReadOnlyList<TimelineRow> literal = _bySkel.TryGetValue(skel, out var l) ? l : Empty;
+        var result = new List<TimelineRow>(literal);
+        if (skel[0] == 'm' && _templates.Count > 0)
+        {
+            var have = new HashSet<string>(literal.Select(r => r.Key), StringComparer.Ordinal);
+            var own = AnimVariantOf(modelCharaId);
+            var added = 0;
+            foreach (var (id, slot) in _templates)
+            {
+                var key = $"mon_sp/{skel}/{slot}";
+                if (have.Contains(key)) continue;
+                var v = FindPapVariant(skel, slot, own);
+                if (v == 0) continue;
+                var name = _bossNames.TryGetValue((skel, id), out var bn) ? bn : Prettify(key);
+                if (v != own) name += $" (a{v:D4})";
+                result.Add(new TimelineRow(id, "monster", skel, key, name)
+                {
+                    IsTemplate = true,
+                    HasTmb = _data.FileExists($"chara/action/mon_sp/{skel}/{slot}.tmb"),
+                });
+                added++;
+            }
+            _log.Information($"TimelineIndex: {skel} (mc{modelCharaId}, a{own:D4}) - {literal.Count} literal + {added} template specials.");
+        }
+        _specialsMemo[(skel, modelCharaId)] = result;
+        return result;
+    }
+
+    private int AnimVariantOf(uint modelCharaId)
+    {
+        try
+        {
+            if (modelCharaId != 0 && _data.GetExcelSheet<ModelChara>().GetRowOrDefault(modelCharaId) is { } mc)
+                return Math.Max(1, (int)mc.AnimationVariant);
+        }
+        catch { /* sheet miss: fall back to a0001 */ }
+        return 1;
+    }
+
+    /// <summary>The animation variant that ships this slot's package: the model's own first, then
+    /// a0001..a0004. 0 = no package anywhere (the slot does not exist for this skeleton).</summary>
+    private int FindPapVariant(string skel, string slot, int own)
+    {
+        bool Has(int v) => _data.FileExists($"chara/monster/{skel}/animation/a{v:D4}/bt_common/mon_sp/{skel}/{slot}.pap");
+        if (Has(own)) return own;
+        for (var v = 1; v <= 4; v++)
+            if (v != own && Has(v)) return v;
+        return 0;
+    }
+
+    /// <summary>Every generic <c>mon_sp/[SKL_ID]/mon_spNNN</c> row from the live ActionTimeline sheet
+    /// (440 as of 7.x), minus <c>_hit</c> helpers. Read live so a patch's new slots appear without a regen.</summary>
+    private void LoadTemplates(IDataManager data, IPluginLog log)
+    {
+        try
+        {
+            const string prefix = "mon_sp/[SKL_ID]/";
+            foreach (var row in data.GetExcelSheet<ActionTimeline>())
+            {
+                var key = row.Key.ExtractText();
+                if (!key.StartsWith(prefix, StringComparison.Ordinal) || key.Contains("_hit", StringComparison.Ordinal)) continue;
+                _templates.Add((row.RowId, key[prefix.Length..]));
+            }
+            log.Information($"TimelineIndex: {_templates.Count} mon_sp template rows (template lane).");
+        }
+        catch (Exception e)
+        {
+            log.Error(e, "TimelineIndex: failed to read ActionTimeline templates; template lane disabled.");
+        }
+    }
+
+    /// <summary>Loads Data/boss-skill-names.csv (<c>Skel,Id,Name</c>) - BossMod-scoped attack names per
+    /// (skeleton, timeline), generated by Data/gen-boss-skill-names.py. Scoping is the point: one template
+    /// id is reused by every boss, so only a caster-scoped name is trustworthy. Names may contain commas.</summary>
+    private void LoadBossNames(string path, IPluginLog log)
+    {
+        try
+        {
+            using var r = new StreamReader(path, Encoding.UTF8);
+            r.ReadLine();
+            string? line;
+            while ((line = r.ReadLine()) != null)
+            {
+                var a = line.IndexOf(','); if (a < 0) continue;
+                var b = line.IndexOf(',', a + 1); if (b < 0) continue;
+                if (!uint.TryParse(line.AsSpan(a + 1, b - a - 1), out var id)) continue;
+                var name = line[(b + 1)..];
+                if (name.Length > 1 && name[0] == '"') name = name[1..^1].Replace("\"\"", "\"");
+                _bossNames[(line[..a], id)] = name;
+            }
+            log.Information($"TimelineIndex: {_bossNames.Count} boss-scoped skill names from {path}");
+        }
+        catch (Exception e)
+        {
+            log.Warning($"TimelineIndex: no boss-scoped names ({e.Message}); template specials fall back to 'Special NNN'.");
+        }
+    }
 
     /// <summary>True when this skeleton has an offline caps profile — i.e. a monster (mNNNN) or
     /// demihuman (dNNNN) whose resident .pap animation set we extracted. Human (cNNNN) and unknown

@@ -11,7 +11,9 @@ public sealed class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 4;
 
-    /// <summary>Favorited BNpcBase row ids (starred in the catalog).</summary>
+    /// <summary>Favorited catalog rows (starred), by <see cref="MobRow.RowKey"/>: a primary row's key is its
+    /// BNpcBase id (so pre-b15 saves still resolve), an alias row (another name on the same body) has a
+    /// synthetic key.</summary>
     public HashSet<uint> Favorites { get; set; } = [];
 
     /// <summary>

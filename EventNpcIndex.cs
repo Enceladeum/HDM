@@ -85,7 +85,7 @@ public sealed class EventNpcIndex
                 rows.Add(new MobRow(
                     BaseId:       e.RowId,
                     NameId:       0,
-                    Name:         name,
+                    Name:         MobRow.Cap(name),
                     ModelCharaId: (int)mc.RowId,
                     McType:       (int)mc.Type,
                     McModel:      (int)mc.Model,
@@ -104,6 +104,75 @@ public sealed class EventNpcIndex
             }
 
             log.Information($"EventNpcIndex: {kept} humanoid Event NPCs built ({dupes} appearance-duplicates collapsed).");
+
+            // b16 — NON-HUMAN Event NPCs (the gap Limber's Costume list showed): ENpcBase rows on a monster
+            // (Type 3) or demihuman (Type 2) model with a resident name — Gulool Ja, Alpha, Dreamingway, Vath
+            // deftarm, delivery moogle… (~2.1k distinct names over ~640 models). They render through the
+            // existing GuiseService Monster/Demihuman paths; a demihuman's body+head live in its ENpcBase
+            // equipment, which the Source-aware reader supplies (Source = Event). No race/clan, so the tree
+            // groups them as "Creatures · <kind>" (Race 0, Clan = model Type) inside the NPC section.
+            int creatures = 0, cdupes = 0;
+            foreach (var e in enpc)
+            {
+                if (e.ModelChara.ValueNullable is not { } mc || mc.Type is not (2 or 3) || mc.Model == 0)
+                    continue;
+                var name = (resident.GetRowOrDefault(e.RowId)?.Singular.ToString() ?? "").Trim();
+                if (name.Length == 0)
+                    continue;
+                if (!seen.Add(AppearanceSignature(name, (int)mc.RowId, npc, e.RowId)))
+                {
+                    cdupes++;
+                    continue;
+                }
+                rows.Add(new MobRow(
+                    BaseId:       e.RowId,
+                    NameId:       0,
+                    Name:         MobRow.Cap(name),
+                    ModelCharaId: (int)mc.RowId,
+                    McType:       (int)mc.Type,
+                    McModel:      (int)mc.Model,
+                    McBase:       (int)mc.Base,
+                    McVariant:    (int)mc.Variant,
+                    Scale:        e.Scale > 0f ? e.Scale : 1.0f)
+                {
+                    Source   = NpcSource.Event,
+                    Clan     = (byte)mc.Type,           // 2 / 3: picks the "Creatures" sub-node
+                    RaceName = "Creatures",
+                    ClanName = mc.Type == 2 ? "Beast tribes & demihumans" : "Monsters",
+                });
+                creatures++;
+            }
+            log.Information($"EventNpcIndex: {creatures} non-human Event NPCs built ({cdupes} duplicates collapsed).");
+
+            // b16 — Mounts: the Mount sheet's named creatures on a MONSTER model (Type 3 renders from a bare
+            // ModelChara swap; a demihuman mount would need equipment the Mount sheet doesn't carry, so it's
+            // skipped). Keyed 3,000,000 + Mount RowId — clear of BNpcBase (<32k), ENpcBase (1.0M–1.1M) and the
+            // alias-row keys (0x80000000+). One row per (name, model).
+            int mounts = 0;
+            var seenMount = new HashSet<(string, uint)>();
+            foreach (var m in data.GetExcelSheet<Mount>())
+            {
+                if (m.ModelChara.ValueNullable is not { } mc || mc.Type != 3 || mc.Model == 0)
+                    continue;
+                var name = m.Singular.ExtractText().Trim();
+                if (name.Length == 0 || !seenMount.Add((name.ToLowerInvariant(), mc.RowId)))
+                    continue;
+                rows.Add(new MobRow(
+                    BaseId:       MountIdBase + m.RowId,
+                    NameId:       0,
+                    Name:         MobRow.Cap(name),
+                    ModelCharaId: (int)mc.RowId,
+                    McType:       3,
+                    McModel:      (int)mc.Model,
+                    McBase:       (int)mc.Base,
+                    McVariant:    (int)mc.Variant,
+                    Scale:        1.0f)
+                {
+                    Source = NpcSource.Mount,
+                });
+                mounts++;
+            }
+            log.Information($"EventNpcIndex: {mounts} mounts built.");
         }
         catch (Exception ex)
         {
@@ -111,6 +180,9 @@ public sealed class EventNpcIndex
         }
         Rows = rows;
     }
+
+    /// <summary>Catalog id base for Mount rows (id = this + Mount RowId). See <see cref="NpcSource.Mount"/>.</summary>
+    public const uint MountIdBase = 3_000_000;
 
     // Race 1-8 (Hyur..Viera), Gender 0/1, Clan/Tribe 1-16 — the playable-human ranges Glamourer's
     // CustomizeManager sets enumerate. A row outside these is a non-human placeholder we skip.

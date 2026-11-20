@@ -214,7 +214,10 @@ public sealed class Plugin : IDalamudPlugin
         // and the DM's own view stays on the OLD model while the un-possessed peer mirror updates (the focused-
         // puppet re-guise desync). Symmetric to SuppressReassert below, which stops the self-HEAL redraw from
         // nulling the same driven Timeline.
-        _possession   = new PossessionService(Framework, Objects, ClientState, KeyState, GameGui, PluginInterface, Interop, _spawn, _anim, Log, _ipc.ReportPuppetMoved, _ipc.ReportOwnBodyHidden, _guise.IsRedrawing);
+        // Final arg (resolveEmote) lets the CHAT path resolve the DM's live EmoteController.EmoteId through the
+        // Emote sheet and mirror that clip onto the puppet (ARR's approach), instead of mirroring the pilot's tl0
+        // (which is the locomotion clip, not reliably the emote — the "/atease does nothing on the puppet" bug).
+        _possession   = new PossessionService(Framework, Objects, ClientState, KeyState, GameGui, PluginInterface, Interop, _spawn, _anim, Log, _ipc.ReportPuppetMoved, _ipc.ReportOwnBodyHidden, _guise.IsRedrawing, timeline.ResolveEmote);
         // Don't let the guise self-heal re-assert (which redraws) fire on the puppet possession is piloting —
         // that redraw would null the Timeline its driven animation reads. The DM's own body isn't driven, so it
         // still self-heals normally; only the actively possessed index is suppressed.

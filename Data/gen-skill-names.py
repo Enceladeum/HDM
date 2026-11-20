@@ -30,9 +30,10 @@ Safety rules (each prevents a concrete mislabel):
 """
 import csv, collections, os
 
-BASE = r"F:\Unlimited Code Works\FFXIV\_GitHub\ffxiv-datamining-master\csv\en"
-HG   = r"F:\Unlimited Code Works\FFXIV\HDM\Data\timeline-index.csv"
-OUT  = r"F:\Unlimited Code Works\FFXIV\HDM\Data\common-skill-names.csv"
+HERE = os.path.dirname(os.path.abspath(__file__))   # this Data folder; inputs default to sibling checkouts, override with env vars
+BASE = os.environ.get("FFXIV_DATAMINING_CSV", os.path.join(HERE, "..", "..", "_GitHub", "ffxiv-datamining-master", "csv", "en"))
+HG   = os.path.join(HERE, "timeline-index.csv")
+OUT  = os.path.join(HERE, "common-skill-names.csv")
 
 def rows(name):
     with open(os.path.join(BASE, name), encoding="utf-8") as f:

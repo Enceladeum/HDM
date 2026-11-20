@@ -299,7 +299,7 @@ public sealed unsafe class GuiseService : IDisposable
             // (it lives on the Character, not the transient DrawObject), so writing it
             // before the redraw makes the rebuilt demihuman pick it up in a single
             // cycle — the same state the game sets when it first draws this NPC.
-            var equip = _npc.TryGetEquipment(row.BaseId);
+            var equip = _npc.TryGetEquipment(row.BaseId, row.Source); // Source-aware: an Event demihuman reads ENpcBase, not BNpcBase
             if (equip != null)
                 WriteEquipment(native, equip);
             else
@@ -362,7 +362,7 @@ public sealed unsafe class GuiseService : IDisposable
     /// </summary>
     private (WeaponModelId Main, WeaponModelId Off) ResolveNpcWeapons(CSCharacter* native, int idx, MobRow row)
     {
-        var (main, off) = _npc.TryGetWeapons(row.BaseId);
+        var (main, off) = _npc.TryGetWeapons(row.BaseId, row.Source);
 
         // Capture the TRUE pre-guise weapon once (kept across re-applies, like _originals) so Revert restores it.
         if (!_originalWeapons.ContainsKey(idx))

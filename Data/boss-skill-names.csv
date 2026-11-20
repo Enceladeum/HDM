@@ -1,0 +1,4330 @@
+Skel,Id,Name
+m0001,1417,Realm Shaker
+m0001,1418,Sticky Web
+m0001,1419,Silkscreen
+m0001,1420,Deadly Thrust
+m0001,1421,Tail Molt
+m0001,3209,Sand Sphere / Earthbreaker
+m0001,3210,Auto Attack
+m0001,3211,Magitek Cannon
+m0001,3212,Limit Cut
+m0001,3216,Magitek Flamehook
+m0001,3217,Diffractive Laser
+m0001,3218,Launcher
+m0001,3225,Crystalline Stingers / Shardfall
+m0001,3226,Dissonance
+m0001,3227,Crystal Needle
+m0001,3228,Hailfire
+m0001,3229,Shardfall / Shardstrike
+m0001,3230,Teleport / A / B
+m0001,3231,Aetherial Stingers
+m0002,1155,Somersault Slash
+m0002,3206,Leafcutter
+m0005,1148,Acid Mist
+m0005,1717,Hundred Lashings
+m0005,1718,Gold Rush
+m0005,1720,Gold Dust
+m0005,2835,Bloody Caress
+m0005,2847,Leafstorm
+m0005,2851,Rotten Stench
+m0005,3228,Hundred Lashings
+m0009,3206,Decay
+m0011,1110,Thunderstrike
+m0011,3203,Frenzied Sting
+m0011,3205,Bee Be Gone / Bee Be Here
+m0011,3206,Straight Spindle
+m0011,3208,Stinging Venom
+m0011,3210,Resonant Buzz
+m0012,1625,Assault Cannon
+m0012,3201,Assault Cannon
+m0012,3208,Aetherochemical Grenado
+m0012,3209,Self-detonate
+m0012,3212,Bit Teleport
+m0012,3213,Aetherochemical Laser / Magitek Ray
+m0012,3217,Magitek Ray
+m0012,3235,Blast Cannon
+m0012,3236,Homing Cannon
+m0012,3238,Shock
+m0012,3239,Electray
+m0012,3240,Electray
+m0012,17013,Electray
+m0015,1106,Big Horn
+m0015,3206,Heavy Smash
+m0016,2586,Icefall
+m0016,3206,Fire Trap
+m0016,3207,Blizzard Trap
+m0016,3208,Surprise Attack
+m0017,3207,Wide Blaster
+m0017,3208,Critical Rip
+m0017,3209,Spike Flail
+m0017,3219,Lightning Bolt
+m0017,3220,Electric Burst
+m0018,1674,Canker
+m0018,1850,Mind Melt
+m0018,1851,Reanimate
+m0018,3208,Dark II
+m0018,3209,Arcane Blast
+m0018,3210,Mind Blast
+m0018,3211,Summon / Recharge
+m0021,1208,Stone Skull
+m0021,1209,Boulder Clap
+m0021,1210,True Grit
+m0021,1223,Plaincracker
+m0021,1224,Rockslide
+m0021,1529,Obliterate
+m0021,2779,Heavy Strike / Tremblor
+m0021,2786,Magnetism
+m0021,3216,Empty Gaze
+m0022,1199,Lateral Slash
+m0022,1200,Whetstone
+m0022,1730,Sharpened Knife
+m0022,1731,the Scourge of Nym
+m0022,1732,Everyone's Grudge
+m0022,1733,Throat Stab
+m0022,1734,Rancor Release
+m0023,3208,Shattering Stomp
+m0023,3209,Midwinter March
+m0023,3210,Northern Current
+m0025,3207,Ghastly Flame
+m0025,3208,Shattering Heat
+m0025,3209,Ghastly Wind
+m0025,3210,Ghastly Torch
+m0025,3214,Breakdown Drop
+m0025,3215,Breakwing Beat
+m0025,4573,Blast Beat
+m0025,4574,Breakdown Drop
+m0025,4575,Breakwing Beat
+m0026,1122,Flashthoom / Self-destruct
+m0026,1566,Burst
+m0026,1567,Fulmination
+m0026,3208,Hypothermal Combustion
+m0026,3210,Hypothermal Combustion
+m0026,3213,Uproot
+m0026,4574,Self-destruct
+m0027,1205,Canopy
+m0027,1206,Arboreal Storm / Leafstorm
+m0027,1219,Backhand Blow
+m0027,2564,Snowball
+m0027,2992,Neutralization
+m0027,3216,Magitek Bartizan / Electrochemical Transfer / Lightning Rod / Firing Orders +2 more
+m0027,3218,Acorn Bomb
+m0027,3220,Plasma Gun
+m0027,3221,Rimestorm
+m0029,1142,King's Will
+m0029,1560,Black Cloud
+m0029,1561,Blighted Gloom
+m0029,1564,Crepuscule Blade
+m0029,1565,Knout
+m0029,3472,Iron Justice
+m0029,3474,Cloudcover
+m0029,3476,Black Nebula
+m0029,3489,Iron Justice
+m0029,3491,Iron Justice
+m0029,3493,Iron Justice
+m0030,1494,Croakdown
+m0030,1495,Drop of Venom
+m0030,3203,Malignant Mucus
+m0030,3205,Body Press
+m0030,3206,Poison Mucus
+m0030,3208,Wild Charge
+m0030,3209,Scatterscourge
+m0030,3210,Poison Gas
+m0030,3211,Teleport
+m0031,3203,Verge Pulse
+m0031,3204,Verge Line
+m0033,1334,Beak Snap
+m0033,3204,Cat Dash
+m0033,3205,I Crave Violence
+m0033,3206,Hangry Hiss
+m0033,3207,Unlimited Craving
+m0034,3201,Body Slam
+m0034,3204,Tail Snap
+m0034,3205,Numbing Noise
+m0035,3201,Squash
+m0035,3208,Heave
+m0035,3209,Crumbling Crust
+m0035,3210,Rush
+m0035,3211,Lightning Crossing / Agitated Groan / Lightning Charge / War Cry
+m0035,3212,Earthquake
+m0035,3213,Rush
+m0035,3216,Rumble
+m0035,3217,Heave
+m0036,3212,Several Thousand Needles
+m0036,3213,Long-range Needles
+m0037,1337,Bad Breath
+m0037,1339,Vine Probe
+m0037,1722,Burr Burrow
+m0037,1723,Hooked Burrs
+m0037,1724,Sow
+m0037,4573,Bad Breath
+m0038,1301,Bubble Shower
+m0038,1304,Crab Dribble
+m0039,1498,Bog Bomb
+m0039,3210,Devour / Critical Bite
+m0039,3211,Soundstorm
+m0039,3212,Mini Light
+m0039,3457,Brackish Rain
+m0042,1572,Thunderbolt
+m0042,1573,Charybdis / Comet / Wild Bolt
+m0042,1575,Wild Horn
+m0042,1577,Trounce
+m0042,1578,Ecliptic Meteor / Blazing Meteor
+m0042,3209,Bafflement Bulb
+m0042,3211,Mighty Spin
+m0042,3216,Metamorphic Blast
+m0042,3218,Zombie Bile
+m0042,3221,Zombie Breath
+m0042,4573,Para Behemoth Visual
+m0043,1248,Cursed Gaze
+m0043,1249,Dread Gaze
+m0043,1740,Eyes on Me
+m0043,3211,Tragical Gaze
+m0043,3212,Tempest of Anguish
+m0043,3213,Petrifying Eye
+m0044,1305,Beakaxe
+m0044,3205,Petro Eyes
+m0044,3206,Blasphemous Howl
+m0047,1256,Head Butt
+m0047,1258,Lanolin
+m0047,3204,Rush
+m0049,1345,Straight Punch
+m0049,1351,Heavy Strike / Earth Crusher / Earthquake
+m0049,3214,Protolithic Puncture
+m0049,3216,Foul Waters
+m0049,3220,Tidal Guillotine / Aquatic Lance
+m0049,3221,Hydrocleave / Pelagic Cleaver
+m0049,3224,Unk1 / Dive
+m0049,3225,Marine Mayhem
+m0049,3226,Aquatic Lance
+m0049,3227,Pollen Corona
+m0049,3228,Marine Mayhem
+m0049,3232,Open Water
+m0049,3233,Tidal Guillotine
+m0049,3234,Tidal Guillotine
+m0049,3235,Pelagic Cleaver
+m0049,3236,Tidal Guillotine
+m0049,4562,Unk2
+m0051,3208,Aerial Ambush
+m0051,3210,Chilling Chirp
+m0051,3211,Earthsong
+m0051,3212,Almighty Racket
+m0051,3213,Trap Jaws
+m0053,1683,the Lion's Breath
+m0053,1684,the Ram's Breath
+m0053,1685,the Dragon's Breath
+m0053,1686,the Ram's Voice
+m0053,1687,the Dragon's Voice
+m0053,1689,the Ram's Keeper / the Ram's Embrace
+m0053,1690,Cacophony
+m0053,1719,the Scorpion's Sting
+m0053,3204,Songs of Ice and Thunder / the Ram's Voice
+m0053,3205,Songs of Thunder and Ice / the Dragon's Voice
+m0053,3215,the Lion's Breath
+m0053,3216,the Ram's Breath
+m0053,3217,the Dragon's Breath
+m0053,3219,Leftbreathed Thunder
+m0053,3220,Rightbreathed Cold
+m0053,3221,Cold Thunder / Thunderous Cold
+m0054,1310,Beatdown
+m0054,1311,Inhale
+m0054,1314,Moldy Sneeze
+m0054,1726,Moldy Phlegm
+m0054,1727,Goobbue's Grief
+m0054,3221,Buffet
+m0054,3224,Heavy Scrapline
+m0054,3228,Inhale
+m0055,1196,Whimsy a la Mode
+m0055,1728,Amorphic Flail
+m0055,2480,Banish
+m0055,3208,Scatterbait
+m0055,3209,Explosion
+m0055,3215,Jump1
+m0055,3216,Royal Flush
+m0055,3222,Bog Bequest
+m0055,3223,Feculent Flood
+m0055,3225,Octostroke
+m0055,3226,Telekinesis
+m0055,3227,Wallop Visual
+m0055,3228,Saline Spit
+m0055,3229,Breathstroke / Tidal Breath
+m0055,3230,Vivid Eyes
+m0055,3231,Tidal Roar
+m0055,3232,attack
+m0055,3235,Hedge Mazing
+m0055,3236,Leafmash
+m0055,3237,Little Leafmash
+m0055,3238,Branch Out
+m0055,4562,Hedge Mazing
+m0056,1261,Drill Cannons
+m0056,1262,Cermet Drill
+m0056,1263,Overcharge
+m0056,3207,Thermobaric Strike / Targeted Support
+m0056,3217,Hypercharge
+m0057,1352,Corrupted Tail
+m0057,1353,Grim Cleaver / Wave of Malice
+m0057,1354,Grim Halo / Whorl of Frenzy
+m0057,1356,Hellssend
+m0057,1357,Grim Fate / Flurry of Rage
+m0057,1747,Desolation
+m0057,2554,Flames of Fury
+m0057,3206,Mighty Smite
+m0057,3216,Rush of Might
+m0057,3217,Ring of Might
+m0057,3218,Ring of Might
+m0057,3219,Ring of Might
+m0057,3220,Teleport / Unk1
+m0057,3221,Shattering Steel
+m0057,3222,Flash of Steel
+m0057,3223,Sculptor's Passion
+m0057,3224,Specter of Might / Curse of the Fallen / Hateful Visage / Accursed Visage +1 more
+m0057,3225,Wrath of Ruin / Curse of the Monument / Colossal Wreck / Sundered Remains
+m0057,3226,Unk1
+m0057,3227,Cast-off Halo
+m0057,3228,Cast-off Halo
+m0058,1358,10-tonze Swipe / Foe Splitter / 11-tonze Swipe
+m0058,1360,100-tonze Swipe
+m0058,1361,Bullish Swing / 100-tonze Swing / Vicious Swipe / 111-tonze Swing
+m0058,1362,Glower
+m0058,1363,Animal Instinct / Surge of Vigor
+m0058,1364,Eye of the Beholder
+m0058,2943,Vicious Swipe / 1111-tonze Swing / 111-tonze Swing
+m0058,3212,Disorienting Groan / Show of Strength / Entrapment / Inescapable Entrapment +3 more
+m0058,3213,Unrelenting Charge / Zoom In
+m0058,3214,Devour
+m0058,3216,Focused Tremor / Coerce / Sun's Ire / Thunderous Discharge +1 more
+m0058,3228,Firesteel Fracture
+m0058,3229,座標移動 / Teleport / 金：座標移動：無詠唱 / Crushing Hoof
+m0058,3230,Flailing Strike / Whack
+m0058,3231,Lethal Blow / Forceful Strike
+m0058,3232,Infern Brand / Cryptic Portal / Cryptic Flames / Cast Shadow +4 more
+m0058,3233,Firesteel Strike
+m0058,3234,Blessed Beacon
+m0058,3235,Bullish Swipe
+m0058,3236,Bullish Slash
+m0058,3237,Octuple Swipe / Bullish Swipe
+m0058,3238,Octuple Swipe / Bullish Swipe
+m0058,3239,Octuple Swipe / Bullish Swipe
+m0058,3240,Octuple Swipe / Bullish Swipe
+m0058,10774,Thundercall
+m0058,17016,Zealous Glower
+m0058,17017,Zealous Glower
+m0058,17018,Ardorous Eye
+m0058,17019,Ardorous Eye
+m0058,17020,2000-mina Swing
+m0060,1696,Plummet
+m0060,1788,Plummet
+m0060,1789,Death Sentence / Spiked Tail
+m0060,1791,Liquid Hell / Liquid Heaven
+m0060,1793,Fireball
+m0060,1794,Divebomb
+m0060,1795,Aetheric Profusion
+m0060,1796,Twister
+m0060,1798,Unwoven Will
+m0060,1801,Generate / Twin Fury
+m0060,2496,Transonic Blast
+m0060,2505,Sonic Storm
+m0060,3212,Twister
+m0060,3225,Cyclone Wing
+m0060,4561,Divebomb Reappear
+m0060,4573,Divebomb / Twisting Dive
+m0060,4574,Twisting Dive
+m0060,4575,Twisting Dive
+m0060,8981,Typhoon
+m0060,10740,Meracydian Cyclone / Meracydian Squall
+m0060,10741,Turbine
+m0062,1318,the Look
+m0062,1319,Rotten Breath
+m0062,1629,Tail Drive
+m0062,1680,Imminent Catastrophe
+m0062,1849,Plague Dance
+m0062,3205,Deadly Impact
+m0063,1380,Salivous Snap
+m0063,1381,Dragon Breath
+m0063,1384,Touchdown
+m0063,1545,Miasma Breath
+m0063,1546,Dark Wave
+m0063,1547,Dark Thorn
+m0063,1552,Evil Eye
+m0063,1822,Frost Breath
+m0063,1823,Sheet of Ice
+m0063,1824,Rime Wreath
+m0063,1825,Cauterize
+m0063,3227,Deep Fog
+m0063,3231,Toxic Vomit
+m0063,3233,Admonishment
+m0063,4561,Touchdown
+m0064,1194,Bombination / Resounding Screech
+m0064,1195,Whipcrack
+m0064,2551,Aero Blast
+m0064,2827,Stormwind
+m0064,3201,Whirling Omen
+m0064,3211,Heavy Swing
+m0064,3212,Mark XLI Quick-firing Cannon
+m0064,3215,Lumisphere
+m0064,3220,Mark XLIII Mini Cannon
+m0064,3221,Unknown Ability
+m0064,3222,Aero Blast
+m0064,3223,Pteraspit
+m0064,3224,Dactail
+m0065,1188,Wild Rattle
+m0065,1783,Disseminate
+m0065,3218,Gorgoneion
+m0065,4561,Petrifaction
+m0065,4574,Para Snake Visual
+m0066,3202,Electric Whisker
+m0066,3207,Balam Blaster
+m0066,3210,Balam Blaster
+m0066,3211,Roaring Thunder
+m0066,3220,Roaring Ring
+m0066,3221,Perilous Lair
+m0066,3222,Prowling Death
+m0066,3223,Stalking Static
+m0067,1828,Burst
+m0067,1854,Bury
+m0068,1265,Sandstorm
+m0068,1266,Venomous Breath
+m0068,1267,Sandworm Appear / Earthbreak
+m0068,1268,Earthquake
+m0068,1742,Sand Cyclone
+m0068,3213,Brine Breath
+m0068,3215,Meteor Rain / the Falling Sky / the Burning Sky
+m0068,3216,the Final Sky
+m0068,3427,Freshwater Cannon
+m0069,2534,Ode to Lost Love / Seductive Sonata / Song of Torment
+m0069,3204,Deathly Verse
+m0069,3209,Rotting Elegy / Ode to Fallen Petals / Fourfold Suffering
+m0069,3210,Direct Seeding
+m0069,3211,Gardener's Hymn
+m0069,3212,Tempestuous Wrath / Teleport
+m0070,1537,Dissever
+m0070,1540,Ball of Fire
+m0070,1542,Ball of Ice
+m0070,1805,Fear Itself
+m0070,3211,Resonance
+m0070,3212,Honeyed Front
+m0070,3213,Honeyed Left
+m0070,3214,Honeyed Right
+m0070,3218,Barofield
+m0070,3223,Nanospore Jet
+m0070,3224,attack
+m0071,3201,Heavensward Howl
+m0071,3202,Tramontane / Hellstorm
+m0071,3203,Ecliptic Bite
+m0071,3204,Ice Pillar / Ancient Glacier / Howling Moon
+m0071,3205,Lunar Cry / Age of Endless Frost / the Storm Without / the Storm Within
+m0071,3206,Steel Fang
+m0071,3207,Sonic Howl
+m0071,3209,Polar Roar
+m0071,3211,Heavy Stomp / Brain Freeze
+m0071,3212,Tail Swipe
+m0071,3213,Energy Wave / Glassy Nova
+m0071,3215,Fanged Lunge
+m0071,3216,Glaciation
+m0071,3217,Teleport Boss
+m0071,3222,Crackling Howl
+m0072,2397,Granite Sepulchre
+m0072,3204,Granite Impact
+m0072,4575,Flatten
+m0072,4576,Flatten
+m0073,1813,Great Divide / Captive Bolt
+m0073,1818,Culling Blade
+m0073,1819,Vacuum Slash
+m0073,1820,Abyssal Slash
+m0073,1821,Megiddo Flame
+m0073,2556,Quake
+m0073,2561,Ancient Flare
+m0073,3217,Scorching Right
+m0073,3218,Scorching Left
+m0073,3219,Fire's Domain
+m0073,3220,Fire's Ire
+m0073,3222,Teleport
+m0073,3223,the Builder's Forge
+m0073,3226,Cloud to Ground
+m0073,3227,Byregot's Strike
+m0073,3228,Peal of the Hammer
+m0073,3229,attack
+m0073,3230,Byregot's Spire
+m0073,3231,Byregot's Ward
+m0073,3232,Ordeal of Thunder
+m0073,3233,Builder's Build / Peal of the Hammer / Reproduce
+m0073,3235,Byregot's Strike
+m0073,3236,Veil of Heat
+m0073,3237,Halo of Heat
+m0073,3238,Pyre of Rebirth
+m0073,3239,Fire's Domain
+m0073,3240,Scorching Left
+m0073,11018,Scorching Right
+m0073,11019,Culling Blade
+m0073,11020,Captive Bolt
+m0074,3201,Corrosive Bile
+m0074,3202,Malaise
+m0074,3203,Flailing Tentacles
+m0074,3212,Crippling Blow
+m0074,3213,Spellblade Fire III
+m0074,3214,Spellblade Blizzard III
+m0074,3215,Spellblade Thunder III
+m0074,3216,Changeling's Fantasia / Spellblade Holy / Place Token / Place Dark Token
+m0074,3218,Finale
+m0074,3219,Toad Choir / Ribbit
+m0074,3220,Imp Choir
+m0074,3222,Virtuosic Capriccio
+m0074,3223,the Playing Field
+m0074,3224,the Game
+m0074,3225,Funambulist's Fantasia / Panel Swap
+m0074,3227,Teleport
+m0074,3228,the Queen's Waltz
+m0074,3230,the Queen's Waltz
+m0076,1270,Grand Sword / Jarring Blow
+m0076,1271,Grand Strike
+m0076,1273,Magitek Ray
+m0076,1275,Exhaust
+m0076,3201,Grand Sword
+m0076,3213,Self-detonate
+m0076,3214,Prototype Laser Alpha / Prototype Laser Beta / Homing Laser / Magitek Missile +1 more
+m0076,3215,Ceruleum Vent / Atomic Ray / Unbreakable Cermet Blade
+m0076,3216,Magitek Slash
+m0076,3217,Magitek Slash
+m0076,3219,Teleport
+m0077,1675,Murder Hole
+m0077,1676,Repel
+m0078,3202,Snort
+m0078,3204,Fungah
+m0078,3205,Fungahhh
+m0078,3206,Fireball
+m0080,3203,Beclouding Dust
+m0080,3204,Brewing Storm
+m0083,3201,Aetherial Light / Lightburst / Shine / Summon
+m0086,1327,Lullaby
+m0087,1425,Fluid Spread
+m0087,1784,Rupture
+m0087,1785,Syrup
+m0087,3222,Divide
+m0087,3223,Primordial Chaos
+m0087,3224,Frozen Fallout
+m0087,3225,Frozen Fallout
+m0087,4561,Divide Appear
+m0087,4562,Clot Appear
+m0087,4574,Burst
+m0087,4575,Factor In
+m0087,4576,Metamorphosis
+m0087,4577,Metamorphosis
+m0087,4578,Metamorphosis
+m0088,3202,Splash Bomb / Splash Grenade
+m0088,3203,Playful Breeze
+m0088,3205,Saibai Mandragora / Harvest Festival
+m0088,3206,Rancid Pheromones
+m0088,3208,Hypnotize / Saibai Mandragora
+m0088,3209,Ram / Budbutt / Optical Intrusion
+m0088,3210,Leaf Dagger
+m0088,3211,Teleport / Pheromones Visual2
+m0088,3212,Dead Leaves
+m0088,3213,Authoritative Shriek
+m0088,3215,Mandrastorm
+m0088,3526,Teary Twirl
+m0088,3528,Pluck and Prune
+m0088,3530,Pungent Pirouette
+m0088,3532,Heirloom Scream
+m0088,3534,Pollen
+m0088,4561,Pheromones Visual1
+m0090,2464,Infernal Surge
+m0090,3205,Upburst
+m0090,4573,Big Burst
+m0090,4574,Ruin Foretold Beacons Dead1
+m0090,4575,Ruin Foretold Beacons Dead2
+m0090,4576,Ruin Foretold Beacons Dead3
+m0093,2283,Featherlance
+m0093,2284,Thermal Tumult
+m0093,2466,Thermal Tumult
+m0093,2468,Gigastorm
+m0093,2470,Cyclone
+m0093,3207,Pinion
+m0093,3211,Explosion
+m0095,1403,Friction
+m0095,1404,Downburst
+m0095,1405,Wicked Wheel
+m0095,1406,Slipstream
+m0095,1407,Mistral Song
+m0095,1408,Mistral Shriek
+m0095,1409,Aerial Blast
+m0095,2405,Mistral Song
+m0095,4574,Transition Garuda
+m0096,1388,攻撃 / Auto Attack Ifrit
+m0096,1390,Incinerate
+m0096,1391,Vulcan Burst
+m0096,1392,Eruption
+m0096,1393,Radiant Plume
+m0096,1394,Crimson Cyclone
+m0096,1395,Hellfire
+m0096,1398,イフリート：炎獄の楔召喚
+m0096,2461,Inferno Howl
+m0096,2462,Crimson Cyclone
+m0096,3217,Flaming Crush
+m0096,3218,Hellfire
+m0096,4573,Crimson Cyclone
+m0096,4574,Transition Ifrit
+m0097,1376,Veil of the Whorl
+m0097,2692,attack
+m0097,2695,Aqua Breath
+m0097,2700,Waterspout
+m0097,2705,Body Slam
+m0097,2718,Tidal Roar
+m0097,2725,Tidal Wave
+m0097,2736,Dread Tide
+m0098,1430,Rock Buster
+m0098,1431,Tumult
+m0098,1432,Mountain Buster
+m0098,1433,Weight of the Land
+m0098,1434,Rock Throw
+m0098,1436,Landslide
+m0098,1437,Geocrush
+m0098,1438,Earthen Fury
+m0098,2391,Upheaval
+m0098,3216,Landslide
+m0098,3217,Cloud Call
+m0098,3218,Supercell
+m0098,3219,Lightning Strike
+m0098,3220,Shiko
+m0098,3222,Dynamic Pound / Ground and Pound
+m0098,3223,Dynamic Scrapline / Rolling Scrapline
+m0098,3224,Shocking Force
+m0098,3225,Thundercall
+m0098,4561,Geocrush
+m0098,4573,Transition Titan
+m0099,1603,Aetheroplasm Spawn
+m0099,1605,Diffractive Laser
+m0099,1606,Magitek Ray
+m0099,1607,Magitek Ray
+m0099,1608,Magitek Ray
+m0099,1609,Ceruleum Vent
+m0099,1610,Homing Lasers
+m0099,1612,Vulcan Burst
+m0099,1613,Aerial Blast / Vortex Barrier / Prepare Garuda
+m0099,1614,Landslide
+m0099,1617,Earthen Fury / Granite Interment / Prepare Titan
+m0099,1618,Radiant Plume
+m0099,1619,Hellfire / Prepare Ifrit
+m0099,1624,Tank Purge
+m0099,1627,Ultima
+m0099,2388,attack / Auto Attack / Auto Attack Ultima
+m0099,2407,Viscous Aetheroplasm
+m0099,2408,Aetheric Boom
+m0099,3229,Transition Ultima
+m0099,3236,Sabik
+m0099,3237,Ultimate Predation / Ultimate Annihilation / Ultimate Suppression
+m0099,3238,Enrage Sequence Start
+m0099,3239,Viscous Aetheroplasm
+m0099,3240,Light Pillar
+m0099,10541,Eye of the Storm
+m0099,10542,Homing Ray / Laser Focus
+m0099,10543,Citadel Buster
+m0099,10592,Transition Finish1 / Transition Finish2 / Transition Finish3
+m0099,10594,Teleport
+m0101,4573,Unknown
+m0102,3211,Flame Breath
+m0102,3212,Cauterize
+m0102,3213,Sidewise Slice
+m0102,3214,Earth Shaker / Earthrising
+m0102,3218,Scorching Breath
+m0102,3220,Baleful Nail
+m0102,3221,Baleful Nail
+m0102,3222,Shuddering Earth
+m0102,3223,Offensive Posture
+m0102,3224,Offensive Posture
+m0102,3225,Offensive Posture
+m0102,3226,Hurricane Wing
+m0102,3227,Absolute Terror
+m0102,3228,Winged Terror
+m0102,3229,Baleful Breath
+m0102,3230,Dark Matter Blast
+m0102,3231,Sharp Spike / Horrid Roar
+m0102,3232,Auto Attack Boss
+m0102,3233,Baleful Breath
+m0102,3234,Baleful Breath
+m0103,3201,Height of Chaos
+m0103,3202,Ancient Eruption
+m0103,3203,Universal Manipulation
+m0103,3204,Entropic Flame / Fusion Prime
+m0103,3205,Shadow Flare
+m0103,3207,Dualstar
+m0103,3208,Arcane Revelation1 / Universal Manipulation Teleport
+m0103,3212,Annihilation
+m0105,2254,Auto Attack / attack
+m0105,2255,High Voltage / Mystic Levin
+m0105,2256,Repelling Cannons
+m0105,2257,Allagan Rot
+m0105,2258,Gravity Field
+m0105,2259,Ballast
+m0105,2260,Chain Lightning / Mystic Flash
+m0105,2261,Firestream
+m0105,2262,Piercing Laser
+m0105,2263,Node Retrieval
+m0105,2264,Object 199
+m0105,2357,Dirty Cannons
+m0105,3201,Offensive Command / Order Relay
+m0105,3215,Lots Cast / Mystic Flame
+m0105,3216,Arcane Light
+m0105,3218,Mystic Heat / Mystic Light
+m0105,3219,Mechanical Dissection
+m0105,3220,Aetherochemical Laser γ / Mechanical Decapitation
+m0105,3221,Mechanical Contusion
+m0105,3222,Mechanical Laceration
+m0105,3223,Defensive Reaction
+m0105,3224,Hatebound / Mirage Dive
+m0105,3225,attack
+m0105,3227,Steep in Rage
+m0105,3230,Teleport Eye
+m0105,3231,Piercing Laser
+m0105,3232,Aetherochemical Laser α
+m0105,3233,Aetherochemical Laser β
+m0105,3234,Shifting Shape / Unk3 / Arcane Design
+m0105,3235,Unk2
+m0105,3236,Big Burst
+m0105,3237,Steelstrike
+m0105,3238,Death Ray
+m0105,4574,Incongruous Spin
+m0105,4576,Creeping Shadows
+m0105,4577,Transition P71
+m0105,4578,Transition P73
+m0105,4579,Transition P72
+m0105,17011,Optic Induration
+m0106,2663,Cosmic Kiss
+m0106,2772,Cosmic Kiss / Holy Comet / Comet Impact
+m0106,2774,Holy Impact
+m0106,3202,Weighty Blow Destroy
+m0106,3208,Comet Impact / Landing
+m0106,4562,Meteor Impact
+m0106,4563,Meteor Impact
+m0106,4566,Meteor Impact / Cosmic Kiss
+m0106,4573,Visual3
+m0106,4576,Explosion / Comet Break / Cosmic Shrapnel
+m0106,4579,Big Burst
+m0106,4581,Explosion / Burst
+m0106,4582,Meteor Impact
+m0106,4583,Unmitigated Explosion / Massive Explosion
+m0106,9443,Meteor Impact
+m0109,3201,_rsv_49891_-1_1_0_0_SE2DC5B04_EE2DC5B04 / _rsv_47881_-1_1_0_0_SE2DC5B04_EE2DC5B04 / _rsv_49893_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0109,3205,_rsv_47890_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0109,3207,_rsv_47891_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0109,3209,_rsv_47867_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0109,3218,Boil Over
+m0109,3227,White-hot Rage
+m0109,3228,Channeled Rage / Heightened Rage
+m0109,3229,Hopping Mad
+m0109,3230,Hopping Mad
+m0109,3231,Hopping Mad
+m0109,3232,Scathing Sweep
+m0110,3202,Swivel Cannon
+m0110,3203,Swivel Cannon
+m0110,3204,Program Loop / Peripheral Synthesis
+m0110,3207,Atomic Ray
+m0110,3212,Pantokrator
+m0110,3222,Blaster
+m0110,3223,Touchdown
+m0110,3224,Bare Root Planting
+m0110,3225,Dense Planting
+m0114,1343,Death by Claw / Death Grip
+m0114,3202,Spiteful Guillotine
+m0114,3203,the Hand
+m0114,3208,Assault Cannon
+m0114,3209,Assault Cannon
+m0114,3210,Light of Devotion
+m0114,3211,Terminate
+m0114,4562,Compression
+m0114,4578,Explosion
+m0114,4579,Unmitigated Explosion
+m0117,3201,Auto Attack P3
+m0117,3202,Flare Breath
+m0117,3203,Flatten
+m0117,3205,Earth Shaker
+m0117,3206,Kan Rhai
+m0117,3208,Quickmarch Trio / Blackfire Trio / Fellruin Trio / Heavensfall Trio +2 more
+m0117,3212,Akh Morn
+m0117,3213,Morn Afah
+m0117,3214,Exaflare
+m0117,3215,Teraflare
+m0117,3218,Gigaflare
+m0117,3219,Tempest Wing
+m0117,3220,Gigaflare
+m0117,3222,Twisted Scream
+m0117,3223,Perigean Breath
+m0117,4573,Megaflare Dive
+m0117,4574,Become Golden
+m0118,3213,Feathercut / Filoplumes
+m0118,3214,Flutterfall / Feather Squall
+m0118,3215,Wind Unbound / Sideslip
+m0118,3216,Eye of the Fierce
+m0118,3217,Wingbeat
+m0118,3220,Flames of Rebirth
+m0118,4573,Feather Squall
+m0118,4578,Fireglide
+m0119,3201,the Scarlet Whisper
+m0119,3202,the Scarlet Price
+m0119,3203,Diffractive Break
+m0119,3208,Ice and Levin / Ice and Wind
+m0119,3210,Hot Tail
+m0119,3211,Akh Morn
+m0119,3212,Akh Morn
+m0119,3213,Reforge
+m0119,3216,Revenge of the Horde
+m0119,4561,Touchdown
+m0119,4575,Euhedral Swat
+m0123,3209,True Aero
+m0124,3204,Camisado
+m0124,3213,Plague of Locusts
+m0124,3214,Cloud of Locusts
+m0124,3215,Gale Cannon
+m0124,3216,Dread Wind
+m0124,3217,Teleport
+m0124,3218,Flight of the Malefic / Summon Darkness
+m0124,3220,Akanthai: Act 1 / Wreath of Thorns / Akanthai: Curtain Call / Akanthai: Act 2 +3 more
+m0124,3222,Hell's Sting
+m0124,3223,Kothornos Kick
+m0124,3224,Kothornos Quake
+m0124,3225,Demigod Double
+m0124,3226,Nearsight / Farsight / Dark Design / Wreath of Thorns
+m0124,3227,Ultimate Impulse
+m0124,3229,Searing Stream
+m0124,3230,Heart Stake
+m0126,3206,Mirrored Incantation
+m0126,3207,Whispered Incantation
+m0126,3209,Minax Glare
+m0126,3210,Ancient Blizzard III / Whispers Manifest
+m0126,3211,Ancient Flare / Whispers Manifest
+m0126,3212,Ancient Holy / Whispers Manifest
+m0126,3213,Eternal Damnation / Whispers Manifest
+m0126,3214,Fore Interment / Rear Interment
+m0126,3215,Rear Interment / Fore Interment
+m0126,3216,Right Interment / Left Interment
+m0126,3217,Left Interment / Right Interment
+m0126,3218,Heliovoid
+m0126,3347,Ancient Flare
+m0126,3353,Firewalker
+m0126,3355,Topple
+m0127,3207,Ixali Aero
+m0127,3208,Ixali Aero II
+m0127,3209,Blast Knuckles / Ixali Aero III
+m0127,3210,Hawk / Meteor Impact
+m0127,3211,Summon Garuda
+m0127,3219,Moatmaker
+m0127,3220,Dualfist Flurry
+m0127,3221,Knuckle Crusher
+m0127,3222,Line of Fire / Cage of Fire / Spirit Sling
+m0127,3223,Barefisted Death
+m0127,3224,Spinning Siege
+m0127,3225,Knuckle Down
+m0127,3307,Knuckle Press
+m0127,3309,Burning Rave
+m0127,3312,Aura Cannon
+m0127,3316,Ancient Quaga
+m0128,3201,Slabber
+m0128,3203,Rend / Hellclaw / Predator Claws
+m0128,3204,Tail Blow
+m0128,3205,Hound out of Heaven / Hound out of Hell
+m0128,3206,Innerspace
+m0128,3209,Glossolalia / Ululation
+m0128,3211,Devour
+m0128,3213,Viper Poison
+m0128,3214,Jump / Hellpounce
+m0128,3215,Heaving Breath
+m0128,3216,Confession of Faith / the Lion's Breath
+m0128,3217,Confession of Faith / the Dragon's Breath
+m0128,3219,Void Tornado / Void Quake
+m0128,3220,Lava Spit
+m0129,3201,Break IV
+m0130,3205,attack
+m0130,3206,Blade of Darkness
+m0130,3207,Blade of Darkness
+m0130,3208,Blade of Darkness
+m0130,3209,Deluge of Darkness
+m0130,3210,Teleport2
+m0130,3211,Particle Concentration / Feint Particle Beam
+m0130,3212,Flood of Darkness
+m0130,3213,Dark Dominion
+m0130,3214,Ghastly Gloom
+m0130,3215,Ghastly Gloom
+m0130,3216,Chaos-condensed Particle Beam / Looming Chaos
+m0130,3217,Diffusive-force Particle Beam
+m0130,3218,Active-pivot Particle Beam
+m0130,3219,Active-pivot Particle Beam
+m0130,3220,Grim Embrace
+m0130,3221,Grim Embrace
+m0130,3222,Rapid-sequence Particle Beam
+m0130,3223,Death IV / Aero IV / Break IV / Flare +1 more
+m0130,3224,Endeath IV / Enaero IV
+m0130,3225,attack
+m0131,3227,Loyal Flame
+m0131,3228,Lamplight / Yawning Hells / Infernal Redemption / Igniting Lights +2 more
+m0131,3229,Leftward Trisula
+m0131,3230,Rightward Parasu
+m0131,3231,Drumbeat
+m0131,3232,Cosmic Weave
+m0131,3233,Errant Akasa
+m0132,3207,Tentacle Dig
+m0132,3208,Model State Change1
+m0132,3211,Tentacle Dig
+m0132,3212,Model State Change2
+m0132,3213,Big Wave
+m0132,3214,Toxic Fountain
+m0136,2287,Leech
+m0137,1519,Final Sting
+m0138,3204,Bird Unk
+m0139,2325,Rotoswipe
+m0139,2326,Bot Retrieval
+m0139,3207,Barrage Fire
+m0139,3208,Fires of Mt. Gulg
+m0139,3209,Steam Dome
+m0139,3210,Dwarven Deluge / Shock
+m0139,3211,Spincrush
+m0139,3213,Dynamic Sensory Jammer
+m0141,1511,Bloody Claw
+m0141,1512,Terror Eye
+m0141,1681,Triumphant Roar
+m0143,1525,Mow
+m0143,1526,Triclip
+m0143,1527,Frightful Roar
+m0143,1528,Mortal Ray
+m0144,1599,Creeping Darkness
+m0144,3207,Summon
+m0144,3208,Looming Judgment
+m0145,3201,the Warden's Verdict
+m0146,1486,Rake
+m0146,1487,the Lion's Breath
+m0146,1695,Swinge
+m0146,3209,Riddle of the Sphinx
+m0146,3210,Ka
+m0146,3211,Chthonic Hush
+m0146,3212,Weighing of the Heart
+m0146,3213,Aetherial Exchange / Ancient Aero III / Ancient Stone III / Ancient Holy
+m0146,3215,Scratch
+m0146,3218,Tiiimbeeer
+m0146,3230,Earth Quaker / Earth Shaker / Stone III
+m0146,3231,Flame Breath
+m0146,3232,Teleport
+m0146,3233,Flame Breath Visual3
+m0146,3234,Flame Breath Visual2
+m0146,3235,Radiant Wave
+m0146,3236,Holy Blaze
+m0146,3238,Double Cast
+m0151,1806,Caber Toss
+m0152,2275,Gravity Thrust
+m0152,2276,Pox
+m0153,3204,Dark II
+m0153,3205,Burst
+m0153,3211,Burning Beam
+m0153,3212,Bracing Wind
+m0154,2272,Headspin
+m0154,3205,Magitek Explosive
+m0154,3206,Magitek Missile
+m0154,3207,Magitek Ray
+m0154,3208,Downpour / Magitek Chakram
+m0154,3209,Thermal Suppression
+m0155,2273,Headspin
+m0155,2353,Electromagnetism
+m0156,1702,Hatch
+m0156,1705,Chaotic Chorus
+m0156,2722,Aether Draw
+m0156,3110,Splash
+m0156,3223,Subduction
+m0156,3234,Stalking Static
+m0156,3238,Shock / Void Spark
+m0156,3240,Subduction
+m0156,3432,Riptide
+m0156,3433,Watery Grave
+m0156,3480,Explosion
+m0156,3487,Infatuation
+m0156,4573,Shadow Burst
+m0156,4576,Sphere Shatter
+m0156,4579,Shock
+m0156,4580,Sphere Shatter
+m0156,4581,Burst
+m0156,4582,Pop
+m0156,4584,Sphere Shatter
+m0156,9440,Static Shock
+m0156,11405,Death IV
+m0159,3203,Lancing Blow
+m0159,3206,Rush
+m0161,2300,Destructive Strike
+m0161,2375,Auto Attack
+m0161,3204,Destructive Charge
+m0161,3205,Boltloop / Lightning Bolt / Bolts from the Blue
+m0161,3206,Destructive Static
+m0163,2802,Fireball
+m0163,2804,Iceball
+m0163,3210,Deathstorm
+m0163,3211,Wings of Salvation
+m0163,3214,Wings of Salvation
+m0163,3570,Chain Lightning
+m0163,4573,Cauterize
+m0163,4574,Cauterize
+m0163,4575,Cauterize
+m0163,4576,Cauterize
+m0163,4577,Cauterize
+m0168,3202,Innocence
+m0168,3203,Hydro Push
+m0168,3205,Torpedo
+m0168,3206,Teleport / Gallop
+m0168,3207,Rising Seas
+m0168,3209,Purifying Light
+m0171,2929,Baleful Gaze
+m0171,3209,Teleport
+m0171,3211,Caber Toss
+m0171,3212,Sparking Fissure
+m0171,3213,Lightning Storm
+m0171,3214,Electrical Overload
+m0171,3216,Gore
+m0171,3217,Gore
+m0172,2603,Auto Attack Demon
+m0172,2604,Abyssal Swing
+m0172,2607,Abyssal Charge
+m0173,3205,Fang's End
+m0173,3206,Defibrillate
+m0173,3207,Electrogenesis
+m0173,3208,Aspect
+m0173,3409,Douse
+m0173,3411,Drench
+m0173,3413,Scale Ripple
+m0177,3201,Frumious Jaws
+m0177,3202,Steel Claw / Catching Claws
+m0177,3205,Add Appear
+m0177,3206,Eyeshine / Heavy Smash
+m0177,3207,Absolute Zero
+m0177,3208,Byakko Jump1 / Teleport
+m0177,3209,Fire and Lightning
+m0177,3210,Teleport Add
+m0177,3211,the Voice of Thunder
+m0177,3212,the Roar of Thunder
+m0177,3215,Hunter's Claw
+m0177,3222,Head Down
+m0177,3223,Slash and Burn / Trial by Fire
+m0177,3224,Slash and Burn / Spinning Slash
+m0177,3225,Slash and Burn
+m0177,3228,Roaring Blaze
+m0177,3232,Byakko Jump2
+m0177,3233,Gloaming Gleam
+m0177,4561,Add Appear
+m0177,4562,White Herald
+m0177,4575,Imperial Guard
+m0177,4577,Roar Of Thunder End1
+m0179,4561,衝撃
+m0179,4562,衝撃
+m0179,4575,Saturate
+m0179,4576,Saturate
+m0179,4577,Burning Gleam
+m0179,4578,Chilling Gleam
+m0183,2921,Hyperflame
+m0183,2925,Tail Smash
+m0183,2927,Deadly Hold
+m0183,3205,Wild Charge
+m0183,3215,Stonega III / Quake / Double Cast
+m0183,3216,Bone Shaker
+m0183,3218,Earthbreak
+m0183,3224,Tail Swing
+m0183,3225,Volcanic Howl / Feral Howl
+m0183,3226,Hot Charge
+m0183,3230,Wild Charge
+m0183,3231,Right-sided Shockwave
+m0183,3232,Left-sided Shockwave
+m0183,3235,Hysteric Assault
+m0183,3236,Firebreathe
+m0183,3237,Right Hammer Slammer / Right Hammer / Octuple Slammer / Double Hammer +1 more
+m0183,3238,Left Hammer Slammer / Left Hammer / Octuple Slammer / Double Hammer +1 more
+m0183,3239,Ballistic Missile
+m0183,3240,Ballistic Missile
+m0183,3421,Hammer Knuckles
+m0183,3506,Ripper Claw
+m0183,3508,Spit Flame / Fireball
+m0183,3510,Heat Breath
+m0183,3512,Tail Smash
+m0183,3515,Anti-personnel Build / Ring Build / Raging Inferno
+m0183,3516,Reverberating Roar / Bone Shaker
+m0183,14999,Unk2
+m0183,15000,Metallic Miasma
+m0183,15001,Metallic Miasma
+m0183,17014,Summon Shijin
+m0183,17015,Wrought Arms
+m0183,17016,Wringer / Double Wringer
+m0183,17017,Synchronized Strike / Synchronized Sequence
+m0183,17018,Striking Right / Smiting Right Sequence
+m0183,17019,Striking Left / Smiting Left Sequence
+m0183,17020,Mighty Grip
+m0183,17021,Deadly Hold / Kirin Captivator
+m0183,17023,Unk Boss
+m0183,17024,Boss Jump
+m0183,17025,Stonega IV
+m0183,17028,Crimson Riddle
+m0183,17030,Crimson Riddle
+m0190,2410,Mantle of the Whorl
+m0190,2697,Tail Whip
+m0190,2699,Scale Darts
+m0195,3205,Neuro Squama
+m0195,3206,Proboscis
+m0195,3207,Psycho Squama
+m0196,2753,Bahamut's Claw / Ravensbeak
+m0196,2757,Iron Chariot
+m0196,2759,Lunar Dynamo
+m0196,2761,Hypernova
+m0196,2767,Raven Dive
+m0196,2771,Heavensfall
+m0196,2776,Megaflare
+m0196,2789,Thermionic Beam
+m0196,2988,Bahamut's Favor / White Fury
+m0196,3203,Hellish Scythe / Heavenly Scythe
+m0196,3205,Will Breaker
+m0196,3214,Auto Attack3 / Auto Attack2 / Auto Attack1
+m0196,3215,Death Penalty / Jongleur's X
+m0196,3219,Transference
+m0196,3224,Jester's Reward
+m0196,3230,Heavenly Cyclone / Interference
+m0196,3231,Royal Decree
+m0196,3232,Mindjack
+m0196,3234,Ray of Light
+m0196,3235,Searing Radiance
+m0196,3236,Shadowsear
+m0196,3237,White Flame
+m0196,3238,Clear Cut
+m0196,4561,Dalamud Dive
+m0196,4573,Meteor Stream
+m0196,4574,Lunar Dive
+m0196,4577,Umbral Advance / Umbral Advent
+m0196,4578,Astral Advance / Astral Advent
+m0196,10834,Ultima Ray / Ultima Blow
+m0196,17013,Head-splitting Roar
+m0196,17014,Shackles of Fate
+m0196,17015,Lawless Pursuit / Dismemberment / Peal of Judgment / Flaying Flail +1 more
+m0196,17016,Chopping Block
+m0196,17017,Execution Wheel
+m0196,17020,Relentless Torment
+m0196,17021,Jump
+m0198,3203,Venom
+m0198,3204,Pestilent Sphere
+m0199,3121,Burst / Explosion
+m0199,3209,Heaven Bomb Explosion
+m0199,4573,Lots Cast
+m0199,4574,Lots Cast
+m0199,4575,Lots Cast
+m0199,4576,Lots Cast
+m0199,4577,Explosion
+m0199,4578,Burst
+m0199,4579,Burst
+m0204,3201,Pillar Pierce / Crack
+m0204,3202,Shatter
+m0204,3203,Ice Pillar / Pillar Impact
+m0204,3204,Crystalline Fracture
+m0204,3206,Elemental Magicks
+m0204,3207,Elemental Magicks
+m0204,3208,Heretic's Fork
+m0204,3209,Breaking Wheel
+m0204,3210,Crystal Nail
+m0204,3211,Niphas
+m0204,3212,Cheimon
+m0204,4565,Landing
+m0204,4575,Resonant Frequency
+m0204,4578,Mythcarver
+m0204,4579,Mythspinner
+m0204,4580,Resonant Frequency
+m0204,4582,Shatter
+m0204,9441,Landing / Lightning Bolt
+m0204,9443,Rush
+m0205,3210,Wallop
+m0205,3213,Toxin Shower
+m0205,3214,Corrosive Venom
+m0205,3215,Clearout
+m0205,3216,Wallop
+m0205,3217,Wallop
+m0205,3218,Wallop
+m0205,3219,Wallop
+m0205,4561,Arise / Expand / Upburst
+m0205,4562,Roots of Attis
+m0211,3204,Halo of Destruction
+m0212,3203,Faerie Ring
+m0212,3379,Searing Chain
+m0212,3381,Infinite Anguish
+m0213,3576,Cosmo Meteor / Comet Impact
+m0213,3578,Meteor Impact
+m0215,3204,Lead Hook
+m0215,3206,Tail Screw
+m0215,3209,Sharp Strike
+m0215,3215,Aether Siphon
+m0215,3216,Aether Siphon
+m0215,3217,Aether Spray
+m0215,3218,Aether Spray
+m0215,3219,Poison Heart
+m0215,3220,Meaningless Destruction
+m0215,3221,Total Wreck
+m0215,3222,Unholy Water
+m0220,3201,Darkened Blaze
+m0222,3203,Rocky Roll
+m0222,3204,Snow Boulder
+m0222,3205,Avalaunch
+m0222,4573,Rocky Roll
+m0222,4574,Rocky Roll Visual1
+m0222,4579,Snow Boulder
+m0225,3201,Reckless Abandon
+m0225,3202,Void Call / Chirp
+m0226,3202,Admonishment / Phantom Admonishment
+m0226,3203,Phantom Outer Turmoil
+m0226,3205,Animadversion
+m0226,3206,Condescension
+m0226,3207,Antipathy / Disgust
+m0226,3209,Phantom Kin
+m0226,3210,Inner Turmoil / Phantom Inner Turmoil
+m0226,3211,Akh Morn
+m0230,3201,Flame Thrower
+m0230,3202,Carpet Bomb
+m0230,3204,Garlean Fire
+m0233,3201,Fetid Fang
+m0233,3208,Inscrutability
+m0233,3211,Clearout
+m0233,3213,Setback
+m0233,3215,Reflection
+m0233,3216,Luminous Ray
+m0233,3217,Ectoplasmic Ray
+m0234,3207,Turbine
+m0234,3217,Flaming Cyclone
+m0234,3220,74 Degrees
+m0236,3201,Golden Talons / Scratch / Tooth and Talon
+m0236,3202,Freefall
+m0236,3203,Alpine Draft
+m0236,3204,Feather Wind / Aero II / Obey
+m0236,3205,Winds of Winter / Molting Plumage / Wildfire Winds
+m0236,3207,Pentagust
+m0236,3208,Golden Talons
+m0236,3209,Swooping Frenzy
+m0236,3210,Frigid Pulse
+m0236,3211,Fervid Pulse / Fire Brand
+m0236,3212,Swooping Frenzy
+m0236,3215,Aetherial Distribution
+m0236,3217,Jump
+m0236,3229,Fulgurous Fall
+m0236,3230,Storm Surge
+m0236,3231,Thunderspark
+m0236,3232,High Volts
+m0236,3233,Jump2
+m0236,3234,Thundering Roar
+m0236,4561,Touchdown
+m0237,3201,Geirrothr
+m0237,3202,Hall of Sorrow / Magitek Burst / Magitek Blaster
+m0237,3203,Valfodr / Raw Steel
+m0237,3204,attack / Storm Slash
+m0237,3205,Gust Slash
+m0237,3206,Burnished Joust
+m0237,3207,Ride Down
+m0238,3204,Scythe Tail
+m0238,3205,Butcher
+m0238,3206,Rip
+m0238,3208,Crosswind
+m0238,3209,Twister
+m0238,3210,Howl
+m0238,3211,Lightning Bolt
+m0238,3212,Spark
+m0238,3213,Rock Throw
+m0238,3214,Sweeping Gouge
+m0238,3215,Barreling Smash
+m0238,3216,Scythe Tail
+m0238,3217,Spark
+m0238,3218,Disciples of Levin / Static Moon
+m0238,3219,Static Path
+m0238,3220,Scythe Tail
+m0238,3221,Master of Levin
+m0238,3222,Earthquake
+m0238,3223,Thunder
+m0238,3224,Thunder III
+m0238,3225,Bedeviling Light
+m0238,3226,Thunder II
+m0238,3227,Ray of Lightning
+m0238,3228,Petribreath
+m0240,3206,Order to Fire
+m0240,3212,Elimination
+m0240,3218,Eclipsing Exhaust
+m0240,3221,Disengage Hatch
+m0240,3223,Electromagnetic Repellant
+m0240,3224,Decimation
+m0245,3202,Abyssic Buster
+m0245,3203,Dark Star
+m0245,3208,Jump
+m0245,3209,Draconiform Motion
+m0245,3210,Imitation Icicle
+m0245,3211,Lifeless Legacy
+m0245,3212,Imitation Star
+m0245,3213,Dread Deluge / Frigid Twister / Withering Eternity / Wicked Water
+m0245,4561,Unk1
+m0245,4562,Unk2
+m0245,4574,Frigid Dive
+m0247,3202,Isle Drop
+m0247,3205,Stone Swell
+m0247,3206,Rockslide
+m0247,3207,Self-destruct
+m0248,3205,Ray of Dangers Near / Demonograph of Dangers Near / Cometeor of Dangers Near / Summon +1 more
+m0248,3206,Rotate Right
+m0248,3207,Rotate Left
+m0248,3208,Ray of Expulsion Afar / Demonograph of Expulsion Afar / Cometeor of Expulsion Afar / Gravity of Expulsion Afar
+m0248,3209,Auto Attack Visual / Occult Chisel / Lacunate Stream / Summon +1 more
+m0248,3210,Demonic Dark II
+m0248,3212,Restore Gravity
+m0250,3201,Burst
+m0253,3205,Howling Havoc / Pack Predation / Forlorn Wind / Forlorn Stone +2 more
+m0253,3206,Breath of Decay
+m0253,3208,Winds of Decay
+m0253,4573,Drachen Wanderer Disappear
+m0260,3201,Fluid Swing
+m0260,3202,Splash
+m0260,3203,Protean Wave
+m0260,3206,Cascade
+m0261,3201,Fluid Strike
+m0261,3202,Hand of Prayer / Hand of Parting / Hand of Pain
+m0261,4573,Grim Embrace
+m0263,3201,Gallop
+m0263,3203,Cloud Call
+m0263,3204,Burning Bright
+m0263,3207,Nicker
+m0271,3201,Outburst
+m0271,3210,Bright Flare
+m0271,3211,Spiteful Flame
+m0271,3222,Discordant Harmony
+m0271,3224,Sphere Shatter
+m0271,3226,Explosion
+m0271,3227,Flames' Meet
+m0271,3230,Unlucky Lot
+m0271,3238,Vena Amoris
+m0271,3239,Light Shot
+m0271,4563,Elemental Impact
+m0271,4575,Shroud of Eons
+m0271,4577,Burst / Explosion / Burn
+m0271,4578,Hatch
+m0271,4579,Aratama
+m0271,9443,Solar Flair
+m0271,9444,Burst
+m0271,9454,Arm of Purgatory
+m0271,9456,Burst
+m0271,9458,Steam Burst
+m0271,17012,Elemental Impact
+m0272,3215,Elemental Impact
+m0272,3217,Jaws Teleport
+m0272,3218,Circle Rotation CW
+m0272,3219,Circle Rotation CCW
+m0272,3221,Circle Rotation Start
+m0272,3222,Circle Rotation End
+m0272,3223,Chilling Cataclysm
+m0272,3225,Marker Appear
+m0272,4561,Akanthai Visual Tower / Akanthai Visual AOE / Akanthai Visual Knockback
+m0272,4568,Poison Cloud Appear
+m0272,4570,Great Whirlwind
+m0272,4571,Great Whirlwind
+m0272,4579,Chill Blast
+m0272,4580,Freezing Blast
+m0272,4583,Tousle
+m0272,9350,Electrifying Flight
+m0272,9446,Mana Explosion
+m0272,9447,Arcane Lightning
+m0272,9448,Splinter
+m0272,9449,Sphere Shatter
+m0272,9453,Wyvern's Radiance
+m0272,9454,Wyvern's Radiance
+m0272,9455,Roiling Mass
+m0273,3211,Teleport Add
+m0273,3212,Panta Rhei
+m0273,3216,Twinkle Toss
+m0273,3219,Sand Surge
+m0273,3220,Wind Surge
+m0273,3224,Plasma Beam
+m0273,3225,Plasma Beam
+m0273,3226,Plasma Beam
+m0273,3228,Blood Lash / Last Lash
+m0273,3229,Black Hole Unk / Black Hole Activate
+m0273,3230,Overdraught
+m0273,3234,Naught Grows
+m0273,3235,Naught Grows
+m0273,3236,Yawning Void Teleport
+m0273,3237,Passage of Naught
+m0273,3238,Passage of Naught
+m0273,3239,Endless Chase
+m0273,3240,Empty Seed
+m0273,4567,Summoning Sands
+m0273,4573,Graviton Spark
+m0273,4579,Rack and Ruin
+m0273,4582,Energy Bomb
+m0273,4584,Sunset
+m0273,9350,Appear
+m0273,9360,Silent Torrent
+m0273,9361,Silent Torrent
+m0273,9362,Silent Torrent
+m0273,9441,Jade Passage
+m0273,9445,Fusion Burst
+m0273,9446,Implode
+m0273,9447,Gale Sphere
+m0273,9451,Radiance
+m0273,9453,Sandburst
+m0273,9455,Electrify
+m0273,9456,Weighty Blow
+m0273,9457,Explosion
+m0273,9459,Lethal Nails
+m0273,9460,Collision
+m0273,9463,Valorous Ascension
+m0273,9466,Gale Surge / Wind Surge
+m0273,9467,Stone Surge / Sand Surge
+m0273,9468,Arcane Beacon
+m0273,9472,Circle of Lives
+m0273,9474,Energy Ray
+m0273,9481,Mortal Slayer
+m0273,9485,Mortal Slayer
+m0273,9489,Vacuum
+m0273,9491,Return to Nothing
+m0273,9492,Great Return to Nothing
+m0273,9493,Burst
+m0273,9494,Violent Burst
+m0273,9498,Atomic Ray
+m0273,9503,Big Burst
+m0273,17012,_rsv_47868_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0277,3203,Ravaging Roots / Extensible Tendrils
+m0277,3204,Spellwind
+m0277,3207,Whirling Omen
+m0277,3212,Chilling Glare
+m0277,3215,Noxious Sap
+m0277,3216,Lash
+m0277,3218,Roiling Reach
+m0277,3225,Beguiling Gas / Brainstorm
+m0277,3226,Fetching Fulgence
+m0277,3227,Sap Shower
+m0277,3228,Putrid Breath
+m0277,3230,Neurotoxify
+m0277,3231,Cocopult
+m0277,3232,Immune Response
+m0277,3233,Immune Response
+m0277,3234,Quarantine
+m0277,3235,Cytolysis
+m0277,3236,Auto Attack
+m0280,3202,Atropine Spore
+m0280,3204,Deracinator
+m0280,3208,Dark Spike
+m0280,3209,Silken Spray
+m0280,3211,Implosion
+m0280,3215,Frond Affront / Frond Affeared
+m0282,3203,Bite and Run
+m0284,3202,Abyssal Reaper
+m0284,3205,Sickle Strike
+m0284,3206,Petrifaction
+m0285,3211,Wrath of the Tengu / Cure IV
+m0285,3215,Blade of the Tengu / Glory
+m0285,3228,Gaze of the Tengu
+m0286,3201,Scalding Scolding
+m0286,3202,Sap
+m0286,3203,Bombshell Drop
+m0286,3204,Burst / Massive Burst
+m0286,3205,Ignition
+m0286,3206,Massive Burst
+m0287,3203,Drainage
+m0287,3205,Liquid Gaol
+m0287,3206,Pressurize
+m0291,3204,Amalgamight
+m0291,3211,Supercell Matrix End
+m0291,3212,Electrowave / Superbolt / Ternary Charge
+m0291,3213,Centralized Current
+m0291,3214,Split Current
+m0291,3215,Disassembly
+m0295,3201,Triple Trial
+m0295,3202,Tiferet
+m0295,3203,Ein
+m0295,3204,Fiendish Rage
+m0295,3205,Chesed
+m0295,3206,Ratzon
+m0295,3207,Ein Sof
+m0295,3209,_rsv_47869_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0295,3210,_rsv_47870_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0295,3214,Hot Iron
+m0295,3215,Skinflayer / _rsv_47873_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0295,3216,_rsv_47872_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0295,3217,_rsv_47858_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0295,3220,_rsv_49890_-1_1_0_0_SE2DC5B04_EE2DC5B04 / _rsv_49892_-1_1_0_0_SE2DC5B04_EE2DC5B04 / _rsv_50545_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0295,3221,Dirty Nails / Stab
+m0295,3222,The Grip of Poison / the Grip of Poison
+m0295,3223,Taloned Gaze
+m0295,3224,Taloned Wings
+m0295,3225,Clawmarks / Skulking Orders / Threefold Marks / Manifold Marks +3 more
+m0295,3226,Slash Visual
+m0295,3227,Clawing Shadow
+m0295,3229,Vertical Crosshatch
+m0295,3230,Horizontal Crosshatch
+m0295,3233,Backhand
+m0295,3234,Backhand
+m0295,3235,Fore-hind Folly
+m0295,3236,Twin-winged Treachery
+m0296,3203,Ruby Tide
+m0296,3206,Expulsion
+m0296,3207,Electric Whorl
+m0296,3208,Bubble Bomb
+m0296,3209,Hydrocannon
+m0296,3213,Jump1
+m0296,3216,Near Tide / Receding Twintides
+m0296,3217,Far Tide / Encroaching Twintides
+m0296,3221,Jump2
+m0296,3222,Immersion
+m0296,3223,Worrisome Wave
+m0296,3225,Hydro Ring
+m0296,3226,Troublesome Tail
+m0296,3227,Rolling Current
+m0296,3229,Blowing Bubbles / Trouble Bubbles
+m0296,3230,Water III
+m0296,3231,Blown Blessing
+m0296,3232,Unk1
+m0296,3233,Self-destruct
+m0300,3202,Double Rocket Punch
+m0300,3204,Super Jump
+m0300,3205,Apocalyptic Ray
+m0300,3206,Missile Command
+m0300,3208,Judgment Nisi / Verdict
+m0300,3209,Gavel
+m0300,3210,Link-up / Final Sentence
+m0300,3215,Flarethrower
+m0300,4563,J Kick
+m0300,4564,J Storm
+m0307,3214,Left Firaga Forte
+m0307,3215,Right Firaga Forte
+m0307,3216,Antistrophe / Eruption Forte / Strophe
+m0307,3217,Auto Attack
+m0307,3218,Dark Forte
+m0307,3219,Thundaga Forte
+m0307,3221,Entr'acte
+m0307,3222,Curtain Call
+m0310,3205,Dollhouse
+m0310,3206,Knockout
+m0310,3207,Brace
+m0310,3208,Terrifying Glance
+m0310,3209,Slapstick
+m0311,3202,Da'at
+m0311,3203,Fiendish Wail
+m0311,3204,Gevurah Chesed
+m0311,3205,Earth Shaker
+m0311,3206,Pillar of Mercy
+m0311,3207,Chesed Gevurah
+m0311,3208,Malkuth
+m0311,3209,Pillar of Severity
+m0311,3210,Force Field
+m0311,3221,Reconstruct
+m0311,3222,Travail
+m0311,4561,Ein Sof Ohr
+m0313,3207,Electray
+m0314,3202,Cross Attack
+m0315,4561,Beacon
+m0315,4573,Eye of the Chakram
+m0315,4576,Beacon
+m0315,4577,Mighty Blow
+m0316,3201,Shiny Summoning
+m0316,3204,Jittering Glare
+m0316,3205,Gyrating Glare
+m0316,3206,Jittering Jounce
+m0316,3207,Jittering Jab
+m0320,3201,Toy Hammer
+m0320,3202,Water Bomb / Spittle
+m0320,3203,Croaking Chorus
+m0320,3204,Laughing Leap
+m0320,3205,Landsblood
+m0320,3207,Candy Cane
+m0320,3208,Frosting Fracas / Fluffle Up / Cold Feat / Frozen Swirl +2 more
+m0320,3209,Ice Scream
+m0321,4573,True Heart Success
+m0321,4574,Heartbreak
+m0322,3203,Ring Lightning
+m0322,3204,Aetheric Burst / Electrowave
+m0322,3206,Summon / Assail / Destruct
+m0323,3201,Mystic Light
+m0323,4574,Deep Fracture
+m0326,4562,Hail of Feathers
+m0326,4563,Raining Swords
+m0327,3206,Aglaea Bite
+m0327,3207,Deadly Charge
+m0327,3208,Frustration / Grief of Parting
+m0327,3209,Petrifaction
+m0327,3217,Deadly Tentacles / Whack
+m0327,3219,Odi et Amo
+m0327,3222,Tentacle Whip
+m0327,3223,Tentacle Whip
+m0327,3224,Aglaea Climb
+m0327,3225,Aglaea Shot
+m0327,3226,Aglaea Climb
+m0330,3201,Dark II
+m0330,3202,Evil Mist
+m0330,3212,the Codex of Darkness II
+m0330,3214,Free Spirits
+m0330,3215,Phantom Flood
+m0330,3216,Lost Hope
+m0330,3217,Necrohazard
+m0330,3218,Bloodburst
+m0330,3219,Dark Souls
+m0331,3201,Undying Affection
+m0333,3201,In Health
+m0333,3202,In Health
+m0333,3203,Dark Harvest
+m0333,3205,Black Honeymoon
+m0333,3206,Cold Feet
+m0333,3207,Waning Cycle0 / Waxing Cycle
+m0333,3208,Waning Cycle / Waxing Cycle0
+m0333,3209,Scarecrow Chase
+m0333,3211,Tenebrism
+m0333,3212,Soul Nebula
+m0333,3213,Soul Scythe
+m0333,3215,Teleport
+m0333,3216,Code Execution / Reverse Code
+m0333,3217,Code Execution
+m0333,3218,Reverse Code / Code Execution
+m0333,3219,Targeted Advance
+m0334,3201,Scream
+m0334,3202,Accursed Pox / Dark Flare
+m0334,3203,Ancient Eruption
+m0334,3204,Entropic Flame
+m0334,3205,Shadow Flare
+m0334,4573,Soul Sacrifice
+m0339,3201,Meteor Impact
+m0340,3201,Netherwind
+m0340,3204,Ring of Skylight
+m0340,3205,Skylight Cross
+m0340,3206,Skylight
+m0340,3207,Razing-volley Particle Beam
+m0343,3201,Epigraph
+m0343,3202,Flaming Epigraph
+m0343,3204,Temper's Flare / Flaring Epigraph
+m0343,3205,Trembling Epigraph
+m0343,3207,Deterrent Pulse
+m0343,3209,Left in the Dark / Heart on Fire II / Quake in Your Boots / Quake Me Away +1 more
+m0343,3212,Merry Go-round
+m0343,3213,Merry Go-round
+m0343,3214,Merry Go-round
+m0343,3215,Merry Go-round
+m0343,3217,Heart on Fire IV
+m0343,3218,Left in the Dark / Quake in Your Boots / Right in the Dark / Quake Me Away
+m0343,3220,Epigraph
+m0343,3221,Coordinate March / Ordered Fire
+m0343,3222,Bloodmarch
+m0343,3224,Electric Field
+m0343,3225,Entropic Sphere
+m0343,3226,Auto Attack
+m0343,3227,Erosive Eye / Flaming Epigraph / Epigraphic Fire II / Widening Twinflame +2 more
+m0343,3228,Neutralize Front Lines
+m0344,3201,Execute
+m0344,3202,Quasar
+m0344,3203,attack
+m0344,3204,Cintamani
+m0344,3205,Arms of Wisdom
+m0344,3206,Cloudy Heavens
+m0344,3207,the Scales of Wisdom
+m0344,3208,Thunder III / Execute
+m0344,3209,Aero III / Execute
+m0344,3210,Thunder II / Execute
+m0344,3211,Remove Lower Head
+m0344,3212,Restore Lower Head
+m0344,3213,Duplicate
+m0344,4573,Onrush
+m0344,4574,Quasar
+m0345,3201,Light Dew
+m0345,3202,Gnosis
+m0347,3201,Ice and Fire
+m0347,3203,Broken Seal
+m0347,3204,Biting Halberd
+m0347,3205,Tail End
+m0347,3206,Ciclicle
+m0347,3207,Metal Cutter
+m0347,3208,Tyrfing
+m0347,3209,the Demon's Claw
+m0347,3210,Wave Cannon
+m0347,3211,Fire III
+m0347,3212,Eidos
+m0347,3213,Eidos
+m0347,3214,Eidos
+m0347,3216,Southern Cross
+m0347,4561,Demonic Dive
+m0347,4573,Twin Spirit
+m0347,4574,Twin Spirit
+m0347,4575,Ahura Mazda
+m0349,3201,Flip To Blue
+m0349,3202,Flip To Red
+m0349,4574,Explosion
+m0349,4575,Explosion
+m0352,3209,Cross Reaper
+m0354,3201,Divine Spear
+m0354,3202,Chastening Heat / Incinerating Heat
+m0354,3205,Mega Holy
+m0354,3207,Judgment Crystal / Void of Repentance / Divine Judgment
+m0354,3209,Temporal Stasis
+m0354,3211,Inception Formation / Wormhole Formation / Summon Alexander
+m0354,3214,Auto Attack P3
+m0354,4583,Inception
+m0354,5067,Sacrament
+m0355,3201,Short Burst / Long Burst
+m0355,3202,Wind Blast
+m0355,3203,Air Raid
+m0359,3202,Hard Beak
+m0359,3211,Blindside Barrage / Rolling Barrage
+m0359,3212,Great Whirlwind / North Wind / South Wind / East Wind +1 more
+m0359,3213,Helldive
+m0359,3214,Fireglide Sweep
+m0359,4574,Stymphalian Strike
+m0359,4575,Bronze Bellows
+m0361,3201,Eternal Darkness
+m0361,3202,Inception Visual
+m0361,3203,Limit Cut
+m0361,3209,Spin Crusher
+m0361,3212,Photon
+m0361,3213,Propeller Wind
+m0361,3215,Whirlwind
+m0361,3216,Alpha Sword
+m0361,3220,Right Scalpel / Right-Left Scalpel / Left-Right Scalpel
+m0361,3221,Left Scalpel / Right-Left Scalpel / Left-Right Scalpel
+m0361,3222,Laparotomy
+m0361,3223,Hypothermia
+m0361,3224,Amputation
+m0361,3225,Tracheostomy
+m0361,3226,Nouliths / Cryonics / Frigotherapy
+m0361,4574,Super Blassty Charge
+m0361,5066,Optical Sight
+m0361,8951,Craniotomy
+m0365,3201,Abyss / Tartarean Abyss
+m0365,3202,Word of Pain / Malediction of Ruin
+m0365,3203,Shackle
+m0365,3204,Doom
+m0365,3205,Summon Darkness
+m0365,3207,Repelling Spray
+m0365,3215,Cryptcall
+m0365,3216,Weave Miasma / Manipulate Miasma / Invert Miasma / Summon
+m0365,3217,Transference
+m0366,3202,Magitek Ray
+m0367,3203,Nitrospin
+m0367,3204,Needle Gun
+m0367,3205,Oil Shower
+m0367,3206,Freezing Missile
+m0367,3207,Unbreakable Cermet Drill
+m0367,3208,Auto Attack
+m0367,4573,Tunnel
+m0368,4573,Tetrashatter
+m0368,4574,Crystallized Chaos
+m0368,4575,Crystallized Chaos
+m0368,4576,Crystallized Chaos
+m0372,3201,Crewel Slice
+m0372,3208,Magnitude Opus / Rotary Gale
+m0372,3213,Billowing Bolts
+m0372,3214,Teleport
+m0372,3215,Spin Out
+m0372,3216,Change Model State
+m0372,3217,Basting Blade
+m0372,3218,Wild Weave
+m0372,3219,Power Serge
+m0373,3207,the Path of Light
+m0373,3208,the Pall of Light
+m0375,3220,全能者の祝福
+m0375,3221,Conviction Marcato
+m0375,3222,Orison Fortissimo / Penance Pianissimo / Feather Marionette / Solitaire Ring +3 more
+m0375,3223,Divine Diminuendo
+m0377,3209,Creeping Ivy
+m0377,3210,Right Sweep
+m0377,3211,Left Sweep
+m0377,3216,Falling Rock
+m0377,3217,Petrified Peat / Peat Pelt / Brittle Breccia / Stone Age
+m0377,3218,Taste Dirt
+m0377,3219,Mouth Off
+m0377,3220,What Is Right
+m0377,3221,What Is Left
+m0377,3222,Last Gasp
+m0377,3223,Lost Hope
+m0377,3224,Note of Despair
+m0377,3225,Right Swipe
+m0377,3226,Left Swipe
+m0378,3204,Full Throttle
+m0378,3205,Aetherochemical Residue
+m0378,3206,Aetherochemical Flame
+m0378,3207,Aetherochemical Coil
+m0378,4561,●入場アクション
+m0378,4575,●退場アクション
+m0380,3203,Overtow
+m0380,3205,Amorphous Applause
+m0380,3207,Concussive Oscillation
+m0382,3201,Head Butt
+m0382,3202,Morbid Advance / Morbid Retreat
+m0382,3203,Somber Melody
+m0382,3204,Virgin Tears
+m0382,3210,Higher Power
+m0382,3211,Shocking Cross
+m0382,3212,X Marks the Shock
+m0382,3213,Lightning Bolt
+m0383,3208,Sandblast
+m0383,3209,Antlion March
+m0383,3210,Earthen Geyser
+m0383,3211,Landslip
+m0383,3212,Pound Sand
+m0383,3213,Jump / Teleport
+m0383,3216,Liquefaction / Windraiser
+m0383,3217,Pit Ambush
+m0383,3218,Sandpit
+m0383,4561,Pit Ambush
+m0386,3201,Wingsbreadth Winds / Fantod
+m0386,3202,Dread Dive / Bladed Beak
+m0386,3203,Flock of Souls / Storm Wing / Wingblow / Stormcall +2 more
+m0386,3204,Aero IV / Painful Gust / Foreshadowing
+m0386,3205,Pain Storm / Foreshadowing
+m0386,3206,Stormwall Winds / Frigid Pulse / Foreshadowing
+m0386,3207,Nihility's Song
+m0386,3208,Dirge of the Lost
+m0386,3210,Blowout
+m0386,3211,Shades' Nest
+m0386,3212,Shades' Crossing
+m0386,3213,Lamplight
+m0386,3214,Sun Powder
+m0386,4573,Molt
+m0386,4574,Vermilion Flight
+m0388,3201,Arm Unit / Cell Division
+m0388,3202,Anvil of Tartarus / Left-arm Metal Cutter / Left-arm Slash / Left-arm Wave
+m0388,3203,Right-arm Blaster
+m0388,3204,Left-arm Limit Cut
+m0388,3205,Right-arm Limit Cut
+m0388,3206,Vexillatio
+m0388,3207,Shield Skewer
+m0388,3208,Shrapnel Shell
+m0388,3209,Unknown Ability
+m0388,3210,Tartarean Impact
+m0388,3211,Tartarean Spark
+m0389,3206,Gravitational Wave
+m0389,3209,Bloodshot Gaze
+m0389,3210,Cat's Eye
+m0389,3211,Killer Curiosity
+m0389,4561,Forceful Impact
+m0391,3201,Black Hole
+m0391,3203,Transfiguration
+m0391,3204,Transfiguration
+m0391,3205,Flare Star
+m0391,3206,Transfiguration
+m0391,3207,Transfiguration
+m0391,3208,Execration
+m0391,3209,Holy
+m0391,3210,Acceleration Bomb
+m0391,3211,Transfiguration
+m0391,3212,Mourning Star
+m0391,3213,Shooting Star
+m0391,3214,Transfiguration
+m0392,3201,Ovation
+m0397,3202,Odious Air
+m0397,3203,Vine Whip
+m0397,3205,Sludge Bomb
+m0397,3206,Odious Atmosphere
+m0403,3201,Concentrativity
+m0403,3202,Unmoving Troika
+m0403,3203,Ability
+m0403,3204,Lightless Spark
+m0403,3205,Art of the Swell
+m0403,3206,Art of the Sword
+m0403,3207,Weaponskill2
+m0403,3208,Weaponskill
+m0403,3209,Vein Splitter
+m0403,3210,Art of the Storm
+m0403,3211,"Storm, Swell, Sword"
+m0403,3215,Teleport / Gap Close
+m0403,3216,Exconcentrativity / Extinguishment
+m0403,3217,Tidal Wave / Judgment Bolt / Hellfire / Akh Morn +4 more
+m0403,3219,Swift as Shadow
+m0403,3220,Thorns
+m0403,3221,Star Beyond Stars / Silvered Edge / Unmoving Dvenadkatika
+m0403,3226,Wyrm's Tongue
+m0403,3227,Veil Asunder
+m0403,3228,Candlewick / the Edge Unbound
+m0403,3235,Scarlet Auspice
+m0403,3237,Azure Auspice
+m0403,3239,Moonless Night
+m0403,3240,Shadow Kasumi Giri Jump
+m0403,10880,Shadow Kasumi-giri
+m0403,10881,Shadow Kasumi-giri
+m0403,10882,Shadow Kasumi-giri
+m0403,10883,Shadow Kasumi-giri
+m0403,10885,Triple Kasumi-giri
+m0403,10886,Triple Kasumi-giri
+m0403,10887,Triple Kasumi-giri
+m0403,10888,Triple Kasumi-giri
+m0403,10889,Triple Kasumi-giri
+m0403,10890,Triple Kasumi-giri
+m0403,10891,Triple Kasumi-giri
+m0403,10892,Triple Kasumi-giri
+m0403,10893,Kenki Release
+m0403,10894,Lateral Slice
+m0404,3201,Issen
+m0404,3203,Huton
+m0404,3209,Juji Shuriken
+m0405,3201,Triple Trident
+m0405,3202,Tingle / Fish out of Water
+m0408,3202,Relentless Battery / Bombslinger / Winds of Weight / Spiteful Spirit
+m0408,3203,Above Board
+m0408,3204,Optimal Play
+m0408,3205,Optimal Offensive
+m0408,3206,Relentless Battery / Sword Omen / Shield Omen
+m0408,3207,Optimal Play
+m0408,3208,Reversal of Forces
+m0408,3209,Strongpoint Defense
+m0408,3210,Blood and Bone
+m0408,3211,Optimal Offensive
+m0408,3214,Boost
+m0408,3215,Blood and Bone
+m0408,3216,Rapid Sever
+m0408,3217,the Ends
+m0408,3218,the Means
+m0408,3219,Rapid Sever
+m0410,3201,attack
+m0410,3202,Electromagnetic Field
+m0410,3203,Target Search
+m0410,3204,Tail Laser
+m0410,3205,Operation: Activate Laser Turret / Operation: Access Self-consciousness Data / Operation: Activate Suppressive Unit / Operation: Pod Program +1 more
+m0410,3206,Energy Bombardment
+m0410,3207,Maneuver: High-powered Laser
+m0410,3209,Maneuver: Revolving Laser
+m0410,3210,Support: Pod
+m0410,3211,Maneuver: Volt Array
+m0410,3212,Maneuver: Unconventional Voltage
+m0410,3213,Maneuver: Impact Crusher
+m0410,3215,attack
+m0413,3201,Metal Cutter
+m0413,3202,Flare Star
+m0413,4573,the Purge
+m0416,3203,"20,000 Needles / 990,000 Needles"
+m0416,3204,Sabotendance
+m0416,3207,Spineshot / Spinning Needles
+m0416,3208,Spinning Needles
+m0416,3209,Branch Out
+m0416,3210,One-stone March / Two-stone March
+m0417,3201,Aetherial Spark / Hydropins
+m0419,3201,Order to Charge / Order to Fire / Demimagicks
+m0419,3202,Mana Burst
+m0419,3203,Mindjack
+m0420,3201,Godsbane / Thundercall / Lightning Bolt / Cloud to Ground +1 more
+m0420,3202,Wind's End
+m0420,3203,Charybdis
+m0420,3204,Flame / Summer Heat
+m0420,3205,Roar
+m0420,3208,Winter Rain
+m0420,3209,Serpent's Edge / Dawn's Edge
+m0420,3210,Twisting Winds / Windburst / Spring Breeze
+m0420,3211,Forelash
+m0420,3212,Autumn Wreath
+m0420,3213,Headlong Rush
+m0420,3218,Backlash
+m0420,3219,Aetherial Disruption / Chaotic Pulse
+m0420,3220,Crumbling Sky
+m0420,3223,Cosmic Kiss Visual
+m0420,3224,Flames of Decay
+m0420,3225,Gnashing of Teeth
+m0420,3226,Hard Water
+m0420,3227,Fearsome Facet / Crystal Mirror / Crystal Call / Crystallized Chaos
+m0420,3228,Prismatic Wing
+m0420,3229,Prismatic Wing
+m0420,3230,Primal Roar
+m0420,4563,Dragon's Descent
+m0420,4577,Cauterize
+m0420,4578,Rising Beacon
+m0420,4579,Rising Ring
+m0420,4580,Black Fang Visual
+m0420,4581,Serpents' Tide
+m0420,4582,Serpents' Tide
+m0427,3201,2000-mina swipe / Rusting Claw
+m0427,3202,Words of Woe
+m0427,3203,Tail Drive
+m0427,3204,the Spin
+m0427,3205,Eye of the Fire / Unknown Skill
+m0427,3207,2000-mina swing
+m0427,3208,Eye of the Cyclone
+m0427,3209,the Final Verse
+m0427,3212,Raging Glower
+m0427,3214,Lightning Leap / Lightning Rampage
+m0427,3215,Spinning Claw
+m0427,3216,Battle Cry / Electric Eruption
+m0427,3217,Lightning Claw
+m0427,3218,Ripper Claw
+m0427,3219,Augmentation of Beacons / Augmentation of Roundels / Augmentation of Stones / Falling Rock +1 more
+m0427,3220,Fearsome Glint
+m0427,3221,Shockwave
+m0432,3201,Tower Round / Control Tower
+m0432,3202,Sanction
+m0432,3203,Phantom Order / Intractable Land / Hammer Round
+m0432,3204,Rock Cutter
+m0432,3205,Ancient Quake IV
+m0432,4573,Extreme Edge
+m0432,4574,Extreme Edge
+m0451,4574,Coward's Cunning
+m0454,3201,Heavenly Strike
+m0454,3202,Fire and Lightning
+m0454,3203,Sweep the Leg
+m0454,3204,Storm Pulse
+m0454,3205,Distant Clap
+m0454,3206,Teleport Boss
+m0454,3207,State of Shock
+m0454,3208,Clutch
+m0454,3209,Highest Stakes
+m0454,3210,Dance of the Incomplete
+m0454,3211,Unrelenting Anguish / Ominous Wind
+m0454,3212,Answer on High
+m0454,3213,Bombogenesis
+m0454,3215,Roar Of Thunder End2
+m0454,3216,Intermission Orb Visual
+m0454,3217,Sweep the Leg
+m0454,4561,Intermission End
+m0456,3203,Rising Tide
+m0456,3205,Bonebreaker
+m0456,3206,Seabed Ceremony / Falling Water / Flying Fount / Command Current
+m0456,3208,Depth Grip
+m0456,3209,Swift Shift
+m0456,3217,Worldly Pursuit
+m0459,3201,Trine
+m0459,3204,Future's End / Past's End
+m0459,3205,All Things Ending
+m0459,3206,All Things Ending
+m0459,3207,Wings of Destruction
+m0459,3208,Wings of Destruction
+m0459,3209,Ultimate Embrace
+m0459,3211,Wings of Destruction
+m0459,3230,Forsaken
+m0459,3231,Light of Judgment
+m0459,4562,Future's End / Past's End
+m0460,3216,Teleport
+m0460,3217,Thunderlight Burst
+m0460,3219,Mirror Maneuver / Ancient Artillery / Emergent Artillery
+m0460,3220,Pummel
+m0460,3221,Dynamic Dominance
+m0462,3201,Graven Image / Double-trouble Trap / Tele-trouncing / _rsv_47842_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0462,3202,Mystery Magic / Blizzard III Blowout
+m0462,3204,Unk2 Boss P1
+m0462,3205,Revolting Ruin III
+m0462,3206,Aero III Assault
+m0462,3208,Hyperdrive
+m0462,3209,Unk1 Boss P1
+m0462,3211,_rsv_47846_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0462,3212,_rsv_47847_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0462,3213,_rsv_47852_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0462,3215,Unk P3
+m0462,3216,Light of Judgment
+m0462,3217,Teleport P1
+m0462,4575,_rsv_47843_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0462,4576,_rsv_47844_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0462,4577,_rsv_47845_-1_1_0_0_SE2DC5B04_EE2DC5B04
+m0472,4573,Explosion
+m0472,4575,Chill Arrow
+m0472,4576,Freezing Arrow
+m0472,4577,Heated Arrow
+m0472,4578,Searing Arrow
+m0472,4579,Burst / Explosive Force
+m0472,9439,Rush
+m0475,4575,Deathly Ray
+m0480,3201,Fire
+m0480,3202,Fire IV
+m0480,3206,Time Eruption / Pause Time / Start Time / Time Bomb +1 more
+m0480,4574,Crimson Cyclone
+m0483,3201,Mangle / Fireball
+m0483,3202,Tail Swing / Rush
+m0483,3203,Rush / Sweeping Flames
+m0483,3204,Mangle
+m0483,3206,Roar
+m0483,3209,Veni Vidi Vici
+m0483,4573,King of the Skies
+m0489,3203,Efface / Mechanical Blow
+m0489,3204,Compress
+m0489,3205,Compress
+m0489,3207,Wellbore
+m0489,3210,Incinerate
+m0489,3211,Accelerated Landing / Accelerate
+m0489,3212,Soporific Gas
+m0489,3217,High Pressure
+m0489,3218,Swift Spill
+m0489,3221,Pummel
+m0489,3225,Magitek Compressor
+m0489,3226,Calculated Combustion
+m0491,3201,Shock
+m0491,3202,Magitek Missile / Authorization: No Restrictions
+m0491,3203,Chainsaw
+m0491,3204,unknown
+m0491,3205,unknown2
+m0491,3206,Maneuver: Volt Array
+m0491,3207,Maneuver: Long-barreled Laser
+m0492,3201,Stomp
+m0492,3202,Tail Whip
+m0492,3203,Thunderbolt / unknown
+m0492,3204,Needle Shot
+m0492,3205,Death Ray
+m0492,3206,Death Ray
+m0501,3210,Sewage Deluge
+m0501,3213,Spoken Cataract / Winged Cataract
+m0501,3215,Coherence
+m0501,3216,Shockwave
+m0501,3217,Doubled Impact
+m0501,3218,Murky Depths
+m0501,3219,Channeling Flow / Predatory Avarice / Channeling Overflow
+m0501,3220,Ominous Bubbling / Sewage Eruption / Tainted Flood
+m0501,3222,Kampeos Harma
+m0501,3223,Teleport
+m0501,3224,Dissociation
+m0501,3226,Coherence
+m0501,4573,Coherence
+m0503,3201,Golden Flame
+m0503,3202,Silver Flame
+m0504,4561,Brim Over
+m0506,3201,Teleport Flame
+m0506,3202,Radiant Flourish
+m0506,4561,Solar Fans
+m0506,4576,Radiant Flourish
+m0513,3201,Animation Disappear M / Synthetic Shield
+m0513,3203,Limitless Synergy
+m0513,3204,Animation Swap MF / Beyond Defense / Sigma Animation Swap
+m0513,3205,Pile Pitch / Intermission Teleport M
+m0513,3207,Laser Shower
+m0513,3208,Solar Ray / Discharger
+m0513,3209,Solar Ray
+m0513,3213,Optimized Sagittarius Arrow
+m0513,3214,Firewall / Teleport F
+m0513,3215,Efficient Bladework / Die F
+m0513,3216,Party Synergy / Animation Reappear F
+m0513,3217,Subject Simulation F / Auto Attack P5 F
+m0513,3220,Cosmo Memory
+m0513,3221,Beyond Strength / Run: ****mi* (Omega Version)
+m0513,3222,Optimized Bladedance
+m0513,3223,Run: ****mi* (Delta Version) / Run: ****mi* (Sigma Version)
+m0513,4561,P5 Appear M
+m0513,4573,Intermission Merge Start / Blind Faith
+m0514,3201,Synthetic Shield
+m0514,3202,Animation Swap FM
+m0514,3203,Party Synergy / Animation Disappear F
+m0514,3205,Optimized Blizzard III
+m0514,3206,Superliminal Steel
+m0514,3209,Solar Ray / Teleport M
+m0514,3210,Optimized Passage of Arms
+m0514,3211,Optimized Meteor
+m0514,3212,Firewall
+m0514,3215,Subject Simulation M / Efficient Bladework
+m0514,3216,Limitless Synergy
+m0514,3217,Auto Attack F / Die M
+m0514,3218,Animation Reappear M
+m0514,3219,Cosmo Memory
+m0514,3220,Optimized Bladedance
+m0514,4561,P5 Appear F
+m0514,4574,Intermission Teleport F
+m0515,3201,Ion Efflux
+m0515,3208,Oversampled Wave Cannon
+m0515,3209,Oversampled Wave Cannon
+m0515,3210,Diffuse Wave Cannon
+m0515,3211,Diffuse Wave Cannon
+m0515,3212,Wave Cannon
+m0515,3215,"Hello, World"
+m0515,3216,Critical Error
+m0515,3217,Teleport P3
+m0515,3218,Latent Defect / Archive Peripheral
+m0515,3219,P3 End
+m0515,3220,P4 Begin
+m0515,3221,Wave Cannon
+m0515,3222,Wave Cannon
+m0515,3223,Wave Cannon
+m0515,4561,Intermission Merge End
+m0515,4573,Blue Screen
+m0524,3201,Hyper Pulse
+m0524,3202,Colossal Blow
+m0524,3204,Hyper Pulse
+m0524,3207,Clearout
+m0524,3208,Dead Wringer
+m0524,3209,Dead Wringer
+m0524,3210,Synchronized Smite
+m0524,3211,Synchronized Smite
+m0524,3212,Smiting Right
+m0524,3213,Smiting Left
+m0524,3214,Unk1 Arm
+m0524,3215,Unk2 Arm
+m0524,3216,Kirin Captivator
+m0524,3217,Kirin Captivator
+m0524,3218,Unk3 Arm
+m0524,3219,Unk4 Arm
+m0524,4573,Clearout
+m0525,3201,Rear Lasers
+m0527,3203,Toxic Spout
+m0528,3203,Carpet Beater / Stone Flail
+m0528,3204,Head Toss
+m0528,3205,Right Round
+m0528,3206,Flail Smash
+m0528,3207,Rehydration
+m0528,3208,Squeaky Clean
+m0528,3209,Squeaky Clean
+m0528,3210,Slippery Soap
+m0528,3211,Soap's Up / Fresh Puff / Soaping Spree / Eastern Ewers
+m0528,3212,Fizzling Suds
+m0528,3213,Chilling Suds
+m0528,3214,Bracing Suds
+m0528,3215,Total Wash
+m0528,3216,Dust Bluster
+m0528,3218,Rallying Cheer
+m0528,3219,Ore-rigato
+m0529,3202,Peripheral Lasers Model Change1 / Deformation
+m0529,3204,Peripheral Lasers Model Change2 / Deformation
+m0529,3205,Laserstream / Intestinal Crank
+m0529,3206,Cross Lasers / Heretic's Fork
+m0529,3207,Peripheral Lasers / Breaking Wheel
+m0529,3208,Support Systems / Crystal Nail
+m0529,3209,Interception Sequence / Parallel Execution / Salvo Script / Censure
+m0529,3210,Censure
+m0529,3212,Auto Attack
+m0529,3213,Homing Laser
+m0531,3201,Eidos
+m0531,3203,Auroral Wind / Impact Stream
+m0531,3204,Hostile Aspect / Turbulent Aether
+m0531,3205,Meteor
+m0531,3206,Auroral Wind
+m0531,3207,Medusa Javelin
+m0531,3208,Glacier Splitter
+m0531,4561,Explosive Impulse
+m0534,3205,Crossbones
+m0534,4573,Crosshatch
+m0538,3202,Skull Dasher
+m0538,3203,Icicall / Howl / Frigid Needle / Circle of Ice +1 more
+m0538,3204,Heavy Smash
+m0538,3205,Frigid Stomp
+m0538,3206,Heavy Smash
+m0541,3201,Convulsive Crush
+m0541,3213,Vasoconstrictor
+m0541,3214,Teleport
+m0541,3215,Venomspill
+m0541,3216,Venomspill
+m0541,3218,Right Sweep
+m0541,3219,Left Sweep
+m0541,3220,Rear Sweep
+m0541,3221,Venomspill
+m0541,3222,Collective Agony
+m0541,3223,Strident Shriek
+m0544,3201,Concussive Oscillation
+m0546,3201,Hidden Current
+m0546,3202,Hot Pursuit / Nexus of Thunder / Living Flame / Rising Thunder +1 more
+m0546,3203,Unceremonious Beheading
+m0546,3204,Katun Cycle
+m0546,3206,Merciless Left
+m0546,3207,Merciless Right
+m0546,3208,Evisceration
+m0546,3210,Spiritcall
+m0546,3217,Eye of Troia
+m0546,3219,Voidshaker
+m0546,3220,Hush
+m0546,4573,Veil of Gukumatz
+m0549,3201,Ame-no-Sakahoko
+m0549,3206,Whirling Zantetsuken
+m0549,3207,Thundercall / Lancing Bolt
+m0549,3208,Cloud to Ground
+m0549,3210,Ultimate Zantetsuken
+m0549,3211,Spirits of the Fallen
+m0549,3212,Shingan
+m0549,3213,Booming Lament
+m0549,4573,Lateral Zantetsuken
+m0549,4574,Lateral Zantetsuken
+m0550,3201,Gravitational Force / Gust Front
+m0550,3202,Mistral Gaol
+m0550,3203,Wicked Tornado
+m0550,3204,Mini Supercell
+m0550,3205,Mistral Song
+m0550,3206,Mistral Shriek
+m0550,3207,Microburst
+m0551,3201,Spine Lash
+m0554,3207,Liturgy of Light / Divine Favor
+m0554,3208,Grip of Salvation
+m0554,3209,Salvation's Reach
+m0554,3210,Grip of Salvation
+m0554,3211,Salvation's Reach
+m0554,14795,Auto Attack
+m0557,3201,Legendcarver
+m0557,3202,Mythcall / Spiritcull
+m0557,3203,Thricecull
+m0557,3204,Acallam na Senorach
+m0557,3205,Elemental Magicks
+m0557,3206,Elemental Magicks
+m0557,3207,Legendspinner
+m0557,3208,Legendary Geas
+m0557,3210,Brazen Bull
+m0557,3211,Thumbscrew
+m0557,3212,Gibbet Cage
+m0557,3213,Wooden Horse
+m0557,3214,Pillory
+m0558,3208,Burgeoning Dread / Ghastly Aura
+m0558,3209,Basic Vomit / Fell Flow
+m0558,3210,Might of Malice
+m0558,3212,Ripples of Gloom / Putrified Soul
+m0558,3213,Necrotic Billow / Ambient Pulsation
+m0558,3214,Fleshy Necromass
+m0558,3215,Fleshy Necromass
+m0558,3218,Mortifying Flesh
+m0558,3220,Mortifying Flesh
+m0558,3224,Bodyweight Exorcism
+m0558,3225,Jump
+m0558,3227,Bodyweight Exorcism
+m0558,3228,Bodyweight Exorcism
+m0558,3229,Evil Emission / Profane Pressure
+m0558,3230,Bodyweight Exorcism
+m0562,3210,Deep Thunder
+m0562,3211,Deep Thunder
+m0562,3212,Auto Attack
+m0562,3215,Deep Thunder End
+m0562,3218,Maulwork
+m0562,3219,Skullcrush
+m0562,3220,Stonecarver
+m0562,3221,Stonecarver
+m0562,3222,Colossal Impact
+m0562,3223,Colossal Impact
+m0562,3224,Wrought Fire / Charcore
+m0562,3225,Ashlayer
+m0562,3227,Maulwork
+m0562,3228,Maulwork
+m0562,3229,Maulwork
+m0562,3230,Stonecarver End / Skullcrush End
+m0562,3231,Ringing Blows
+m0563,3214,Psychokinesis / Extrasensory Field / Psychokinetic Charge
+m0563,3215,Electrolance
+m0563,3218,Overwhelming Charge
+m0563,3219,Teleport
+m0563,3220,Psychic Wave
+m0563,3221,Voltaic Slash
+m0563,3222,Psychokinesis
+m0564,3201,Shrill Shriek
+m0564,3202,Explosion
+m0564,4573,Burst
+m0571,3201,Aetherspike
+m0572,3201,Self-destruct
+m0573,3201,Blizzard Breath
+m0573,3202,Great Ball of Fire
+m0573,3203,Mind Blast
+m0573,3204,Flames of the Apocalypse
+m0573,3206,Touchdown
+m0573,3207,Megaflare / Wind Slash
+m0573,3208,Seal Asunder / Tidal Wave
+m0573,3209,Gigaflare
+m0573,3212,Body Slam
+m0573,3213,Upsweep
+m0573,3214,Floodstide
+m0573,3215,Sonic Bloop
+m0573,3216,Tidal Breath
+m0573,3217,Auto Attack
+m0573,3218,Unk1
+m0573,3219,Blazing Flare
+m0573,3220,Sunderseal Roar
+m0573,4573,Civilization Buster
+m0573,4574,Fly Away
+m0587,3201,Shore Shaker
+m0587,3202,Hydrowave
+m0587,3203,Song of the Punutiy
+m0587,3204,Punutiy Press
+m0587,3205,Resurface
+m0587,3207,Punutiy Flop
+m0587,3208,Punutiy Flop
+m0590,3201,Naval Ram
+m0598,3201,Fate Projection α / Fate Projection β
+m0598,3202,Fate Calibration α / Fate Calibration β / Temporal Interference
+m0598,3203,the Final Word / Ordained Motion / Ordained Stillness
+m0598,3204,Ordained Capital Punishment / Almighty Judgment
+m0598,3206,Sacrament
+m0598,3207,Radiant Sacrament
+m0598,3208,Optical Sight
+m0598,3209,Optical Sight
+m0598,3210,High-powered Magitek Ray / Ordained Punishment
+m0598,3211,Irresistible Grace
+m0598,3212,Fate Projection Prepare
+m0598,3213,Temporal Prison
+m0598,3214,Spiral Scourge
+m0598,3216,Mobile Crossray / Mobile Halo
+m0598,3217,Mobile Crossray / Mobile Halo
+m0598,3220,Missile Command
+m0598,3221,Magitek Halo / Mobile Halo
+m0598,3222,Magitek Crossray / Mobile Crossray
+m0599,3201,Apokalypsis
+m0599,3202,Therion Charge
+m0599,3203,攻撃
+m0599,3207,Deathly Ray
+m0599,3208,Shadow Wreck
+m0602,3201,Marx Smash
+m0602,3202,Marx Smash
+m0602,3203,Marx Smash
+m0602,3204,Marx Smash
+m0602,3205,Marx Smash
+m0602,3206,Marx Smash
+m0602,3207,Precision Guided Missile / Incendiary Bombing / Guided Missile / Surface Missile
+m0602,3208,Laser Sight
+m0602,3209,Wide-angle Diffuse Laser
+m0602,3211,Marx Crush
+m0602,3215,Marx Activation
+m0602,3216,Area Bombardment / Incendiary Saturation Bombing
+m0602,3217,Automatic Cannon
+m0602,3218,Unk1
+m0602,3219,Diffuse Laser
+m0602,3220,Energy Barrage
+m0602,4561,Demolish Structure
+m0602,4573,Unk2
+m0603,4573,Para Bird Visual
+m0604,3202,Immortal Anathema
+m0611,3201,Laser-resistance Test
+m0611,3202,Laser Sight
+m0611,3203,Ring Laser
+m0611,3204,Ring Laser
+m0611,3205,Ring Laser
+m0612,3201,Arm Unk1
+m0612,3203,Arm Motion1
+m0612,3205,Arm Motion3
+m0612,3207,Arm Motion5
+m0612,3208,Arm Unk2
+m0612,3209,Arm Motion2
+m0612,3210,Arm Motion4
+m0612,3211,Arm Motion6
+m0613,3201,Unk1
+m0613,3202,Impact Rotation1
+m0613,3203,Impact Rotation2
+m0613,3204,Impact Rotation3
+m0613,3205,Impact Rotation4
+m0614,3201,Systematic Siege / Systematic Targeting / Systematic Airstrike / Systematic Suppression
+m0614,3202,Energy Assault
+m0614,3203,Unk2
+m0614,3204,Energy Bombardment
+m0614,3205,Energy Ring
+m0614,3206,Energy Ring
+m0614,3207,Energy Ring
+m0614,3208,Energy Ring
+m0614,3209,Forceful Impact / Shockwave
+m0614,3210,High-powered Laser
+m0614,3211,High-caliber Laser
+m0614,3212,Centrifugal Spin
+m0614,3213,Sidestriking Spin
+m0614,3214,Clanging Blow
+m0614,4561,Unk0
+m0614,4562,Air To Surface Appear
+m0615,3201,Engage Marx Support / Engage Goliath Tank Support
+m0615,3202,Dual-flank Cannons
+m0615,3203,Fore-hind Cannons
+m0615,3204,Laser Saturation
+m0615,3205,Hack Goliath Tank
+m0615,3206,_Weaponskill_6
+m0615,3207,Total Annihilation Maneuver
+m0615,3208,Undock
+m0615,3209,_Ability_1
+m0615,3210,Neutralization
+m0615,3211,Laser Turret
+m0615,3212,Auto Attack
+m0615,3213,Ground-to-ground Missile
+m0615,3214,Undock
+m0617,3201,Flight Dash1
+m0617,3203,Auto Attack Unit
+m0617,3204,Flight Dash2
+m0617,3205,Lightfast Blade
+m0617,3206,360-degree Bombing Maneuver
+m0617,3208,Area Bombing Maneuver / Maneuver: Saturation Bombing
+m0617,3212,Maneuver: Standard Laser
+m0617,4573,_Weaponskill_
+m0617,4575,_Ability_2
+m0617,4576,_Ability_
+m0617,4577,_Weaponskill_4
+m0617,4579,Flight Path
+m0621,3203,System Error
+m0621,3204,Load Data
+m0621,3205,Angry Salamander
+m0621,3206,Terminus Est
+m0621,3207,Magitek Bit
+m0621,3208,Metal Cutter / Atomic Ray
+m0624,3201,Puff and Tumble
+m0624,4573,Soaping Spree / Buffeted Puffs
+m0627,4573,Convenient Self-destruction
+m0628,3201,Low-powered Offensive
+m0631,3202,Laser Turret
+m0631,4573,Convenient Self-destruction
+m0631,4574,Convenient Self-destruction
+m0631,7583,Energy Ring
+m0631,7584,Energy Ring
+m0631,7585,Energy Ring
+m0631,7586,Energy Ring
+m0632,3201,Automatic Cannon
+m0632,3202,Arm Laser
+m0634,4573,_Weaponskill_7
+m0634,4574,_Weaponskill_8
+m0634,4575,_Weaponskill_9
+m0635,4573,Marx Impact
+m0637,3203,Meat Mallet
+m0637,3208,Tender Loin / Medium Rear / Barbeque / To a Crisp +2 more
+m0637,3209,Huff and Puff / Blow It All Down
+m0640,3201,Teleport P2
+m0640,3202,Sinbound Holy / Banish III / the House of Light / Materialization +6 more
+m0640,3204,Absolute Zero
+m0640,3205,"Mirror Image / Mirror, Mirror"
+m0640,3208,攻撃
+m0640,3209,攻撃
+m0640,3212,Quadruple Slap
+m0640,3213,Twin Silence
+m0640,3214,Twin Stillness
+m0640,3215,Heavenly Strike
+m0640,3216,Diamond Dust
+m0640,3217,Axe Kick
+m0640,3218,Scythe Kick
+m0640,3220,Light Rampant / Darklit Dragonsong
+m0640,3222,Hallowed Wings
+m0640,3223,Hallowed Wings
+m0640,3232,Twin Stillness
+m0640,3233,Twin Silence
+m0640,3236,Quadruple Slap
+m0640,3237,Hallowed Ray
+m0640,4568,Hallowed Wings
+m0640,4582,Hallowed Wings
+m0647,4561,Arise
+m0647,4573,Wavebreaker
+m0647,4574,Wavebreaker
+m0653,3204,Merciful Moon
+m0653,3205,Elemental Impact
+m0653,3213,Leaping Levin
+m0653,3214,Leaping Levin
+m0653,3215,Leaping Levin
+m0653,3216,Cloud to Cloud
+m0653,3217,Cloud to Cloud
+m0653,3218,Cloud to Cloud
+m0653,3219,Levinburst
+m0653,4573,Burn
+m0653,4576,Lightburst
+m0653,4579,Heated Blast
+m0653,4580,Explosion / Searing Blast
+m0653,4584,Bright Flare
+m0653,9438,Flare Star
+m0653,9439,Flare Nova
+m0653,9440,Flare Star / Flare Nova
+m0653,9441,Flame Blast
+m0653,9442,Incandescence
+m0653,9446,Burn
+m0653,9448,Circle of Ice
+m0653,9449,Circle of Ice Prime
+m0653,9450,Fire Sphere
+m0653,9451,Fire Sphere Prime
+m0653,9452,Shock
+m0653,9453,Shock
+m0653,9454,Shock
+m0653,9455,NSmokeater Absorb / SSmokeater Absorb
+m0655,3206,Coat of Arms
+m0655,3207,Coat of Arms
+m0655,4575,Terminus Est
+m0655,4579,Scorching Lash
+m0655,4583,Inferno Divide
+m0655,9438,Flare
+m0662,3201,Anti-warmachina Weaponry
+m0662,3203,Electric Anvil / Lightning Shower / Energy Generation / Voltstream +3 more
+m0662,3204,False Thunder
+m0662,3205,False Thunder
+m0664,3201,Light Leap
+m0664,3202,Area Bombardment
+m0664,3204,Tail Missile
+m0664,3205,Shockwave
+m0664,3206,Plasma Field
+m0665,3201,Laser Shower
+m0665,3202,Rush
+m0665,3203,Diffractive Laser
+m0665,3204,Satellite Laser
+m0666,3202,Anti-personnel Missile / Surface Missile
+m0666,3203,Chain Cannon
+m0666,3204,Read Orders: Coordinated Assault / Read Orders: Shots Fired / Read Orders: Field Support
+m0666,3205,Auto Attack Boss / Auto Attack Escort / Auto Attack
+m0666,3206,Analysis
+m0666,3207,Suppressive Magitek Rays
+m0666,4573,Dive Formation / Precise Strike
+m0667,3201,Curse of the Fiend
+m0667,3202,Accursed Becoming
+m0667,3203,Burst II / Warped Light / Tornado / Meteor
+m0667,3204,Holy IV
+m0668,3203,Maneuver: Beam Cannons
+m0668,3204,Aerial Support: Swoop / Aerial Support: Bombardment
+m0668,3209,Maneuver: Collider Cannons
+m0668,3210,Maneuver: Collider Cannons
+m0668,3211,Firing Order: Anti-personnel Laser / Firing Order: Surface Laser / Firing Order: High-powered Laser
+m0668,3212,Maneuver: Diffusion Cannon
+m0668,3214,Maneuver: Refraction Cannons
+m0669,3205,Lethal Revolution
+m0669,3206,Apply Shield Protocol / Formation: Sharp Turn
+m0669,3207,Maneuver: Missile Command / Maneuver: Incendiary Bombing / Maneuver: Precision Guided Missile / Formation: Air Raid +3 more
+m0669,3208,Superior Mobility
+m0669,3209,Maneuver: High-powered Laser
+m0669,3210,攻撃
+m0669,4573,Sharp Turn
+m0669,4574,Sharp Turn
+m0669,4575,Sliding Swipe
+m0669,4576,Sliding Swipe
+m0674,3201,Prime Blade
+m0674,3202,Prime Blade
+m0674,3203,Prime Blade
+m0674,3204,Three Parts Disdain
+m0674,3205,Three Parts Disdain
+m0674,3206,Four Parts Resolve
+m0674,3207,Four Parts Resolve
+m0674,3208,Relentless Spiral / Reproduce / Forced Transfer
+m0674,3210,Compound Pod: R012 / Energy Compression / Compound Pod: R011
+m0674,3211,Centrifugal Slice
+m0674,3212,Three Parts Disdain
+m0675,3201,R010: Laser
+m0675,3202,R030: Hammer
+m0675,3203,R011: Laser
+m0675,3204,R012: Laser
+m0676,3229,Electrowave
+m0676,3230,Rapid Thunder
+m0676,3231,Search and Destroy / Motion Sensor
+m0676,3232,Fulminous Fence
+m0676,3233,Search And Destroy End
+m0676,3234,Tracking Bolt
+m0676,3235,Heavy Blast Cannon
+m0676,3236,Battery Circuit
+m0678,3201,Akh Morn's Edge
+m0678,3202,Gigaflare's Edge
+m0678,3203,Trinity
+m0678,3204,Exaflare's Edge
+m0678,3205,Morn Afah's Edge
+m0678,3207,Akh Morn's Edge
+m0683,3201,Burnt Strike
+m0683,3202,Burnt Strike
+m0683,3204,Solemn Charge
+m0683,3205,Solemn Charge
+m0683,3207,Cyclonic Break
+m0683,3209,Powder Mark Trail
+m0683,3210,Burnished Glory
+m0683,3211,Teleport P1
+m0683,3212,Turn of the Heavens
+m0683,3213,Floating Fetters
+m0683,3219,Bound of Faith / Fall of Faith
+m0683,3220,Solemn Charge
+m0683,4561,Blasting Zone
+m0683,4577,Utopian Sky
+m0684,3201,attack
+m0684,3202,Evil Seed / Looming Chaos
+m0684,3207,Multi-pronged Particle Beam
+m0684,3212,Hyper-focused Particle Beam
+m0684,3215,Flood of Darkness
+m0684,3222,the Third Art of Darkness / the Art of Darkness
+m0684,3223,the Third Art of Darkness / the Art of Darkness
+m0684,3224,Thorny Vine
+m0684,3225,Teleport Add
+m0684,3226,Core-lateral Phaser
+m0684,3227,Lateral-core Phaser
+m0684,3229,Curse of Darkness
+m0684,3230,Excruciate
+m0684,4573,Evaporation
+m0689,3201,Allegiant Arsenal
+m0689,3202,Allegiant Arsenal
+m0689,3203,Allegiant Arsenal
+m0689,3204,Blade of Entropy
+m0689,3205,Blade of Entropy
+m0689,3206,Blade of Entropy
+m0689,3207,Blade of Entropy
+m0689,3208,Wrath of Bozja
+m0689,3209,Glory of Bozja
+m0689,3210,Shimmering Shot
+m0689,3211,Remove Sword
+m0689,3212,Remove Staff
+m0689,3213,Remove Bow
+m0689,3214,Fury of Bozja
+m0689,3215,Hot and Cold
+m0689,3216,Infernal Slash
+m0689,3217,Flashvane
+m0689,3218,Gleaming Arrow
+m0689,3219,attack
+m0689,3220,attack
+m0689,3221,attack
+m0689,3222,attack
+m0689,3223,Blade of Entropy
+m0689,3224,Blade of Entropy
+m0689,3225,Blade of Entropy
+m0689,3226,Blade of Entropy
+m0689,3227,Quick March / Flames of Bozja / Elemental Brand / Freedom of Bozja +2 more
+m0690,3201,Verdant Path
+m0690,3202,Verdant Path
+m0690,3203,Verdant Path
+m0690,3204,Merciful Arc / Baleful Onslaught
+m0690,3205,Mercy Fourfold
+m0690,3206,Mercy Fourfold
+m0690,3207,Mercy Fourfold
+m0690,3208,Mercy Fourfold
+m0690,3209,Phantom Edge
+m0690,3210,Baleful Blade
+m0690,3211,Iron Splitter
+m0690,3212,Seasons of Mercy
+m0690,3214,Act of Mercy
+m0690,3215,Dead Iron
+m0690,3216,Baleful Swathe
+m0690,3217,Iron Impact / Iron Rose
+m0690,3218,Verdant Tempest
+m0690,3219,Teleport
+m0690,3222,Manifest Avatar
+m0690,4561,Baleful Comet
+m0690,4573,Baleful Firestorm
+m0691,3217,Tail Swing
+m0691,3218,Optimized Judgment
+m0691,3219,Sapphire Ray
+m0699,3201,Lunar Nail / Phantom Pain / Erupting Pain
+m0699,3202,Pater Patriae
+m0699,3204,Mega Graviton
+m0699,3205,Boundless Pain
+m0699,3206,Imperatum
+m0699,3207,attack
+m0700,3201,Recreate Signal / Lighter Note / Darker Note / Rhythm Rings
+m0700,3202,Pervasion
+m0700,3203,Recreate Structure / Mixed Signals / Towerfall
+m0700,3204,Distortion
+m0700,3205,The Final Song
+m0700,3206,Heavy Arms
+m0700,3207,Heavy Arms
+m0700,3208,Pillar Impact
+m0700,3209,Screaming Score
+m0700,3210,Auto Attack P2
+m0701,3201,Lighter Note / Rhythm Rings / Seed of Magic / Darker Note
+m0701,3202,Made Magic
+m0701,3203,Made Magic
+m0701,3204,Screaming Score
+m0701,3205,Eminence
+m0701,3206,Auto Attack
+m0702,3201,Living Corpse
+m0702,3202,Devour Soul
+m0702,3203,Blight
+m0702,3204,Gallows March
+m0702,3205,Chain Magick
+m0702,3206,Soul Purge
+m0702,3207,Soul Purge
+m0702,3208,attack
+m0703,3201,Wandering Trail
+m0703,3202,Wandering Trail
+m0703,3203,Breakthrough
+m0703,3204,Breakthrough
+m0703,3205,Bloody Sweep
+m0703,3206,Bloody Sweep
+m0703,3207,Upgraded Lance / Upgraded Shield / Tandem Assault: Bloody Sweep / Seed of Magic Alpha +5 more
+m0703,3208,Upgraded Lance / Upgraded Shield / Tandem Assault: Bloody Sweep / Riot of Magic +5 more
+m0703,3209,Hungry Lance
+m0703,3210,Hungry Lance
+m0703,3211,Wail
+m0703,3212,Wail
+m0703,3213,Crippling Blow
+m0703,3214,Crippling Blow
+m0703,3215,Dash1
+m0703,3216,Dash2
+m0703,4573,Passing Lance
+m0703,4574,Passing Lance
+m0704,3201,Replicate / Stacking the Deck / Spheroids
+m0704,3203,Colossal Impact
+m0704,3204,Colossal Impact
+m0704,3205,Light Leap
+m0704,3206,Lunge
+m0704,3207,Magic Artillery Beta
+m0704,3208,Magic Artillery Alpha
+m0704,3209,Roar
+m0704,3210,attack
+m0705,3201,Ruinous Pseudomen
+m0705,3202,Aetherochemical Laser
+m0705,3203,Aetherochemical Laser
+m0705,3204,Void Systems Overload
+m0705,3205,Ultimate Pseudoterror
+m0705,3206,Aetheric Explosion / Advanced Death Ray / Diabolic Gate / Magitek Bit +4 more
+m0705,3207,Deadly Dealing
+m0705,3208,Brutal Camisado
+m0705,4561,Ruinous Pseudomen
+m0706,3201,Vanishing Ray Start
+m0706,3202,Empty Promise / Empty Refrain
+m0706,3204,Continual Meddling
+m0706,3205,Empty Promise / Empty Refrain
+m0706,4573,Soulweave
+m0706,4574,Soulweave
+m0707,3202,Pity
+m0707,3205,Lifesbreath
+m0707,3207,Loving Embrace
+m0707,3208,Loving Embrace
+m0707,3209,Warm Glow
+m0708,3201,Dimensional Torsion
+m0708,3202,Dimensional Purgation
+m0708,3203,Esoteric Ray
+m0708,3204,Esoteric Dyad
+m0708,3205,Esoteric Sect
+m0708,4573,Brightfire
+m0708,4574,Brightfire
+m0708,4578,Burst
+m0708,4579,Point: White
+m0708,4580,Point: Black
+m0708,4581,Point: White
+m0708,4582,Point: Black
+m0708,9441,Blazing Benifice
+m0709,3201,Pyric Blast
+m0709,3202,Leaping Pyric Circle / Leaping Pyric Burst
+m0709,3203,Scratch
+m0709,3204,Brutality
+m0709,3206,Pyric Breath
+m0709,3207,Pyric Breath
+m0709,3208,Pyric Breath
+m0709,3209,Intimidation
+m0709,3210,Right Maw
+m0709,3211,Left Maw
+m0709,3212,Breath Sequence
+m0709,3213,Breath Sequence
+m0709,3214,Breath Sequence
+m0710,3201,Assault Carapace / Carapace > Fore Arms 2.0 / Carapace > Rear Guns 2.0
+m0710,3202,Assault Carapace / Carapace > Rear Guns 2.0 / Carapace > Fore Arms 2.0
+m0710,3203,Fore Arms / Fore Arms 2.0 / Fore Arms > Rear Guns 2.0
+m0710,3204,Rear Guns 2.0 / Rear Guns / Rear Guns > Fore Arms 2.0
+m0710,3205,Auto Attack
+m0710,3206,Hellburner / Free-fall Bombs / Missile Shower / Bunker Buster +2 more
+m0710,3207,Teleport
+m0711,3202,Soul Tether
+m0711,3203,Geirskogul
+m0711,3204,Eye of the Tyrant
+m0711,3205,Gnashing Wheel
+m0711,3206,Drachenlance
+m0711,3207,Lashing Wheel
+m0711,3208,Dive from Grace
+m0711,3209,attack
+m0711,3210,Revenge of the Horde
+m0711,4561,Final Chorus
+m0711,4562,Darkdragon Dive
+m0711,4563,Darkdragon Dive
+m0711,4564,Darkdragon Dive
+m0711,4565,Darkdragon Dive
+m0711,4573,Mirage Dive
+m0711,4574,Dark High Jump / Dark Spineshatter Dive / Dark Elusive Jump
+m0712,3201,Gnaw
+m0712,3202,Infusion
+m0712,3203,Long Lick
+m0712,3204,Hind Whip
+m0712,3205,Caterwaul
+m0712,3206,Brace / Lickwhip Stance / Whiplick Stance
+m0713,3206,Astral Flow
+m0713,3207,Phlegethon / Ania / Styx
+m0713,3208,Esoterikos / Exoterikos / Triple Esoteric Ray
+m0713,3209,Phobos
+m0713,3210,Paradeigma
+m0713,3211,Astral Eclipse
+m0713,3212,Trimorphos Exoterikos
+m0713,3214,Algedon
+m0713,3215,Algedon
+m0713,3216,Adikia
+m0713,3217,Apomnemoneumata
+m0713,3219,Astral Flow
+m0713,3223,Kokytos
+m0713,8913,attack
+m0714,3201,Equinox
+m0714,3202,Aureole
+m0714,3203,Lateral Aureole
+m0714,3205,Heros's Glory
+m0714,3206,Parhelic Circle
+m0714,3207,Auto Attack Staff
+m0714,3208,Crystallize
+m0714,3209,Halo
+m0714,3210,Infralateral Arc
+m0714,3211,Echoes / Lightwave / Crystalline Stone III / Crystalline Blizzard III
+m0714,3212,Mousa's Scorn
+m0714,3213,Starts Crystal Phase
+m0714,3214,Exodus
+m0714,3215,Auto Attack Chakram
+m0714,3218,Crystallize
+m0714,3219,Crystallize
+m0714,3220,Echoes / Lightwave
+m0714,3221,Echoes / Lightwave / Subparhelion
+m0714,3222,Heros's Radiance
+m0714,3223,Crystallize Trigger Earth
+m0714,3224,Crystallize Trigger Ice
+m0714,3225,Crystallize Trigger Water
+m0714,3226,Teleport To Center / Teleport
+m0714,3227,Parhelion
+m0714,3228,Radiant Halo
+m0714,3229,Heros's Sundering
+m0714,3230,Magos's Radiance
+m0714,3231,Crystallize
+m0714,3232,Crystallize
+m0714,3233,Teleport2
+m0714,3234,Highest Holy
+m0714,3235,Anthelion
+m0714,3236,Shining Saber
+m0714,3237,Crystallize
+m0714,3238,Lateral Aureole
+m0714,3239,Aureole
+m0714,4578,Hydaelyn's Ray
+m0715,3201,Deploy Armaments
+m0715,3202,Deploy Armaments
+m0715,3203,Universal Assault
+m0717,3202,Big Explosion
+m0718,3203,Wave: Black
+m0718,3204,Wave: White
+m0720,3201,Elegeia Unforgotten
+m0720,3202,Hubris / Katasterismoi / Eironeia / Twinsong's Aporrhoia +2 more
+m0720,3204,Fatalism / Theological Fatalism
+m0720,3220,Elenchos
+m0720,3221,Elenchos
+m0720,3222,Endsong
+m0720,3223,Telos
+m0720,3224,Grip of Despair / Despair Unforgotten
+m0720,3225,Telomania
+m0723,3201,Mortal Coil / Dead Gaze / Star Beyond Stars
+m0723,3202,the Edge Unbound / Nine Nights
+m0725,3201,Magic Barrage
+m0725,3202,Knavish Bullets
+m0727,3203,"990,000 Needles"
+m0727,3204,Avert Your Eyes / You May Approach / Away with You / Wicked Whim
+m0731,3201,True Holy / True Flare / Aetherchain / Shackles of Time +3 more
+m0731,3204,Pitiless Flail of Grace / Pitiless Flail of Purgation
+m0731,3205,Warder's Wrath
+m0731,3206,Intemperate Torment
+m0731,3207,Intemperate Torment
+m0731,3208,Gaoler's Flail / Aetherflail
+m0731,3209,Gaoler's Flail / Aetherflail
+m0731,3210,Heavy Hand
+m0731,3216,Shining Cells / Slam Shut / Lethe
+m0731,3217,Gaoler's Flail
+m0731,3218,Gaoler's Flail / Aetherflail
+m0731,3219,Gaoler's Flail / Aetherflail
+m0731,3220,Gaoler's Flail / Aetherflail
+m0732,3201,Darkened Fire / Devouring Brand / Fountain of Fire / Sun's Pinion +4 more
+m0732,3202,Brightened Fire
+m0732,3203,Experimental Fireplume / Experimental Gloryplume
+m0732,3204,Experimental Fireplume / Experimental Gloryplume
+m0732,3205,Experimental Ashplume / Experimental Gloryplume
+m0732,3206,Experimental Ashplume / Experimental Gloryplume
+m0732,3208,Flames of Undeath / Scorched Exaltation / Final Exaltation
+m0732,3210,Dead Rebirth
+m0732,3211,Fledgling Flight
+m0732,3212,Death's Toll
+m0732,3213,Life's Agonies
+m0732,3214,Firestorms of Asphodelos
+m0732,3215,Heat of Condemnation
+m0732,3216,Right Cinderwing
+m0732,3217,Left Cinderwing
+m0732,4573,Trail of Condemnation
+m0732,4574,Trail of Condemnation
+m0733,3202,Setting the Scene
+m0733,3203,Pinax / Periaktoi
+m0733,3204,Bloodrake
+m0733,3205,Aetheric Chlamys
+m0733,3206,Inversive Chlamys
+m0733,3207,Northerly Shift
+m0733,3208,Northerly Shift
+m0733,3210,Elegant Evisceration
+m0733,3211,Southerly Shift
+m0733,3212,Easterly Shift
+m0733,3213,Westerly Shift
+m0733,3214,Southerly Shift
+m0733,3215,Easterly Shift
+m0733,3216,Westerly Shift
+m0733,3217,Decollation
+m0733,3218,Shift Start
+m0733,3219,Belone Bursts / Belone Coils / Director's Belone / Elemental Belone +1 more
+m0738,4563,Fatalism Fiery Star1
+m0738,4564,Fatalism Fiery Star2
+m0738,4565,Fatalism Azure Star1
+m0738,4566,Fatalism Azure Star2
+m0738,4576,Caerustellar Collision
+m0738,4579,Fiery Star Visual
+m0738,4580,Azure Star Visual
+m0738,4581,Rubistellar Collision
+m0741,3201,Quintuple Inhale
+m0741,3202,Sneeze / Spit / Quintuple Sneeze
+m0741,3203,Rotten Spores
+m0741,3204,Uppercut
+m0741,3205,Trolling
+m0741,3206,Sow
+m0741,3207,Drowsy Dance
+m0741,3208,End Dance
+m0741,3209,Awaken
+m0741,3210,Uppercut
+m0742,3202,Diairesis
+m0742,3203,Fatalism Diairesis Visual
+m0742,3204,Diairesis
+m0742,3205,Necrotic Fluid
+m0742,3206,Fatalism Necrotic Fluid Visual
+m0742,3207,Necrotic Fluid
+m0742,3208,Wave of Nausea
+m0742,3209,Fatalist Wave Of Nausea Visual
+m0742,3210,Wave of Nausea
+m0742,3211,Endsong
+m0742,3212,Diairesis
+m0746,3201,Stygian Vapor
+m0746,3202,Chitinous Advance / Chitinous Reversal
+m0746,3203,Chitinous Advance / Chitinous Reversal
+m0746,3204,Winds of Promyvion
+m0747,3203,Auroral Drape
+m0748,3201,Empty Beleaguer
+m0754,3201,Obliviating Claw
+m0754,3202,Oblivion
+m0754,3203,Visual Model Change
+m0755,3201,Dread Wyrmsbreath
+m0755,3202,Hallowed Wings
+m0755,3203,Wyrmclaw
+m0755,3204,Hot Wing
+m0755,3205,Hot Tail
+m0755,3206,Akh Afah
+m0755,3207,Wroth Flames
+m0755,3208,Akh Morn
+m0755,3209,Revenge of the Horde
+m0755,3210,Great Wyrmsbreath
+m0755,3211,Hallowed Wings
+m0755,3212,Mortal Vow
+m0755,3213,Holy Storm
+m0755,3214,Diamond Storm
+m0755,3215,Akh Morn
+m0755,3216,Holy Breath
+m0755,4561,Touchdown
+m0755,4573,Cauterize
+m0755,4575,Cauterize
+m0755,4576,Hallowed Dive
+m0755,4577,Frigid Dive
+m0756,4561,Obliviating Claw
+m0756,4573,Charnel Claw
+m0756,4574,Accursed Edge
+m0759,3201,Ashen Eye
+m0759,3203,Joint Pyre
+m0770,3201,Articulated Bits / Assail
+m0770,3202,Diffusion Ray
+m0770,3203,Rail Cannon
+m0770,3204,Reflection NESW1
+m0770,3205,Reflection NESW2
+m0770,3206,Reflection NWSE1
+m0770,3207,Reflection NWSE2
+m0770,3208,Reflection Shield Disappears1
+m0770,3209,Reflection Shield Disappears2
+m0770,3210,Auto Attack
+m0771,3201,Run: ****mi*
+m0771,3202,Cosmo Memory
+m0771,3203,Cosmo Arrow
+m0771,3204,Cosmo Dive
+m0771,3205,Wave Cannon
+m0771,3206,Unlimited Wave Cannon
+m0771,3207,Cosmo Meteor
+m0771,3208,Cosmo Meteor
+m0771,3209,Magic Number
+m0771,3211,Auto Attack P6
+m0776,3201,Warden's Warmth / Warden's Prominence / Sun's Shine / Wildfire Ward +1 more
+m0776,3202,Fan Flames
+m0776,3203,Solar Wings
+m0776,3204,Haute Air
+m0776,3205,Solar Fold
+m0776,3206,Solar Fans
+m0776,3207,Radiant Rhythm
+m0776,3208,Radiant Finish
+m0776,3209,Sublime Sunset
+m0776,3210,Fleeting Spark
+m0776,3211,Teleport / Teleport Heat
+m0776,3212,Haute Air
+m0776,3213,Finish Fans
+m0776,4574,Illuminating Glimpse
+m0777,3201,"Golden Tenet / Heavens' Trial / Far Above, Deep Below / Hearth Above, Flight Below +2 more"
+m0777,3202,"Stygian Tenet / Heat Above, Flames Below / Hearth Above, Flight Below / Once Above, Ever Below +1 more"
+m0777,3203,"As Above, So Below"
+m0777,3204,"As Above, So Below"
+m0777,3205,"Far Above, Deep Below / Hearth Above, Flight Below / Once Above, Ever Below"
+m0777,3206,"Heat Above, Flames Below / Hearth Above, Flight Below / Once Above, Ever Below"
+m0777,3207,Teleport
+m0777,3208,Wayward Soul
+m0777,3209,Wayward Soul End
+m0777,3210,Fired Up I
+m0777,3211,Hell of Fire
+m0777,3213,Hells' Trial
+m0777,3214,Hell of Fire
+m0777,3215,攻撃
+m0777,3216,攻撃
+m0777,3217,Soul's Measure
+m0777,4565,Seventh Passage
+m0777,4566,Seventh Passage
+m0777,4577,Fortune Flux Jump First
+m0777,4578,Fortune Flux Jump Mid / Fortune Flux Jump Last
+m0777,4579,Seventh Passage
+m0777,4580,Seventh Passage
+m0779,3203,Destructive Bolt / Broken World / Rhalgr's Beacon / Hell of Lightning
+m0779,3204,Advent of the Eighth
+m0779,3205,Hand of the Destroyer
+m0779,3206,Hand of the Destroyer
+m0779,3207,Bronze Work
+m0779,3208,Teleport
+m0779,3209,Lightning Reign
+m0779,3210,Hand of the Destroyer
+m0782,3201,Hand of the Destroyer
+m0782,3202,Hand of the Destroyer
+m0782,3203,Hand of the Destroyer
+m0782,3206,Hand of the Destroyer
+m0782,4561,Portal Wrath / Fist Of Wrath Appear
+m0782,4562,Portal Judgment / Fist Of Judgment Appear
+m0782,4563,Portal Comet Wrath
+m0784,3203,Blighted Bedevilment
+m0784,3209,Blighted Sweep
+m0784,3210,Cursed Echo
+m0785,3201,Savage Barbery / Teasing Tangles
+m0785,3202,Savage Barbery / Brutal Rush
+m0785,3203,Teleport / Hair Raid
+m0785,3204,Hair Raid / Warning Gale / Blustery Ruler
+m0785,3205,Secret Breeze
+m0785,3206,Teasing Tangles / Knuckle Drum / Entanglement
+m0785,3207,Raging Storm / Boulder / Bold Boulder
+m0785,3208,Void Aero III / Impact
+m0785,3209,Auto Attack / Blow Away / Dry Blows
+m0785,3210,Void Aero IV / Tornado Chain / Maelstrom
+m0785,3211,Tornado Chain
+m0785,3214,Trample
+m0789,4575,Chthonic Vent
+m0789,4576,Chthonic Vent
+m0789,4577,Chthonic Vent
+m0790,3201,Sunforge / Snaking Kick / Quadrupedal Impact
+m0790,3202,Sunforge / Blazing Footfalls / Trailblaze
+m0790,3203,Stomp Dead / Ektothermos / Sunforge
+m0790,3204,Conceptual Tetraflare / Conceptual Diflare / Into the Shadows / Sunforge
+m0790,3205,Volcanic Torches / Fourfold Fires / Chthonic Vent / Quadrupedal Crush
+m0790,3206,Conceptual Octaflare / Conceptual Tetraflare / Octaflare / Tetraflare +6 more
+m0790,3207,Genesis of Flame / Rearing Rampage
+m0790,3208,Flameviper / Rearing Rampage
+m0790,3209,Auto Attack
+m0790,3210,Teleport
+m0791,3205,Gorgospit
+m0793,3212,Winding Gale
+m0793,4562,Winding Gale
+m0793,4574,Brutal Gust
+m0793,4575,Winding Gale
+m0794,3203,Dark Vision
+m0794,4574,Unite Mare
+m0794,4575,Unite Mare
+m0796,3202,Transmission
+m0796,3203,Aetheric Polyominoid / Polyominoid Sigma / Unholy Darkness / Exocleaver +4 more
+m0796,3205,Choros Ixou
+m0796,3206,Pathogenic Cells
+m0796,3207,Synergy
+m0796,3208,Chelic Synergy
+m0796,3209,Teleport
+m0796,3210,Ptera Ixou
+m0796,3211,Dual Predation
+m0796,3212,Aetherial Exchange
+m0796,3213,Hemitheos's Dark IV
+m0796,3214,Cachexia
+m0796,3215,Auto Attack / Auto Attack2
+m0796,3217,Choros Ixou
+m0796,3218,Medicine Field
+m0796,3219,Sensory Deprivation
+m0796,3222,Biochemical Front
+m0796,3223,Auto Attack
+m0796,3224,Concentrated Dose
+m0796,3225,No Man's Land
+m0798,3201,High Concept
+m0798,3202,Tyrant's Unholy Darkness / Natural Alignment / Tyrant's Flare / Inverse Magicks +3 more
+m0798,3203,Ego Death
+m0798,3204,Aioniopyr / Aionagonia
+m0798,3205,Twist Nature
+m0798,3211,Ashing Blaze
+m0798,3212,Ashing Blaze
+m0798,3213,Dominion
+m0798,3214,Auto Attack
+m0798,3218,Ego Death
+m0798,3219,End of Days
+m0799,3201,Toxic Crunch
+m0799,3202,Double Rush
+m0799,3203,Teleport
+m0799,3205,Searing Ray
+m0799,3206,Raging Tail / Tail to Claw
+m0799,3207,Ruby Glow
+m0799,3208,Topaz Stones / Topaz Cluster
+m0799,3209,Venomous Mass / Venom Squall / Venom Surge / Venom Pool
+m0799,3210,Sonic Howl / Sonic Shatter
+m0799,3213,Begin Jaws Teleports
+m0799,3214,Starving Stampede
+m0799,3216,Devour
+m0799,3218,Spit
+m0799,3219,Raging Claw / Claw to Tail
+m0799,3220,Devour
+m0799,3221,Acidic Slaver
+m0799,3224,Leporine Loaf
+m0799,3225,Crater Carve
+m0799,3226,Beastly Roar
+m0799,3227,Slabber
+m0799,3228,Auto Attack
+m0800,3201,Bough of Attis
+m0800,3202,Bough of Attis
+m0800,3203,Bough of Attis
+m0800,3204,Immortal's Obol
+m0800,3205,Bough of Attis
+m0800,3206,Blades of Attis / Roots of Attis / Shadow of Attis / Hemitheos's Glare
+m0800,3207,Forbidden Fruit / Famine's Harvest / Death's Harvest / War's Harvest
+m0800,3208,Forbidden Fruit
+m0800,3209,Inviolate Bonds / Inviolate Purgation
+m0800,3210,Dispersed Aero II / Condensed Aero II / Hemitheos's Holy III / Multicast
+m0800,3211,Spark of Life
+m0800,3212,attack
+m0800,3213,Light of Life
+m0810,3201,Ninth Circle / Arch Inferno / Radial Flagration / Infernal Slaughter
+m0810,3202,Arcane Revelation
+m0810,3206,Conflagration
+m0810,3207,Start Add Phase
+m0810,3208,Blazing Rapture
+m0810,3209,Explosive Pyre
+m0810,3210,Inferno / Flamespire Brand / Dualfire
+m0810,3211,Flamerake
+m0810,3212,Scalding Signal
+m0810,3213,Sweeping Immolation
+m0810,3214,Flamespire Claw
+m0810,3215,Teleport1
+m0810,3216,Teleport2
+m0810,3217,Inferno
+m0810,3218,Shattering Heat
+m0810,3219,Scalding Ring
+m0810,3220,Auto Attack
+m0810,3221,Hope Abandon Ye
+m0810,3222,Ordeal of Purgation
+m0810,4561,Scalding Fleet
+m0810,4573,Flamerake
+m0810,4574,Scalding Fleet
+m0811,3201,Antediluvian / Hydrofall
+m0811,3202,Teleport
+m0811,3204,Stygian Deluge
+m0811,3205,Earthquake / Body Slam
+m0811,3206,Hydraulic Ram
+m0811,3209,Start Hydrofall
+m0811,3211,Voidcleaver
+m0811,3212,Lifescleaver
+m0811,3213,Start Limitbreak Phase
+m0811,3215,Void Torrent
+m0811,3216,Hydraulic Ram
+m0811,3217,Ill-gotten Goods / Material World / Recommended for You / Cursed Tide
+m0811,3219,What're You Buying?
+m0811,3220,Onepenny Inflation / Twopenny Inflation / Fourpenny Inflation
+m0811,3221,Waterspout
+m0820,3201,Tetrapagos Hailstorm
+m0820,3202,Tetrapagos Swirl
+m0820,3203,Tetrapagos Rightrime
+m0820,3204,Tetrapagos Leftrime
+m0820,3206,Wrath of Halone
+m0820,3207,Disappear
+m0820,3208,Fury's Aegis
+m0820,3209,Rain of Spears / Spears Three / Lochos / Will of the Fury +1 more
+m0820,3210,Teleport
+m0820,3211,Thousandfold Thrust
+m0820,3212,Doom Spear
+m0822,3201,Call of the Mountain
+m0822,3202,Knock on Ice
+m0822,3203,Icebreaker
+m0822,3204,Icy Throes
+m0822,3205,Roar of Albion
+m0822,3206,Albion's Embrace
+m0822,3207,Right Slam
+m0822,3208,Left Slam
+m0822,3209,Teleport
+m0823,3201,Time and Tide
+m0823,3202,Inexorable Pull
+m0823,3203,Teleport Althyk
+m0823,3205,Axioma
+m0823,3206,Petrai
+m0823,3209,Mythril Greataxe
+m0823,3210,Auto Attack Althyk
+m0824,3201,Spinner's Wheel
+m0824,3203,Teleport Nymeia
+m0824,3204,Hydroptosis / Hydrorythmos / Hydrostasis
+m0824,3205,Philotes
+m0824,3207,Auto Attack Nymeia
+m0827,3201,Symbol Rotate CW
+m0827,3202,Symbol Rotate CCW
+m0827,4573,Fiery Expiation
+m0827,4574,Fiery Expiation
+m0828,3201,Iconic Execution / Myriad Aspects / Ordered Chaos
+m0828,3202,Teleport
+m0828,3203,Divinity
+m0828,3204,Divine Awakening
+m0828,3205,Remove Status
+m0828,3206,Bladescatter
+m0828,3207,Iconography: Pedestal Purge
+m0828,3208,Pedestal Purge
+m0828,3209,Iconography: Bladewise
+m0828,3210,Bladewise
+m0828,3211,Six-bladed Khadga
+m0828,3212,Khadga
+m0828,3213,Khadga
+m0828,3214,Khadga
+m0828,3215,Khadga
+m0828,3216,Khadga
+m0828,3217,Khadga
+m0828,3218,Ephemerality
+m0828,3219,Lower Realm
+m0828,3220,Cutting Jewel
+m0828,3221,Divine Awakening
+m0828,3224,Iconography: Wheel of Deincarnation
+m0828,3225,Wheel of Deincarnation
+m0828,3226,Many Faces
+m0828,3227,Asuri Chakra
+m0828,4561,Divinity2
+m0828,4573,Laceration
+m0829,3201,Auto Attack
+m0829,3202,Engravement of Souls / Polarized Glow / Polarized Ray
+m0829,3203,On the Soul
+m0829,3204,Superchain Theory I / Superchain Theory IIA / Superchain Theory IIB
+m0829,3205,Unnatural Enchainment
+m0829,3206,Paradeigma
+m0829,3207,Glaukopis
+m0829,3208,Trinity of Souls
+m0829,3209,Trinity of Souls
+m0829,3210,Trinity of Souls
+m0829,3211,Trinity of Souls
+m0829,3212,Apodialogos / Peridialogos
+m0829,3213,Parthenos
+m0829,3214,Ultima Blade
+m0829,3215,Theos's Ultima
+m0829,3216,Teleport Boss
+m0829,4561,Palladion
+m0829,4573,Palladion
+m0830,3201,Divisive Overruling
+m0830,3202,Divisive Overruling
+m0830,3203,Upheld Overruling / Upheld Ruling
+m0830,3204,Upheld Overruling / Upheld Ruling
+m0830,3205,Jury Overruling
+m0830,3206,Jury Overruling
+m0830,3209,Dike / Shadowed Messengers / Lightstream / Dark and Light +4 more
+m0830,3210,Arcane Revelation / Dismissal Overruling / Twofold Revelation
+m0830,3211,Arcane Revelation / Dismissal Overruling / Twofold Revelation
+m0830,3212,Emissary's Will / Ultimate Verdict
+m0830,3213,Eunomia
+m0830,3214,Teleport
+m0830,3215,Styx
+m0830,4574,Divisive Ruling
+m0830,4575,Divisive Ruling
+m0830,4576,Jury Overruling
+m0830,4577,Jury Overruling
+m0834,3201,Steel Web / Entangling Web / Silkspit / Pandæmoniac Web
+m0834,3202,Dividing Wings / Pandæmoniac Pillars / Dæmoniac Bonds / Pandæmoniac Meltdown +2 more
+m0834,3203,Pandæmoniac Ray
+m0834,3204,Pandæmoniac Ray
+m0834,3205,Touchdown
+m0834,3206,Harrowing Hell
+m0834,3207,Wicked Step
+m0834,3208,attack
+m0834,3209,Ultima
+m0834,3210,Soul Grasp
+m0834,3211,Pandæmon's Holy
+m0834,3212,Circles of Pandæmonium
+m0835,3201,Crush Helm / Gaiaochos / Panta Rhei / Pyre Pulse +1 more
+m0835,3202,Palladian Grasp
+m0835,3203,Palladian Grasp
+m0835,3204,Palladian Ray
+m0835,3205,Auto Attack Normal
+m0835,3206,Geocentrism
+m0835,3207,Geocentrism
+m0835,3208,Geocentrism
+m0835,3209,Ignorabimus
+m0835,3210,Summon Darkness / Demi Parhelion / Ultima
+m0835,3213,The Classical Concepts
+m0835,3214,Caloric Theory
+m0835,3215,Pangenesis
+m0835,3216,Ultima
+m0835,3217,Ekpyrosis
+m0835,3218,Auto Attack Small
+m0842,3201,Ravening
+m0842,3202,Ravening
+m0842,3204,Ravening
+m0842,3205,Teleport
+m0842,3207,Gluttony's Augur / Disintegration
+m0842,3208,Duality of Death / Dualspell / Levinstrike Summoning / Chimeric Succession
+m0842,3209,Auto Attack Mage
+m0842,3210,Disgorge
+m0842,3212,Auto Attack Normal / Auto Attack Martialist
+m0842,3213,Archaic Rockbreaker
+m0842,3214,Ascendant Fist
+m0842,3215,Inside Roundhouse
+m0842,3216,Outside Roundhouse
+m0842,3217,Swinging Kick
+m0842,3218,Swinging Kick
+m0842,3219,Charybdis / Thunderbolt / Beastly Fury
+m0842,3220,Comet
+m0842,3221,Beastly Bile
+m0842,3223,Ecliptic Meteor
+m0842,3226,Archaic Demolish / Two Minds
+m0842,3228,Firemeld / Pyremeld
+m0842,3229,Kick Ball
+m0842,3230,Auto Attack Beast
+m0842,4573,Icemeld
+m0844,3201,Stormcloud Summons / Lightning Bolt / Vengeful Souls
+m0844,3202,Smokeater
+m0844,3203,Rokujo Revel
+m0844,3204,Noble Pursuit
+m0844,3205,Splitting Cry
+m0844,3206,Slither
+m0844,3207,Unnatural Wail / Haunting Cry
+m0844,3209,Eye of the Thunder Vortex / Vortex of the Thunder Eye
+m0844,3210,Eye of the Thunder Vortex / Vortex of the Thunder Eye / Thunder Vortex
+m0844,3211,Enkyo
+m0844,3212,NTeleport / STeleport
+m0845,4561,Bury
+m0845,4573,Imprisonment
+m0845,4574,Cannonspawn
+m0845,4575,Peal of Condemnation
+m0845,4578,Peal of Damnation
+m0847,3201,Crimson Rush
+m0847,3202,Smoldering Claw
+m0847,3203,Fireball
+m0847,3204,Vulcan Burst
+m0847,3205,Tail Strike
+m0847,3206,Pyrosault
+m0847,3207,Incinerate / Spreading Fire / Fetters / Infernal Howl
+m0847,3208,Searing Stomp Status2
+m0847,3209,Hellfire
+m0847,3210,Burning Strike
+m0847,3211,Burning Strike
+m0847,3212,Teleport
+m0847,3213,Burning Strike
+m0847,3214,Searing Stomp
+m0847,3216,Searing Stomp
+m0847,3217,Searing Stomp
+m0847,3219,Fiery Rampage
+m0847,3221,Crimson Streak
+m0847,3222,Crimson Streak
+m0847,3223,Infernal Shroud
+m0847,3224,Ghastly Wind
+m0851,3201,Dark Matter / Flare / Void Meteor / Meteor Impact +5 more
+m0851,3202,Sable Thread
+m0851,3203,Sable Thread
+m0851,3204,Sable Thread
+m0851,3205,Visceral Whirl
+m0851,3206,Visceral Whirl
+m0851,3207,Fractured Eventide
+m0851,3208,Fractured Eventide
+m0851,3210,Void Bio
+m0851,3211,Big Bang / Big Crunch
+m0851,3212,Rend the Rift
+m0851,3213,Chasmic Nails
+m0851,3214,Auto Attack
+m0851,3215,Nostalgia
+m0851,3216,Abyssal Nox
+m0852,3201,Reproduce
+m0852,3202,Swinging Draw
+m0852,3203,Trek Shot
+m0852,3204,Trek Shot
+m0852,3205,Climbing Shot
+m0852,3206,Soaring Minuet
+m0852,3207,Flinted Foehn / the Arrow / Downhill
+m0852,3208,Teleport
+m0852,3209,Auto Attack P1
+m0852,3210,Lofty Peaks
+m0852,3212,Sudden Downpour
+m0853,3201,Duplicitous Battery
+m0853,3203,Death's Journey
+m0853,3204,Twilight Phase
+m0853,3205,Dark Impact
+m0853,3206,Forsaken Fount
+m0853,3207,Antipodal Assault
+m0853,3208,Hard Slash
+m0853,3209,Arcane Edge
+m0853,3210,Old Magic
+m0853,3211,Teleport
+m0853,3212,Contrapasso
+m0855,3201,Katarraktes / Thlipsis / Hydroptosis / Rhyton +1 more
+m0855,3202,Rheognosis Clone Visual
+m0855,3203,Tetraktys
+m0855,3204,Hieroglyphika
+m0855,3205,Right Bank
+m0855,3206,Left Bank
+m0855,3207,attack
+m0855,3208,Rheognosis / Rheognosis Petrine
+m0855,3209,Teleport
+m0856,3201,Denizens of the Deep / Godsbane
+m0856,3202,Tempest
+m0856,3204,Torrential Tridents
+m0856,3205,Right Strait
+m0856,3206,Wind Rose
+m0856,3207,Seafoam Spiral
+m0856,3208,Left Strait
+m0856,3209,Deep Dive
+m0856,3210,Surging Wave
+m0856,3211,To the Last / Blowkiss Punishment
+m0856,3212,Stormy Seas
+m0856,3213,Navigator's Dagger
+m0856,3214,Teleport
+m0856,3215,Dire Straits
+m0856,3216,Navigators Trident Teleport Start1
+m0856,3217,Navigator's Trident
+m0856,3218,Dire Straits
+m0856,3219,Navigators Trident Teleport Start2
+m0857,3201,attack / Sunbeam / Destructive Bolt / Hieroglyphika +1 more
+m0857,3202,Teleport
+m0857,3203,Quintessence Prepare
+m0857,3204,Quintessence Finish1
+m0857,3205,Quintessence
+m0857,3206,Climbing Shot
+m0857,3207,Soaring Minuet
+m0857,3208,Quintessence Finish2
+m0857,3209,the Whorl
+m0857,3210,Hand of the Destroyer
+m0857,3211,Hand of the Destroyer
+m0857,3212,Byregot's Strike
+m0857,3213,Thousandfold Thrust
+m0857,3214,Eudaimon Eorzea
+m0857,3215,Dawn of Time
+m0857,3216,Matron's Breath
+m0857,3217,Love's Light / Full Bright
+m0857,3218,Quintessence
+m0857,3219,Quintessence
+m0857,3223,Time and Tide
+m0857,3226,Solar Fans / Radiant Finish
+m0857,3227,Radiant Rhythm
+m0857,3228,Hydrostasis
+m0857,3229,"As Above, So Below"
+m0857,3230,"As Above, So Below"
+m0857,4561,Quintessence Visual1
+m0857,4562,Quintessence Visual2
+m0857,4563,Quintessence Visual3
+m0857,4564,Quintessence Visual4
+m0857,4565,Quintessence Visual5
+m0865,3201,Dispatch / Electrosurge
+m0865,3202,Enhanced Mobility
+m0865,3203,Enhanced Mobility
+m0865,3204,Rapid Rotary
+m0865,3205,Rapid Rotary
+m0865,3208,Electrowave
+m0865,3211,Auto Attack
+m0865,3212,Enhanced Mobility
+m0865,3213,Enhanced Mobility
+m0865,3214,Rapid Rotary
+m0865,3215,Rapid Rotary
+m0865,4573,Aerial Offensive
+m0865,4574,Rush
+m0866,3201,Blade
+m0866,3202,Windwhistle
+m0866,3203,Razor Zephyr
+m0866,3204,Razor Storm
+m0866,3205,Devour
+m0866,3206,High Wind / Chaotic Storm
+m0866,3207,Levinsickle
+m0866,3208,Teleport / Unknown Ability1
+m0866,3209,Blades of Famine / Thunder III
+m0866,3211,Abyssal Smog
+m0866,3212,Blazing Blast / Blazing Breath / Pyreburst
+m0866,3213,Crossfire Blade
+m0866,3214,Flame Blade
+m0869,3203,Laughing Leap
+m0869,3204,Right Wingblade
+m0869,3205,Left Wingblade
+m0871,3202,Deadly Swoop
+m0871,3203,Gliding Swoop / Swoop / Deadly Swoop
+m0871,3205,Pecking Flurry
+m0871,3206,Snatch Morsel
+m0871,3207,Wind Unbound
+m0872,3201,Susurrant Breath
+m0872,3202,Blighted Bolt
+m0872,3203,Slithering Strike
+m0872,3204,Strangling Coil
+m0872,3205,Thunderous Breath
+m0872,3206,Spikesicle Start
+m0872,3207,Spikesicle
+m0872,3208,Calamitous Cry
+m0872,3209,Ruin Foretold End
+m0872,3210,Wrath Unfurled
+m0872,3211,Tulidisaster
+m0872,3212,Ruinfall
+m0872,3213,Mountain Fire
+m0872,3214,Mountain Fire Move NTo NW
+m0872,3215,Mountain Fire Move NTo NE
+m0872,3216,Mountain Fire Move NWTo N
+m0872,3217,Mountain Fire Move NWTo NE
+m0872,3218,Mountain Fire Move NETo N
+m0872,3219,Mountain Fire Move NETo NW
+m0872,3220,Mountain Fire
+m0872,3221,Mountain Fire
+m0872,3222,Mountain Fire
+m0872,3223,Mountain Fire End N
+m0872,3224,Mountain Fire End NW
+m0872,3225,Mountain Fire End NE
+m0872,3226,attack
+m0872,3227,Spikesicle End
+m0872,3228,Freezing Dust / Ice Talon
+m0872,3230,Skyruin
+m0872,3231,Disaster Zone
+m0872,3232,Disaster Zone
+m0872,3233,Disaster Zone
+m0872,3234,Hail of Feathers
+m0872,3235,Triscourge / Ruin Foretold
+m0872,3236,Skyruin
+m0872,3237,Skyruin
+m0872,3238,Spikesicle
+m0874,3201,Piton Pull
+m0874,3202,Piton Pull
+m0874,3203,Wandering Volley
+m0874,3204,Wandering Volley
+m0874,3205,Altitude / Flinted Foehn / the Arrow / Arrow Trail +1 more
+m0874,3207,Auto Attack P2
+m0874,3208,Wandering Shot
+m0874,3209,Wandering Shot
+m0876,3201,Crystalline Crush
+m0876,3202,Crystalline Storm
+m0876,3205,Wind Shot / Earthen Shot / Seed Crystals / Sharpened Sights
+m0876,3206,Stalagmite Circle / Cyclonic Ring
+m0876,3207,Wind Unbound
+m0877,3210,Forecast / Climate Change
+m0878,3201,Partition
+m0878,3202,Partition
+m0878,3203,Reconfigured Partition
+m0878,3204,Reconfigured Partition
+m0878,3205,Subroutine
+m0878,3206,Subroutine1 End
+m0878,3207,Subroutine
+m0878,3208,Subroutine2 End
+m0878,3209,Subroutine
+m0878,3210,Subroutine3 End
+m0878,3211,Overexposure
+m0878,3212,Teleport
+m0878,3213,Elimination
+m0878,3214,Holo Ark
+m0878,3215,Disruption
+m0878,3216,Auto Attack
+m0879,3201,Dawn of an Age
+m0879,3202,Regicidal Rage / Vollok / Sync / Greater Gateway +10 more
+m0879,3203,Smiting Circuit
+m0879,3204,Half Full
+m0879,3205,Half Full
+m0879,3206,Half Circuit
+m0879,3207,Half Circuit
+m0879,3208,Multidirectional Divide
+m0879,3209,Duty's Edge
+m0879,3210,Forward Half
+m0879,3211,Forward Half
+m0879,3212,Backward Half
+m0879,3213,Backward Half
+m0879,3216,Actualize
+m0879,3217,攻撃
+m0879,3218,Teleport
+m0879,4573,Smiting Circuit
+m0879,4574,Smiting Circuit
+m0881,3201,Laws of Wind / Laws of Earth / Gravitational Empire / Meteor Impact +4 more
+m0881,3202,Royal Domain
+m0881,3203,Prosecution of War
+m0881,3204,Legitimate Force
+m0881,3205,Legitimate Force
+m0881,3206,Legitimate Force
+m0881,3207,Legitimate Force
+m0881,3208,Aethertithe
+m0881,3209,Aethertithe
+m0881,3210,Aethertithe
+m0881,3211,Aethertithe
+m0881,3212,Virtual Shift
+m0881,3213,Virtual Shift
+m0881,3214,World Shatter
+m0881,3220,Divide and Conquer
+m0881,3223,Absolute Authority
+m0881,3225,Virtual Shift
+m0881,3226,Retribute
+m0881,3227,Coronation
+m0881,3228,Radical Shift
+m0881,3229,Dimensional Distortion
+m0881,3230,World Shatter
+m0881,3231,Tyranny's Grasp
+m0881,3232,Dying Memory
+m0881,3233,Royal Banishment
+m0881,3234,Preservation
+m0881,3235,Absolute Authority
+m0881,4561,Intermission End
+m0881,4573,Authority Eternal
+m0882,3201,Fangward Sandspout / Fangward Dustdevil
+m0882,3202,Tailward Sandspout / Leftward Sandspout / Tailward Dustdevil
+m0882,3203,Rightward Sandspout / Tailward Dustdevil
+m0882,3204,Devour
+m0882,3205,Landswallow
+m0882,3206,Touchdown
+m0882,3207,Teleport
+m0882,3208,Desert Tempest
+m0882,3209,Desert Tempest
+m0882,3210,Desert Tempest
+m0882,3211,Desert Tempest
+m0882,3212,Landswallow
+m0884,3201,Teleport
+m0884,3202,Nine Lives / Soulshade / Quadruple Swipe / Double Swipe +6 more
+m0884,3203,One-two Paw
+m0884,3204,One-two Paw
+m0884,3205,Quadruple Crossing / Leaping Quadruple Crossing / Raining Cats
+m0884,3206,Quadruple Crossing / Leaping Quadruple Crossing / Raining Cats
+m0884,3207,Mouser
+m0884,3208,Mouser Jumps End
+m0884,3210,Overshadow
+m0884,3211,Predaceous Pounce
+m0884,3212,Leaping Quadruple Crossing / Leaping One-two Paw
+m0884,3213,Leaping Quadruple Crossing / Leaping One-two Paw
+m0884,3214,Biscuit Maker
+m0884,3215,Soulshade Activate
+m0884,3216,Bloody Scratch
+m0884,3217,Leaping One-two Paw
+m0884,3218,Leaping One-two Paw
+m0884,4563,Elevate and Eviscerate
+m0884,4564,Elevate and Eviscerate
+m0884,4575,Elevate and Eviscerate
+m0884,4576,Elevate and Eviscerate
+m0888,3201,Ion Cluster Visual Start
+m0888,3202,Ion Cluster Visual Reset
+m0888,3203,Wings Start
+m0888,3204,Wings End
+m0888,3205,ライトロール / レフトロール
+m0888,3206,Stampeding Thunder
+m0888,3211,Wicked Bolt / Symphony Fantastique / Lightning Cage / Ion Cluster
+m0888,3212,Electrifying Witch Hunt / Witch Hunt
+m0888,3214,Electrope Edge
+m0888,3215,Sidewise Spark
+m0888,3216,Sidewise Spark
+m0888,3217,Wrath of Zeus
+m0888,3218,Wicked Jolt
+m0888,3219,Teleport
+m0888,3220,Electron Stream
+m0888,3221,Electron Stream
+m0888,3222,Widening Witch Hunt / Lightning Vortex
+m0888,3223,Narrowing Witch Hunt / Thundering
+m0888,3224,Wicked Cannon
+m0888,3225,Thundering
+m0888,3227,Soaring Soulpress
+m0888,3228,Sidewise Spark
+m0888,3229,Sidewise Spark
+m0888,3230,Auto Attack P1
+m0888,3232,Positron Stream
+m0888,3233,Negatron Stream
+m0888,3240,Witchgleam
+m0888,4573,Witch Hunt
+m0888,4574,Electrifying Witch Hunt
+m0888,11258,Bewitching Flight
+m0888,11259,Bewitching Flight
+m0889,3201,Cross Tail Switch
+m0889,3202,Sword Quiver
+m0889,3203,Aetherial Conversion
+m0889,3204,Tail Thrust
+m0889,3205,Tail Thrust
+m0889,3206,Tail Thrust
+m0889,3207,Tail Thrust
+m0889,3209,Wicked Special / Flame Slash
+m0889,3210,Wicked Special
+m0889,3211,Wicked Blaze / Mustard Bomb / Wicked Fire / Concentrated Burst +4 more
+m0889,3212,Twilight Sabbath / Midnight Sabbath / Sunrise Sabbath
+m0889,3213,Azure Thunder / Wicked Thunder
+m0889,3216,Sword Quiver
+m0889,3217,Sword Quiver
+m0889,11257,Auto Attack P2
+m0899,3201,Deal
+m0899,3202,Bewitching Ball
+m0899,3203,Rolling Starlight
+m0899,3204,Bewitching Ball End
+m0899,3205,Card Trick / Flourishing Bow / Double Misdirect / Round of Applause +3 more
+m0899,3206,Draw
+m0899,3207,Draw
+m0899,3208,Draw
+m0899,3209,Draw
+m0899,3210,Draw
+m0899,3211,Draw
+m0899,3212,Magical Hat
+m0899,3213,Teleport
+m0900,3201,Initialize Androids / Initialize Turrets
+m0900,3202,Surge
+m0900,3203,Bionic Thrash
+m0900,3204,Bionic Thrash
+m0900,3205,Electrowave
+m0900,3206,Teleport
+m0903,3201,Ruthless Regalia
+m0904,3201,Vorpal Trail
+m0904,3204,Enforcement Ray
+m0904,4564,Sweetheart Appear
+m0904,4573,Pathocircuit Purge
+m0904,4574,Pathocross Purge
+m0904,4575,Forged Track
+m0904,4577,Electray
+m0904,4578,Spark
+m0904,4579,Spark II
+m0904,4580,Forged Track
+m0904,4581,Fiery Edge
+m0904,4582,Stormy Edge
+m0904,4583,Splinter
+m0904,4584,Splinter
+m0904,9439,Burst
+m0905,3201,Octuple Lariat / Quadruple Lariat
+m0905,3202,Octuple Lariat / Quadruple Lariat
+m0905,3203,Octoboom Dive / Quadroboom Dive
+m0905,3204,Octoboom Dive / Quadroboom Dive
+m0905,3205,Doping Draught
+m0905,3207,Brutal Impact
+m0905,3208,Knuckle Sandwich
+m0905,3209,Barbarous Barrage
+m0905,3210,Tag Team / Fuses of Fury / Bombarian Flame
+m0905,3211,Chain Deathmatch
+m0905,3212,Final Fusedown / Fusefield / Fuse or Foe
+m0905,3213,Fusefield Visual Start
+m0905,3214,Fusefield Visual End
+m0905,3215,Murderous Mist
+m0905,3217,Teleport
+m0905,3218,Octoboom Bombarian Special / Quadroboom Bombarian Special / Special Bombarian Special
+m0905,3221,Infernal Spin
+m0905,3222,Lariat Combo
+m0905,3223,Lariat Combo
+m0905,3224,Lariat Combo
+m0905,3225,Lariat Combo
+m0905,3226,Lariat Combo
+m0905,3227,Lariat Combo
+m0905,4575,Lariat Combo
+m0905,4576,Lariat Combo
+m0906,3201,Teleport
+m0906,3202,Alarm Pheromones
+m0906,3203,Call Me Honey
+m0906,3204,Stinging Slash
+m0906,3207,Splash of Venom / Drop of Venom
+m0906,3208,Honey Beeline
+m0906,3209,Tempting Twist
+m0906,3210,Killer Sting / Poison Sting / Bee Sting
+m0906,3211,Honey B. Live: 1st Beat / Honey B. Live: 2nd Beat / Honey B. Live: 3rd Beat
+m0906,3212,Honey B. Finale
+m0906,3213,Love Me Tender
+m0906,3215,Rotten Heart
+m0906,3216,Spread Love / Drop of Love
+m0906,3217,Stage Combo Cross
+m0906,3218,Stage Combo In
+m0906,3219,Stage Combo Out
+m0906,3220,Sheer Heart Attack
+m0906,3221,Loveseeker
+m0906,3222,Honey Beeline
+m0906,3223,Tempting Twist
+m0908,3201,Tag Team Lariat Combo Visual2 / Fuses Of Fury Lariat Combo Visual1
+m0908,3203,Tag Team Lariat Combo Visual1 / Fuses Of Fury Lariat Combo Visual2
+m0908,3204,Tag Team Lariat Combo Visual End / Fuses Of Fury Lariat Combo Visual End
+m0914,3201,Fulgent Blade
+m0914,3202,Akh Morn / Paradise Regained
+m0914,3203,Wings Dark and Light
+m0914,3204,Wings Dark and Light
+m0914,3205,Polarizing Strikes / Polarizing Paths
+m0914,3208,Pandora's Box
+m0914,3210,Paradise Lost
+m0915,3201,Soulless Stream
+m0915,3202,Soulless Stream
+m0915,3205,Aethermodynamics
+m0915,3206,Fire IV
+m0915,3207,Blizzard IV
+m0915,3208,Meltdown
+m0915,3209,Obliterate
+m0915,3210,Auto Attack
+m0920,3201,Giga Slash
+m0920,3202,Giga Slash
+m0920,3203,Umbra Smash / Unbridled Rage
+m0920,3204,Damning Strikes
+m0920,3205,Shadow Spawn
+m0920,3206,Teleport
+m0920,3207,Chthonic Fury
+m0920,3208,Dark Nebula / Echoes of Agony / Binding Sigil
+m0920,3209,Flames of Hatred / Chthonic Fury
+m0920,3210,Doom Arc
+m0920,3211,Implosion
+m0920,3212,Implosion
+m0920,3213,Damning Strikes
+m0920,3214,Damning Strikes Teleport2 / Damning Strikes Teleport3
+m0920,3215,Giga Slash: Nightfall
+m0920,3216,Giga Slash: Nightfall
+m0920,3217,Giga Slash: Nightfall
+m0920,3218,Giga Slash: Nightfall
+m0921,3201,Critical Axeblow
+m0921,3202,Critical Lanceblow
+m0921,3203,Aura Burst
+m0921,3204,Holy
+m0921,3205,Sage's Staff
+m0921,3206,Assassin's Dagger
+m0921,3207,Attack
+m0921,3208,Attack
+m0921,3209,Jump1
+m0921,3210,Unseal
+m0921,3211,Unseal
+m0921,3212,Rune Axe
+m0921,3213,Holy Lance
+m0921,3214,Unsealed Aura
+m0921,3215,Forked Fury
+m0921,4573,Jump2
+m0922,3201,Wingmark / Live Painting / Single Style / Artistic Anarchy
+m0922,3202,Double Style
+m0922,3203,Sugarscape
+m0922,3204,Layer
+m0922,3205,Boss Dash
+m0922,3206,Auto Attack
+m0922,3207,Color Clash / Mousse Drip / Unk1 / Unk2
+m0922,3208,Color Riot
+m0922,3209,Sticky Mousse / Pudding Graf / Soul Sugar / Pudding Party +1 more
+m0922,3210,Mousse Mural
+m0922,3211,Color Riot
+m0922,3214,Ready Ore Not
+m0926,3201,Banishga / Banishga IV
+m0926,3202,Banish Storm
+m0926,3203,Knuckle Sandwich
+m0926,3204,Teleport
+m0926,3205,Auroral Uppercut
+m0926,3206,Asuran Fists
+m0926,3207,Nullifying Dropkick
+m0926,3208,Holy / Crystalline Thorns
+m0926,3209,Knuckle Sandwich
+m0926,3210,Knuckle Sandwich
+m0928,3201,Eminent Reign / Revolutionary Reign
+m0928,3202,Wolves' Reign
+m0928,3203,Wolves' Reign
+m0928,3204,Aero III / Tracking Tremors / Terrestrial Titans / Tactical Pack +2 more
+m0928,3205,Unk2
+m0928,3206,Bare Fangs
+m0928,3207,Windfang / Stonefang
+m0928,3208,Windfang / Stonefang
+m0928,3209,Extraplanar Pursuit / Titanic Pursuit / Extraplanar Feast
+m0928,3210,Great Divide
+m0928,3211,Tactical Pack Boss Disappear
+m0928,3213,Unk1
+m0928,3214,Wolves' Reign
+m0928,3215,Millennial Decay
+m0928,4563,Moonbeam Pre Right
+m0928,4564,Moonbeam Pre Left
+m0928,4573,Wolves' Reign
+m0928,4574,Shadowchase
+m0928,4575,Shadowchase
+m0928,4576,Moonbeam's Bite
+m0928,4577,Moonbeam's Bite
+m0929,3202,Quake III / Ultraviolent Ray / Twinbite / Elemental Purge +6 more
+m0929,3203,Champion's Circuit
+m0929,3204,Hunter's Harvest
+m0929,3205,Mooncleaver
+m0929,3206,Hero's Blow
+m0929,3207,Hero's Blow
+m0929,3208,Howling Eight
+m0929,3209,P2 Auto Attack
+m0929,3210,Starcleaver
+m0933,3201,Alexandrian Holy / Blessed Barricade / Alexandrian Thunder II / Bud of Valor +2 more
+m0933,3202,Specter of the Lost / Escelons' Fall / Holy Hazard
+m0933,3203,Dash
+m0933,3204,Valorous Ascension
+m0933,3206,Perfumed Quietus
+m0933,3207,Roseblood Bloom / Roseblood: 2nd Bloom / Roseblood: 3rd Bloom / Roseblood: 4th Bloom +2 more
+m0933,3208,Shock
+m0933,3209,Thunder Slash
+m0933,3211,Stock Break
+m0933,3212,Power Break
+m0933,3213,Power Break
+m0933,3214,Thorned Catharsis
+m0933,3218,Alexandrian Thunder III / Alexandrian Banish II / Alexandrian Banish III
+m0933,4573,Spearpoint Push
+m0933,4574,Spearpoint Push
+m0934,3201,Disco Infernal
+m0934,3202,Flip to A-side
+m0934,3203,Flip to B-side
+m0934,3204,Deep Cut / Ensemble Assemble / Quarter Beats / Eighth Beats +3 more
+m0934,3205,Funky Floor / Ride the Waves
+m0934,3206,Play A-side
+m0934,3207,Play B-side
+m0934,3208,Do the Hustle
+m0934,3209,Do the Hustle
+m0934,3210,Boss Reposition
+m0934,3211,Unk11
+m0934,3212,Inside Out / Outside In
+m0934,3213,2-snap Twist & Drop the Needle
+m0934,3214,3-snap Twist & Drop the Needle
+m0934,3215,4-snap Twist & Drop the Needle
+m0934,3216,Let's Dance! Remix
+m0934,3217,Let's Pose!
+m0934,3218,Froggy Right
+m0934,3219,Unk7 / Unk14
+m0934,3220,Unk9
+m0934,3221,Froggy Left
+m0934,3222,Unk8 / Unk16
+m0934,3223,Froggy Down / Unk19
+m0934,3224,Unk15
+m0934,3225,Froggy Up
+m0934,3226,Unk13
+m0934,3227,Celebrate Good Times
+m0934,3228,Let's Dance! / Let's Dance! Remix
+m0934,3229,Let's Dance! / Let's Dance! Remix
+m0934,3230,Let's Dance! Remix
+m0934,3231,2-snap Twist & Drop the Needle
+m0934,3232,3-snap Twist & Drop the Needle
+m0934,3233,4-snap Twist & Drop the Needle
+m0934,3234,Unk10
+m0934,3237,Unk18
+m0934,3238,Unk17 / Unk20
+m0934,3239,Unk1 / Unk3 / Unk4 / Unk5 +1 more
+m0934,3240,Let's Pose!
+m0934,4574,Unk12
+m0934,14598,3-snap Twist & Drop the Needle
+m0934,14599,4-snap Twist & Drop the Needle
+m0934,17013,Fire
+m0934,17014,Hi-NRG Fever
+m0934,17015,2-snap Twist & Drop the Needle
+m0934,17016,3-snap Twist & Drop the Needle
+m0934,17017,4-snap Twist & Drop the Needle
+m0934,17018,2-snap Twist & Drop the Needle
+m0934,17019,3-snap Twist & Drop the Needle
+m0934,17020,4-snap Twist & Drop the Needle
+m0934,17021,2-snap Twist & Drop the Needle
+m0934,17022,3-snap Twist & Drop the Needle
+m0934,17023,4-snap Twist & Drop the Needle
+m0934,17024,2-snap Twist & Drop the Needle
+m0934,17025,3-snap Twist & Drop the Needle
+m0934,17026,4-snap Twist & Drop the Needle
+m0934,17027,2-snap Twist & Drop the Needle
+m0934,17028,3-snap Twist & Drop the Needle
+m0934,17029,4-snap Twist & Drop the Needle
+m0934,17030,2-snap Twist & Drop the Needle
+m0935,3201,Unk1
+m0935,3202,Debris Deathmatch
+m0935,3203,Brutal Impact
+m0935,3204,Impact
+m0935,3205,Quarry Swamp
+m0935,3206,Stoneringer
+m0935,3207,Stoneringer
+m0935,3208,Stoneringer 2: Stoneringers
+m0935,3209,Stoneringer 2: Stoneringers
+m0935,3210,Brutish Swing
+m0935,3211,Brutish Swing
+m0935,3212,Pulp Smash
+m0935,3213,Spore Sac / Sinister Seeds / Strange Seeds
+m0935,3214,Neo Bombarian Special
+m0935,3216,Thorny Deathmatch / Demolition Deathmatch
+m0935,3217,Stoneringer
+m0935,3218,Stoneringer
+m0935,3219,Brutish Swing
+m0935,3220,Brutish Swing
+m0935,3221,Brutish Swing
+m0935,3222,Brutish Swing
+m0935,3223,Brutish Swing
+m0935,3224,Brutish Swing
+m0935,3225,Brutish Swing
+m0935,3226,Brutish Swing
+m0935,3227,Brutish Swing
+m0935,3228,Grappling Ivy / Brutish Swing / Special Bombarian Special
+m0935,3229,Brutish Swing
+m0935,3230,Brutish Swing
+m0935,3231,Lashing Lariat
+m0935,3232,Lashing Lariat
+m0935,3233,Revenge of the Vines
+m0935,3234,Sporesplosion / Strange Seeds
+m0935,3235,Glower Power
+m0935,3236,Abominable Blink
+m0935,3237,Powerslam / Special Bombarian Special
+m0935,3238,Slaminator
+m0935,3239,Brutal Smash
+m0935,3240,Brutal Smash
+m0937,3201,Elemental Blade / Sublime Elements
+m0937,3202,Light Blade
+m0937,3203,Great Wheel
+m0937,3204,Unk1
+m0937,3205,Unk2
+m0937,3206,Transcendent Union
+m0937,3207,Esoteric Palisade
+m0937,3208,Proving Ground / Crystalline Resonance / Illumed Facet / Empyreal Banish IV
+m0937,3209,Princely Blow
+m0937,3210,Enspirited Swordplay
+m0937,3211,Shield Bash
+m0937,3212,Boss Jump
+m0937,3213,Esoteric Scrivening
+m0937,3214,Auto Attack
+m0941,3201,Auto Attack
+m0941,3202,Familiar Call / Hydrobullet / Ceaseless Current / Aqua Ball +1 more
+m0941,3203,Aqua Spear
+m0941,3204,Piercing Plunge
+m0941,3205,Jump
+m0941,3206,Echoed Serenade / Echoed Reprise
+m0941,3207,Swimming in the Air
+m0941,3208,Sunken Treasure
+m0941,3209,Alluring Order / Sea Shackles
+m0941,3210,Surging Current
+m0943,3201,Gleaming Beam / Gleaming Barrage
+m0943,4573,Fanged Crossing
+m0943,4574,Fanged Maw
+m0943,4575,Fanged Perimeter
+m0943,4576,Fanged Charge
+m0945,3201,Ball of Fire
+m0945,3202,Abyssal Blaze / Scourging Blaze
+m0945,3203,Abyssal Blaze / Scourging Blaze
+m0945,3204,Spinelash
+m0945,3205,Spinelash
+m0945,3206,Unk1 / Unk2
+m0945,3207,Manifold Lashings
+m0945,3208,Manifold Lashings
+m0945,3209,Fevered Flame
+m0945,3210,attack
+m0945,3211,Chains of Condemnation
+m0945,3212,Drain Aether
+m0945,3213,Hellish Earth
+m0945,3214,Spinelash
+m0946,3201,Smite of Gloom / The End's Embrace / Specter of Death / Circle of Lives +1 more
+m0946,3202,Cold Grip
+m0946,3203,Crop Rotation
+m0946,3204,Soul Reaping / Relentless Reaping
+m0946,3205,Blue Shockwave
+m0946,3206,Memento Mori
+m0946,3207,Fear of Death
+m0946,3208,Neutron Ring
+m0946,3209,Aetherblight
+m0946,3210,Aetherblight
+m0946,3211,Aetherblight
+m0946,3212,Aetherblight
+m0946,3213,Grand Cross
+m0946,3214,Cold Grip
+m0946,4573,Darkness of Eternity
+m0951,3201,Memento
+m0951,3202,Impression
+m0951,3203,Turmoil
+m0951,3204,Turmoil
+m0951,3205,Memory of the Storm / Memory of the Pyre
+m0951,3206,Recollection
+m0951,3207,Auto Attack
+m0952,3201,Fore-to-aft Fire / Foreward Blaster
+m0952,3202,Aft-to-fore Fire / Aftward Blaster
+m0952,3203,Omega Jump
+m0952,3204,Anti-personnel Missile / Surface Missile / Multi-missile
+m0952,3205,Ion Efflux
+m0952,3207,Energizing Equilibrium
+m0952,3208,Trajectory Projection
+m0952,4561,Hyper Pulse
+m0953,3201,Antimatter / Energy Orb / Mana Screen / Tractor Field +1 more
+m0953,3202,Citadel Buster
+m0953,3203,Tractor Beam
+m0953,3204,Citadel Siege
+m0953,3205,Citadel Siege
+m0953,3206,Citadel Siege
+m0953,3207,Citadel Siege
+m0953,3208,Energizing Equilibrium
+m0955,3201,Seiryu Jump1 / Seiryu Jump2
+m0955,3202,Eastwind Wheel
+m0955,3203,Eastwind Wheel
+m0964,3201,Choking Grasp / Necrotic Pulse / Chilling Fingers
+m0964,3202,Muted Struggle
+m0964,4573,Invitation
+m0964,4575,Spreading Fear
+m0969,3201,Dead Man's Overdraught / Turret Crossing / Lightning Burst / Arcane Revelation
+m0969,3202,Dead Man's Express
+m0969,3203,Zoom
+m0969,3204,Shockwave
+m0969,3205,Derailment Siege
+m0969,3206,Derailment Siege
+m0969,3207,Derailment Siege
+m0969,3208,Derailment Siege
+m0969,3209,Third Rail
+m0969,3211,Hail of Thunder
+m0969,3212,Hail of Thunder
+m0969,3213,Hail of Thunder
+m0969,3215,Psychokinesis
+m0969,3216,Unlimited Express
+m0969,3217,Runaway Train
+m0969,3220,Dead Man's Windpipe
+m0969,3221,Headlight
+m0969,3222,Dead Man's Blastpipe
+m0969,3223,Thunderous Breath
+m0969,3224,Headlight
+m0969,3225,Derail
+m0969,3226,Derail
+m0969,3227,Derail
+m0969,3228,Derail
+m0969,4561,Runaway Train
+m0971,3201,Serpentine Scourge
+m0971,3202,Serpentine Scourge
+m0971,3203,Ravenous Reach
+m0971,3204,Unk Boss4
+m0971,3205,Cruel Coil
+m0971,3206,Skinsplitter
+m0971,3207,Constrictor
+m0971,3208,Feral Fission
+m0971,3209,Unk Boss5
+m0971,3210,Grotesquerie: Act 1 / Grotesquerie: Act 2 / Grotesquerie: Act 3 / Grotesquerie: Curtain Call
+m0971,3213,Unk Boss3
+m0971,3216,Serpentine Scourge West East
+m0971,3217,Raptor Knuckles West East
+m0971,3218,Serpentine Scourge East West
+m0971,3219,Raptor Knuckles East West
+m0971,3222,The Fixer
+m0971,3223,Raptor Knuckles
+m0971,3224,Raptor Knuckles
+m0971,3225,Slaughtershed
+m0971,3227,Splattershed
+m0971,3228,Splattershed / Slaughtershed
+m0971,3229,Unk Boss1
+m0971,3230,Unk Boss2
+m0971,4573,Refreshing Overkill
+m0972,3201,Replication
+m0972,3202,Dash
+m0972,3203,Winged Scourge
+m0972,3204,Winged Scourge
+m0972,3205,Top-tier Slam
+m0972,3206,Mighty Magic / Staging / Mana Burst / Grotesquerie +13 more
+m0972,3207,Firefall Splash
+m0972,3208,Heavy Slam
+m0972,3209,Lindwurm's Meteor
+m0972,3210,Idyllic Dream
+m0972,3213,Double Sobat
+m0972,3214,Snaking Kick
+m0972,3215,Arcadia Aflame / Arcadian Hell
+m0972,3216,Power Gusher
+m0972,3217,Power Gusher
+m0972,3218,Snaking Kick
+m0972,3219,Auto Attack
+m0972,4564,Temporal Tear Exit
+m0972,4575,Firefall Splash
+m0972,4576,Mana Burst / Grotesquerie
+m0972,4577,Heavy Slam
+m0972,4579,Temporal Tear Enter
+m0973,3201,Scattered Kindling / Kindled Flame / Charming Baubles / Thieves' Weave +3 more
+m0973,3203,Wheel of Fireflight
+m0973,3204,Wheel of Fireflight
+m0973,3205,Impassioned Sparks
+m0973,3206,Carpet Dash
+m0973,3207,Sun Circlet
+m0973,3208,Fireflight by Emberlight / Fireflight by Pyrelight / Wheel of Fableflight / Fireflight: Four Long Nights +6 more
+m0973,3209,Fireflight by Emberlight / Fireflight by Pyrelight / Wheel of Fableflight / Fireflight: Four Long Nights +6 more
+m0973,3210,Carpet Ride
+m0973,3211,Carpet Ride
+m0973,3212,Wheel of Fireflight
+m0973,3213,Wheel of Fireflight
+m0973,3214,Spurning Flames
+m0973,3215,Scouring Scorn
+m0973,3216,Heat Burst / Pari's Curse
+m0973,3217,Jump / Warp
+m0973,3218,Fire of Victory
+m0973,4562,Carpet Appear
+m0973,4574,Carpet Ride
+m0973,4576,Unravel
+m0974,3201,Galloping Thunder
+m0974,3202,Unk
+m0974,3203,Bio II / Thunder IV / Shockbolt / Thunder III
+m0974,3204,Static Charge
+m0974,3205,Thunderclap Concerto
+m0974,3207,Thunderclap Concerto
+m0980,3201,Jump
+m0980,3202,Crown of Arcadia
+m0980,3203,Raw Steel Trophy
+m0980,3204,Raw Steel Trophy
+m0980,3205,Dance of Domination Trophy
+m0980,3209,Raw Steel
+m0980,3210,Raw Steel
+m0980,3211,Void Stardust / Orbital Omen / Meteorain / Majestic Meteor +2 more
+m0980,3212,Trophy Weapons / Ultimate Trophy Weapons
+m0980,3213,Assault Evolved
+m0980,3214,Assault Evolved
+m0980,3215,Assault Evolved
+m0980,3216,Dance of Domination
+m0980,3217,Charybdistopia
+m0980,3218,Immortal Reign
+m0980,3219,One and Only
+m0980,3220,Great Wall of Fire / Fearsome Fireball
+m0980,3221,Fire and Fury
+m0980,3222,Triple Tyrannhilation / Unk HK1
+m0980,3223,Triple Tyrannhilation / Heartbreak Kick
+m0980,3224,Unk HK2
+m0980,3225,Unk1
+m0980,3226,Flatliner
+m0980,3227,Arcadion Avalanche
+m0980,3228,Arcadion Avalanche
+m0980,3229,Fire Breath / Two-way Fireball / Four-way Fireball
+m0980,3230,Heartbreaker
+m0980,3231,Arcadion Avalanche
+m0980,3232,Arcadion Avalanche
+m0981,3202,Killer Voice
+m0981,3203,Sadistic Screech
+m0981,3204,Vamp Stomp
+m0981,3205,Brutal Rain / Hell in a Cell / Undead Deathmatch
+m0981,3206,Hardcore
+m0981,3207,Aetherletting / Ultrasonic Spread / Ultrasonic Amp / Sanguine Scratch
+m0981,3208,Half Moon
+m0981,3209,Half Moon
+m0981,3210,Half Moon
+m0981,3211,Half Moon
+m0981,3216,Crowd Kill
+m0981,3217,Finale Fatale
+m0981,3218,Finale Fatale
+m0981,3219,Finale Fatale
+m0981,3220,Insatiable Thirst
+m0981,3221,Jump
+m0981,3222,Auto Attack2
+m0982,3201,Hot Impact
+m0982,3202,Deep Impact
+m0982,3203,Divers' Dare
+m0982,3204,Divers' Dare
+m0982,3205,Epic Brotherhood
+m0982,3206,Epic Brotherhood
+m0982,3207,Jump Red
+m0982,3208,Jump Blue
+m0982,3209,Unk1
+m0982,3210,Unk2
+m0982,3211,Flame Floater / Xtreme Wave
+m0982,3212,Xtreme Wave
+m0982,3213,Cutback Blaze
+m0982,3214,Re-entry Blast
+m0982,3215,Re-entry Plunge
+m0982,3216,Hot Aerial
+m0982,3217,Deep Aerial
+m0982,3218,Alley-oop Inferno / Pyrotation / Freaky Pyrotation
+m0982,3219,Alley-oop Double-dip / Reverse Alley-oop
+m0982,3220,Vertical Blast
+m0982,3221,Vertical Plunge
+m0982,3222,Deep Varial
+m0982,3223,Plunging Snap
+m0982,3224,Blasting Snap
+m0982,3225,Firesnaking / Xtreme Firesnaking / Over the Falls
+m0982,3226,Watersnaking / Xtreme Watersnaking / Over the Falls
+m0982,3228,Sick Swell
+m0982,4575,Sickest Take-off
+m0990,3201,Naught Grows
+m0990,3202,Naught Wakes / Meltdown / Airy Emptiness / Dense Emptiness +4 more
+m0990,3203,Gaze of the Void
+m0990,3204,Almagest
+m0990,3205,Dimension Zero
+m0990,3206,Meteorain
+m0990,3207,Boss Jump
+m0990,3210,Naught Grows
+m0990,3211,Lightless World
+m0990,3212,Auto Attack
+m0992,4561,Unk Snake1
+m0992,4562,Unk Snake2
+m0992,4573,Ravenous Reach
+m0992,4574,Ravenous Reach
+m0992,4575,Split Scourge
+m0993,4561,Grand Entrance
+m0993,4562,Grand Entrance
+m0993,4563,Grand Entrance
+m0993,4573,Unk Floor1
+m0993,4574,Unk Floor2
+m0993,4575,Unk Floor3
+m0999,3201,Cosmic Breath
+m0999,3202,Cosmic Tail
+m0999,3203,Cloak of Twilight / Twilight Nebula / Starflare / Dark Nova
+m0999,3204,Atomic Tail
+m0999,3205,Gyre Charge
+m0999,3206,Cataclysmic Vortex
+m0999,3207,Shinryu Auto Visual
+m1000,3201,Right Swordscross
+m1000,3202,Atomic Ray / Cosmic Flame / Starflare / Dark Nova +1 more
+m1000,3203,Cataclysmic Blade
+m1000,3204,Hollow King Auto Visual
+m1000,3205,Celestial Trail
+m1000,3206,Celestial Trail
+m1000,3208,Celestial Trail
+m1000,3209,Left Swordscross
+m1000,3210,Twin Blaze
+m1000,3211,Empty Proclamation
+m1001,3201,Wheel of Impregnability / Bastion of Twilight / Earthbound Heaven
+m1001,3202,Comet / Meteor
+m1001,3203,Empty Salvation
+m1001,3204,Fleeting Eternity
+m1001,3206,Jump
+m1001,3208,Malevolent Blessing
+m1001,3209,Malevolent Blessing
+m1001,3210,Pestilent Penance
+m1001,3211,Infernal Deliverance
+m1001,3212,False Genesis
+m1001,3214,Deadly Rebirth
+m1002,3201,Auto Attack
+m1002,3202,Canonize Coordinates / Divine Spear / Sacred Assembly / Reinforcements
+m1002,3203,Banishga IV
+m1002,3204,Jump
+m1002,3205,Divine Arrow
+m1002,3206,Divine Arrow
+m1002,3207,Divine Arrow
+m1002,3208,Divine Arrow
+m1002,3209,Radiant Sacrament
+m1002,3210,Impartial Ruling
+m1002,3211,Impartial Ruling
+m1002,3212,Perfect Defense
+m1002,3213,Divine Judgment
+m1002,3214,Mega Holy
+m1002,3215,Divine Bolt
+m1004,3201,Rubbish Disposal
+m1004,3202,Puppet Mastery
+m1004,3203,Scrap Meddle / Puppet Strings / Gluttonous Wire / Puppet Pair +2 more
+m1004,3204,attack
+m1004,3205,Jump
+m1004,3207,Void Dark
+m1007,3201,Auto Attack
+m1007,3202,Petrifying Beam
+m1007,3203,Petrifying Beam
+m1007,3204,Ballistic Missile
+m1007,3205,Motion Scanner
+m1007,3206,Eyes on Me
+m1020,3201,Nothingness
+m1020,3202,Voidal Turbulence / Demon Eye / Curse of the Flesh / Weight of Nothing +1 more
+m1020,3203,Protective Auto / Aggressive Auto / Soothing Auto / Looming Auto
+m1020,4561,Looming Emptiness
+m1020,4563,Tower Shadow Unk1
+m1020,4573,Tower Shadow Unk2
+m1020,4574,Self-destruct
+m1031,4573,Pestilent Penance
+m7004,2400,Landslide
+m7004,2402,Tumult
+m7004,2520,タイタン・エギ：タイタンハード/ＡＡ
+m7007,3201,Empty Hand
+m7007,3202,Genesis
+m7101,3207,Turret's Tour
+m7101,3208,Turret's Tour
+m7101,3209,Sniper Shot
+m8207,3201,Watersong
+m8215,3201,Watersong
+m8218,3201,Watersong
+m8231,3201,Watersong
+m8391,3201,Watersong
+m9994,1725,Quaternity
+m9994,2648,Surprise Needle / Abyssal Charge / Charge

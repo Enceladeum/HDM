@@ -664,7 +664,8 @@ public sealed class HdmIpc : IDisposable
     {
         if (_index.TryGetByBase(atom.BaseId, out var row))
             return row;
-        var source = atom.BaseId >= 1_000_000 ? NpcSource.Event : NpcSource.Battle;
+        var source = atom.BaseId >= EventNpcIndex.MountIdBase ? NpcSource.Mount
+            : atom.BaseId >= 1_000_000 ? NpcSource.Event : NpcSource.Battle;
         return new MobRow(atom.BaseId, 0, "", atom.ModelCharaId, atom.Kind, 0, 0, 0, atom.Scale) { Source = source };
     }
 

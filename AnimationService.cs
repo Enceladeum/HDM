@@ -124,6 +124,13 @@ public sealed unsafe class AnimationService : IDisposable
     // state on Forget/Sanitize/territory/logout so a recycled index can't inherit a stale pin.
     private readonly Dictionary<int, ushort> _locoLastApplied = [];
 
+    // objectIndex -> the driven emote (timeline id, ConditionMode byte, mode param) we last applied via
+    // DriveEmote. The emote sibling of _locoLastApplied: possession funnels a puppet emote through DriveEmote,
+    // edge-gated on this so the intro isn't restarted every frame and SetMode fires only when the mode changes.
+    // Present == this puppet is currently holding a driven emote; EndEmote removes it (and SetModes back to
+    // Normal). Cleared alongside the other per-actor state on Forget/Sanitize/territory/logout.
+    private readonly Dictionary<int, (ushort Tl, ushort Intro, byte Mode, byte Param)> _driveEmote = [];
+
     public AnimationService(IGameInteropProvider interop, IFramework framework, IObjectTable objects, IClientState clientState, IPluginLog log)
     {
         _framework = framework;
@@ -173,6 +180,16 @@ public sealed unsafe class AnimationService : IDisposable
         return n->Timeline.BaseOverride == timelineId;
     }
 
+    // Drop a lingering emote-loop CharacterMode (InPositionLoop/EmoteLoop/AnimLock left by a persistent emote
+    // via PlayEmote) before a NON-emote clip takes over, so the native emote resolver stops fighting the new
+    // animation. Gated on the live mode: an already-Normal actor takes no SetMode hit (just a field read), so
+    // this is free in the common case. Stateless — reads the actor, no shadow flag. Called by the click-driven
+    // playback entry points (not the per-frame drive loop; possession uses EndEmote for the same release).
+    private static void ClearEmoteMode(CSCharacter* n)
+    {
+        if (n->Mode != CharacterModes.Normal) n->SetMode(CharacterModes.Normal, 0);
+    }
+
     /// <summary>
     /// Play a timeline once, blended over the current base. Does not change Mode.
     /// Clears any held pose first: a one-shot (e.g. Battle Idle) must SUPERSEDE a held Special,
@@ -185,11 +202,81 @@ public sealed unsafe class AnimationService : IDisposable
         var n = (CSCharacter*)chara.Address;
         if (n == null) return;
         var idx = chara.ObjectIndex;
+        ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight this clip
         n->Timeline.BaseOverride = 0;
         _replays.Remove(idx);
         _sequences.Remove(idx);
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId);
         _touched.Add(idx);
+    }
+
+    /// <summary>
+    /// Play an EMOTE on a puppet — the emote's standing clip, the weapon posture the game performs it with,
+    /// AND (for a persistent emote) the CharacterMode that makes it LOOP. This is the emote-aware path that
+    /// supersedes firing the raw <c>ActionTimeline[0]</c> id blind: it mirrors ARealmRepopulated's proven
+    /// spawned-NPC recipe verbatim — <c>PlayTimeline</c>, set <c>Timeline.IsWeaponDrawn</c> from the Emote
+    /// sheet's <c>DrawsWeapon</c>, then <c>SetMode</c> the sheet's <c>EmoteMode.ConditionMode</c> — so /wave
+    /// sheathes, a battle-flourish emote draws, and /atease actually holds its loop.
+    ///
+    /// Deliberately NOT the native <c>EmoteController.PlayEmote</c> (CS documents that as the non-local-
+    /// player emote call): ARR — the one working spawned-NPC emote reference in the tree — drives emotes
+    /// THIS way instead; its <c>PlayEmoteOption</c> carries a vtable we can't safely initialise without a
+    /// live client to test; and nothing in the reference tree calls it. So the manual recipe is the crash-
+    /// safe, proven choice for a puppet with no native input loop (guide Principle 1).
+    ///
+    /// The <c>SetMode</c> is the fix for "looped emotes play their intro then snap back to idle": a persistent
+    /// emote holds its loop ONLY while the actor sits in the Emote sheet's ConditionMode (InPositionLoop /
+    /// EmoteLoop, and — proven by ARR on spawned NPCs — occasionally AnimLock). This class's "keep AnimLock
+    /// off an actor" rule guards the DM's OWN body (AnimLock blocks logout/movement); a PUPPET's lifecycle is
+    /// controlled (Sanitize/EndEmote force Normal on teardown, despawn calls Forget), so replicating whatever
+    /// ConditionMode the sheet gives — including AnimLock — is both safe and what makes /atease loop.
+    /// ConditionMode 0 is a one-shot expression (/wave): we force Normal instead so a PRIOR persistent emote's
+    /// loop mode can't fight it, then let it play once and blend back to idle.
+    ///
+    /// Clears any held BaseOverride / replay / sequence first — the same "supersede a held pose" discipline as
+    /// <see cref="PlayOnce"/> — so <see cref="OnUpdate"/> can't re-assert an old loop under the emote. This is
+    /// the direct-play path (self-guised or a non-driven puppet); a puppet the DM is POSSESSING routes through
+    /// <see cref="DriveEmote"/> instead, so the per-frame drive loop holds the emote rather than stomping it.
+    /// </summary>
+    public void PlayEmote(ICharacter chara, ushort standingTimelineId, ushort introTimelineId, bool drawsWeapon, byte conditionMode, byte emoteModeParam)
+    {
+        var n = (CSCharacter*)chara.Address;
+        if (n == null) return;
+        var idx = chara.ObjectIndex;
+        n->Timeline.BaseOverride = 0;
+        _replays.Remove(idx);
+        _sequences.Remove(idx);
+        // Play the INTRO (ActionTimeline[1]) when the emote has one, not the loop clip: the SetMode-driven native
+        // resolver then blends intro -> loop -> hold (HMS's ApplyEmoteFromSheet recipe). Playing the loop directly
+        // SNAPS into the pose with no wind-up (the "at ease pops into position" bug). No intro (0) -> loop is the clip.
+        n->Timeline.TimelineSequencer.PlayTimeline(introTimelineId > 0 ? introTimelineId : standingTimelineId);
+        n->Timeline.IsWeaponDrawn = drawsWeapon;   // ARR: the emote carries its own weapon stance
+        if (conditionMode != 0) n->SetMode((CharacterModes)conditionMode, emoteModeParam); // persistent emote: hold the loop
+        else if (n->Mode != CharacterModes.Normal) n->SetMode(CharacterModes.Normal, 0);   // one-shot: drop any stale loop mode
+        _touched.Add(idx);
+    }
+
+    /// <summary>
+    /// Play an emote on the LOCAL PLAYER (self) through the game's OWN emote-execution path, so a disguised self
+    /// emotes with full native fidelity — intro, loop, hold, weapon stance — exactly as if the DM had typed the
+    /// slash command (the disguise reskin merely renders over it). This is the fix for "Animations-tab At Ease on a
+    /// disguised self snaps / doesn't loop": the manual recipe (<see cref="PlayEmote"/>/<see cref="DriveEmote"/>) is
+    /// for actors with NO native input loop; the local player HAS one, and FFXIVClientStructs documents this as THE
+    /// local-player call (EmoteController.cs: "For the local player, use AgentEmote.ExecuteEmote or
+    /// EmoteManager.ExecuteEmote"). <c>EmoteManager.ExecuteEmote</c> returns bool, so a decline (a locked emote, or a
+    /// standing-only emote refused while seated) is observable and simply logged — we do NOT force a manual fallback,
+    /// matching the game's own silent refusal (handbook §7.4a congruency: replicate the engine's gates, don't fight
+    /// them). Takes the Emote sheet RowId (At Ease = 165), NOT a timeline id. Peers are left to HMS: it observes the
+    /// DM's EmoteController and syncs the emote faithfully, so HDM emits no lossy one-shot report for self here.
+    /// </summary>
+    public bool PlaySelfEmote(ushort emoteRowId)
+    {
+        if (emoteRowId == 0) return false;
+        var em = EmoteManager.Instance();
+        if (em == null) { _log.Warning($"Anim: EmoteManager unavailable; self emote {emoteRowId} not played."); return false; }
+        var ok = em->ExecuteEmote(emoteRowId, null);
+        _log.Information($"Anim: self emote {emoteRowId} via native ExecuteEmote -> {(ok ? "accepted" : "declined (game refused; matching /command)")}.");
+        return ok;
     }
 
     // The standing idle-pose ring the "Cycle pose" button walks: the default idle plus its inactive variants,
@@ -223,6 +310,7 @@ public sealed unsafe class AnimationService : IDisposable
         var n = (CSCharacter*)chara.Address;
         if (n == null) return;
         var idx = chara.ObjectIndex;
+        ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight the pose
 
         var cur = n->Timeline.BaseOverride;
         var pos = Array.IndexOf(IdlePoseCycle, cur);          // −1 when holding a non-idle clip (or nothing)
@@ -247,6 +335,7 @@ public sealed unsafe class AnimationService : IDisposable
     {
         var n = (CSCharacter*)chara.Address;
         if (n == null) return;
+        ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight this loop
         n->Timeline.BaseOverride = timelineId;
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId); // gap-free start
         _touched.Add(chara.ObjectIndex);
@@ -265,6 +354,7 @@ public sealed unsafe class AnimationService : IDisposable
         var n = (CSCharacter*)chara.Address;
         if (n == null) return;
         var idx = chara.ObjectIndex;
+        ClearEmoteMode(n);                                         // a prior persistent emote's loop mode must not fight the replay
         n->Timeline.BaseOverride = 0;                              // replay drives the full timeline; no base-lane force
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId);
         _replays[idx] = new ReplayLoop { Id = timelineId, WaitingForStart = true, Ticks = 0 };
@@ -288,6 +378,7 @@ public sealed unsafe class AnimationService : IDisposable
         var n = (CSCharacter*)chara.Address;
         if (n == null) return;
         var idx = chara.ObjectIndex;
+        ClearEmoteMode(n);                                         // a prior persistent emote's loop mode must not fight the intro
         n->Timeline.BaseOverride = 0;                              // intro plays as a full one-shot; no base-lane force yet
         n->Timeline.TimelineSequencer.PlayTimeline(introId);
         _sequences[idx] = new PoseSequence { IntroId = introId, HoldId = holdId, WaitingForStart = true, Ticks = 0 };
@@ -339,6 +430,75 @@ public sealed unsafe class AnimationService : IDisposable
             n->Timeline.BaseOverride = 0;
             _locoLastApplied[idx] = 0;
         }
+    }
+
+    /// <summary>
+    /// Drive ONE frame of an EMOTE on a piloted puppet — the emote sibling of <see cref="DriveLocomotion"/>,
+    /// and the single place possession writes an emote to a driven actor (same one-writer discipline: fold the
+    /// emote INTO the drive loop's decision, never fire it alongside, or the next <c>DriveLocomotion</c> stomps
+    /// it — guide Principle 1). Two phases, keyed off <see cref="_driveEmote"/> + the LIVE sequencer state:
+    ///  - TRANSITION (a new/first emote): clear the loco base pin (an emote holds via Mode + re-assert, not the
+    ///    base lane), fire the clip, stamp the weapon stance, and — for a PERSISTENT emote (/atease, sit) —
+    ///    <c>SetMode</c> the loop mode; a one-shot (conditionMode 0) forces Normal so no stale loop mode fights it.
+    ///  - RE-ASSERT ON LOSS: a puppet has no native input loop to keep an emote alive (Principle 1), so after the
+    ///    intro the native resolver drops the clip back to idle — the same reassert-to-idle DriveLocomotion re-pins
+    ///    against each tick. A one-time <c>SetMode</c> does NOT hold on a driven actor (the "plays a few frames then
+    ///    snaps back to normal" bug), so we re-fire the loop the frame it leaves the sequencer (checked via
+    ///    <see cref="SlotHasTimeline"/>, so never mid-play — no restart stutter). This is ARR's NpcAppearanceService
+    ///    recipe (re-issue while the emote clip isn't actually playing) and is what makes /atease LOOP on the puppet.
+    ///    PERSISTENT emotes only; a one-shot fires once in the transition and blends to idle, so /wave plays once.
+    /// Feed it from the pilot's RESOLVED live emote (chat /atease mirrors onto the puppet — see PossessionService)
+    /// or a chip-requested emote. Pair with <see cref="EndEmote"/> when it ends so the loop mode releases to Normal.
+    /// </summary>
+    public void DriveEmote(ICharacter chara, ushort timelineId, ushort introTimelineId, bool drawsWeapon, byte conditionMode, byte emoteModeParam)
+    {
+        var n = (CSCharacter*)chara.Address;
+        if (n == null || timelineId == 0) return;
+        var idx = chara.ObjectIndex;
+        var have = _driveEmote.TryGetValue(idx, out var prev);
+        bool transition = !have || prev.Tl != timelineId;   // a NEW emote (or first frame): the intro edge
+        bool persistent = conditionMode != 0;               // sheet ConditionMode set => a looping/held emote (ARR IsRepeatingEmote)
+
+        if (transition)
+        {
+            n->Timeline.BaseOverride = 0;                       // an emote holds via Mode + re-assert, not the loco base lane
+            // Play the INTRO (ActionTimeline[1]) on the edge so the pose blends in; the SetMode-driven resolver hands
+            // intro -> loop. Firing the loop clip directly SNAPS into position with no wind-up (the b13 "/atease pops
+            // into the pose" bug). No intro (0) -> the loop is the only clip. The re-assert below keeps the LOOP alive.
+            n->Timeline.TimelineSequencer.PlayTimeline(introTimelineId > 0 ? introTimelineId : timelineId);
+            n->Timeline.IsWeaponDrawn = drawsWeapon;            // ARR: the emote carries its own weapon stance
+            if (persistent) n->SetMode((CharacterModes)conditionMode, emoteModeParam);        // hold the loop mode
+            else if (n->Mode != CharacterModes.Normal) n->SetMode(CharacterModes.Normal, 0);  // one-shot: drop a stale loop mode
+            _locoLastApplied.Remove(idx);                       // force DriveLocomotion to re-fire when locomotion resumes
+        }
+        else if (persistent && !SlotHasTimeline(n, timelineId) && (introTimelineId == 0 || !SlotHasTimeline(n, introTimelineId)))
+        {
+            // RE-ASSERT ON LOSS (ARR). The native resolver dropped the clip back to idle; a puppet has no input loop
+            // to keep it (Principle 1), so re-fire the LOOP the frame it leaves the sequencer. Gated on BOTH clips
+            // being absent (loop AND intro) so we never cut the intro short — re-firing the loop mid-wind-up would
+            // snap past it, reintroducing the very bug this fixes — and never restart mid-loop. Re-fire the LOOP, not
+            // the intro, or the wind-up replays every cycle (a visible stutter). One-shots never reach here.
+            if (n->Mode != (CharacterModes)conditionMode) n->SetMode((CharacterModes)conditionMode, emoteModeParam);
+            n->Timeline.TimelineSequencer.PlayTimeline(timelineId);
+        }
+        _driveEmote[idx] = (timelineId, introTimelineId, conditionMode, emoteModeParam);
+        _touched.Add(idx);
+    }
+
+    /// <summary>
+    /// End a driven emote started by <see cref="DriveEmote"/>: release any emote-loop CharacterMode back to
+    /// Normal (so locomotion can drive, and a persistent emote doesn't strand the puppet in InPositionLoop) and
+    /// drop the edge state so <see cref="DriveLocomotion"/> re-fires its clip fresh next frame. No-op — no native
+    /// call — if this actor wasn't emoting, so possession can call it unconditionally when it drops to locomotion.
+    /// </summary>
+    public void EndEmote(ICharacter chara)
+    {
+        var n = (CSCharacter*)chara.Address;
+        if (n == null) return;
+        var idx = chara.ObjectIndex;
+        if (!_driveEmote.Remove(idx)) return;                   // wasn't emoting -> nothing to tear down
+        if (n->Mode != CharacterModes.Normal) n->SetMode(CharacterModes.Normal, 0);
+        _locoLastApplied.Remove(idx);                           // DriveLocomotion re-fires its clip next frame
     }
 
     // Framework tick: advance the two slot-watched per-actor loops. Both guards are cheap no-ops when
@@ -534,6 +694,7 @@ public sealed unsafe class AnimationService : IDisposable
         _replays.Remove(chara.ObjectIndex);     // stop any full-timeline replay loop
         _sequences.Remove(chara.ObjectIndex);   // stop any compound intro->hold gesture
         _locoLastApplied.Remove(chara.ObjectIndex); // drop the §4b one-writer state (BaseOverride cleared above)
+        _driveEmote.Remove(chara.ObjectIndex);   // drop the driven-emote edge state (SetMode Normal issued above)
         _touched.Remove(chara.ObjectIndex);
         _calcGate = _slotGate = -1;             // a later freeze re-logs its confirmation lines
         _log.Information($"Anim: obj#{chara.ObjectIndex} sanitised to Normal");
@@ -555,6 +716,7 @@ public sealed unsafe class AnimationService : IDisposable
         _replays.Remove(objectIndex);
         _sequences.Remove(objectIndex);
         _locoLastApplied.Remove(objectIndex);
+        _driveEmote.Remove(objectIndex);
         _touched.Remove(objectIndex);
     }
 
@@ -653,7 +815,7 @@ public sealed unsafe class AnimationService : IDisposable
 
     // On logout the character despawns and the server re-materialises true state
     // on next login — clear tracking, write nothing.
-    private void OnLogout(int type, int code) { _touched.Clear(); _speedPin.Clear(); _replays.Clear(); _sequences.Clear(); _locoLastApplied.Clear(); _calcGate = _slotGate = -1; }
+    private void OnLogout(int type, int code) { _touched.Clear(); _speedPin.Clear(); _replays.Clear(); _sequences.Clear(); _locoLastApplied.Clear(); _driveEmote.Clear(); _calcGate = _slotGate = -1; }
 
     private void SanitizeLocalThenClear()
     {
@@ -675,6 +837,7 @@ public sealed unsafe class AnimationService : IDisposable
         _replays.Clear();
         _sequences.Clear();
         _locoLastApplied.Clear();
+        _driveEmote.Clear();
         _calcGate = _slotGate = -1;
     }
 

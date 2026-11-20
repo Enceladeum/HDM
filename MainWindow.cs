@@ -56,7 +56,7 @@ public sealed class MainWindow : Window, IDisposable
     // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
     // the public Release build compiles the plain "HDM v<Version>" header with no b-tag. The
     // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
-    private const int InternalBuild = 11;
+    private const int InternalBuild = 17;
 #endif
 
     private readonly MobIndex _index;
@@ -96,6 +96,10 @@ public sealed class MainWindow : Window, IDisposable
     // target-generic funnels let one selection drive either; forced back to self when no puppet is spawned.
     // Surfaces a spawned humanoid puppet's emotes.
     private bool _animApplyToPuppet;
+    // Possession auto-focus (Problem B): the possessed index we've already pointed the UI at, so the sync fires
+    // once on the possess-start EDGE (not every frame) — the DM can still retarget by hand afterward, and a new
+    // possession re-focuses. null = not currently auto-focused. See SyncPossessionFocus.
+    private int? _autoFocusedFor;
     private bool _showAllTimelines;    // Animations tab: escape hatch — show the full Common pile instead of
                                        // trimming it to what the selected skeleton's .pap set can actually play
     private int? _animPlayableCount;   // Animations tab: cached count of playable (non-Move/React) Common rows
@@ -178,7 +182,8 @@ public sealed class MainWindow : Window, IDisposable
     // change (search, category, family, hide-unnamed, star, live-name sync) with no extra invalidation sites.
     private List<MobRow>? _treeRows;
     private List<LocNode>? _treeLocated, _treeEventNodes, _treeUnknown;
-    private LocNode? _treeMinionNode;
+    private LocNode? _treeMinionNode, _treeMountNode;
+    private int _treeMountCount;
     private int _treeMinionCount, _treeEventCount, _treeUnknownCount;
 
     // Which Location-tree zone nodes are expanded (persisted only in-memory — expand state is
@@ -393,8 +398,39 @@ public sealed class MainWindow : Window, IDisposable
             : _index.Rows.FirstOrDefault(r => IsRenderable(r) && r.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// Auto-focus the UI on the puppet the DM is POSSESSING (Problem B: "auto focus the npc we're controlling
+    /// rather than manually assign control to it in the relevant menus"). On the possess-start edge, point the
+    /// Spawn roster selection (<see cref="_selectedPuppet"/>) at the possessed puppet AND flip the Animations tab's
+    /// subject toggle (<see cref="_animApplyToPuppet"/>) to it, so the animation chips + every "focused puppet"
+    /// control drive the controlled NPC with no manual selection. Edge-gated via <see cref="_autoFocusedFor"/> so
+    /// it fires once per possession — the DM can still retarget by hand afterward; a fresh possession re-focuses.
+    /// </summary>
+    private void SyncPossessionFocus()
+    {
+        if (_possession.IsPossessing)
+        {
+            var idx = _possession.PossessedIndex;
+            if (idx >= 0 && _autoFocusedFor != idx)
+            {
+                _selectedPuppet = (ushort)idx;   // FocusedPuppet() now resolves to the possessed puppet
+                _animApplyToPuppet = true;        // the Animations tab drives the puppet, not the DM
+                _autoFocusedFor = idx;
+            }
+        }
+        else if (_autoFocusedFor != null)
+        {
+            _autoFocusedFor = null;              // released -> re-possessing (even the same index) re-focuses
+        }
+    }
+
     public override void Draw()
     {
+        // Auto-focus the possessed puppet before any tab draws, so this frame's target resolution (Animations tab,
+        // "focused puppet" controls) already sees the possessed NPC as the subject (Problem B). No ImGui here —
+        // pure UI-state sync — so it's safe above the accent push.
+        SyncPossessionFocus();
+
         // Window-scope accent: tint the semantic "accent" ImGui slots (tab highlight, tree/collapsing headers,
         // checkmarks, slider grabs, text-selection) from the live palette so the whole window speaks ONE hue —
         // HM-Sync's when syncing, else HDM's own. Plain Buttons stay neutral on purpose (accent is for
@@ -820,7 +856,7 @@ public sealed class MainWindow : Window, IDisposable
         foreach (var r in _index.Rows)
         {
             if (!IsRenderable(r)) continue;
-            if (r.Source == NpcSource.Event) npcs++; else mobs++;
+            if (r.Source == NpcSource.Event) npcs++; else if (r.Source != NpcSource.Mount) mobs++;
             if (_companion.IsMinion(r.BaseId)) minions++;
         }
         _countMobs = mobs;
@@ -937,7 +973,7 @@ public sealed class MainWindow : Window, IDisposable
         // a mob → read its Base here → become it. A player target has BaseId 0 and drops through.
         if (_targets.Target is ICharacter tgt && tgt.BaseId != 0)
         {
-            if (_index.TryGetByBase(tgt.BaseId, out var known))
+            if (_index.TryGetByPair(tgt.BaseId, tgt.NameId, out var known)) // exact nameplate pair, else the body's primary row
             {
                 var hidden = !IsRenderable(known);
                 // Show a real or roster-inferred name; for a still-nameless base, fall back to a name the
@@ -945,7 +981,7 @@ public sealed class MainWindow : Window, IDisposable
                 // walking a duty: the white YoRHa androids read their real name the moment they're sighted.
                 var label = known.Name.Length > 0 || known.NameIsHeuristic
                     ? known.DisplayName
-                    : _harvest.TryGetName(tgt.BaseId, out var liveName) ? $"{liveName} (seen live)" : "(unnamed)";
+                    : _harvest.TryGetName(tgt.BaseId, out var liveName) ? $"{MobRow.Cap(liveName)} (seen live)" : "(unnamed)";
                 ImGui.TextDisabled(
                     $"Identity: Base {tgt.BaseId} → {label}  ·  {known.Kind} {known.SkeletonCode}  ·  " +
                     $"ModelChara {known.ModelCharaId}{(hidden ? "  (hidden by filter)" : "")}");
@@ -1464,7 +1500,7 @@ public sealed class MainWindow : Window, IDisposable
         // Location tree now uses). Shown always, independent of the search box.
         var favRows = new List<MobRow>();
         foreach (var id in _config.Favorites)
-            if (_index.TryGetByBase(id, out var fr) && IsRenderable(fr)) favRows.Add(fr);
+            if (_index.TryGetByKey(id, out var fr) && IsRenderable(fr)) favRows.Add(fr); // RowKey (== BaseId for primary rows, so old saves resolve)
         favRows.Sort(static (a, b) =>
         {
             var c = string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
@@ -1514,9 +1550,9 @@ public sealed class MainWindow : Window, IDisposable
     /// most once per frame, so no id clash.</summary>
     private void DrawSpawnRow(MobRow r, ICharacter? self)
     {
-        ImGui.PushID((int)r.BaseId);
+        ImGui.PushID(unchecked((int)r.RowKey)); // per ROW: alias rows share a BaseId
 
-        var fav = _config.Favorites.Contains(r.BaseId);
+        var fav = _config.Favorites.Contains(r.RowKey);
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
@@ -1526,8 +1562,8 @@ public sealed class MainWindow : Window, IDisposable
         if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unpin from favourites" : "Pin to favourites");
         if (favToggled)
         {
-            if (fav) _config.Favorites.Remove(r.BaseId);
-            else _config.Favorites.Add(r.BaseId);
+            if (fav) _config.Favorites.Remove(r.RowKey);
+            else _config.Favorites.Add(r.RowKey);
             _pi.SavePluginConfig(_config);
             _cachedFilterKey = "\0"; // catalog star state changed (the Catalog tab shares this set)
         }
@@ -1538,7 +1574,7 @@ public sealed class MainWindow : Window, IDisposable
             if (ImGui.SmallButton("Spawn")) { _selected = r; SpawnPuppetAs(r); }
         }
         ImGui.SameLine();
-        if (ImGui.Selectable($"{r.DisplayName}  ·  {r.SkeletonCode} mc{r.ModelCharaId} #{r.BaseId}", _selected?.BaseId == r.BaseId))
+        if (ImGui.Selectable($"{r.DisplayName}  ·  {r.SkeletonCode} mc{r.ModelCharaId} #{r.BaseId}", _selected?.RowKey == r.RowKey))
             _selected = r;
 
         ImGui.PopID();
@@ -1556,7 +1592,7 @@ public sealed class MainWindow : Window, IDisposable
     /// PushID(BaseId) namespaces the widgets. Search matches stay compact on <see cref="DrawSpawnRow"/>.</summary>
     private void DrawFavouriteChip(MobRow r, ICharacter? self)
     {
-        ImGui.PushID((int)r.BaseId);
+        ImGui.PushID(unchecked((int)r.RowKey)); // per ROW: alias rows share a BaseId
 
         float rowH   = ImGui.GetFrameHeight() + 6f;          // == RowNameButton's internal height
         var   style  = ImGui.GetStyle();
@@ -1570,7 +1606,7 @@ public sealed class MainWindow : Window, IDisposable
 
         // ── ★ unpin (frameless glyph, rowH-tall for line alignment) — same add/remove + save + filter-invalidate
         // as the Catalog's star, so both shelves stay in sync. Rows here are all favourites, so it always reads ★.
-        var fav = _config.Favorites.Contains(r.BaseId);
+        var fav = _config.Favorites.Contains(r.RowKey);
         ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
         ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
@@ -1580,8 +1616,8 @@ public sealed class MainWindow : Window, IDisposable
         if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unpin from favourites" : "Pin to favourites");
         if (favToggled)
         {
-            if (fav) _config.Favorites.Remove(r.BaseId);
-            else _config.Favorites.Add(r.BaseId);
+            if (fav) _config.Favorites.Remove(r.RowKey);
+            else _config.Favorites.Add(r.RowKey);
             _pi.SavePluginConfig(_config);
             _cachedFilterKey = "\0"; // catalog star state changed (the Catalog tab shares this set)
         }
@@ -1589,10 +1625,11 @@ public sealed class MainWindow : Window, IDisposable
         // ── Name chip: a plain click SELECTS (sets the browse cursor the per-puppet "Apply {name}" reads); the
         // chip fills accent while selected. Meta rides a tooltip so the chip stays clean, like the release Library.
         ImGui.SameLine();
-        if (HmUi.RowNameButton(r.DisplayName, _selected?.BaseId == r.BaseId, _accent.Primary, chipW, "favchip"))
+        if (HmUi.RowNameButton(r.DisplayName, _selected?.RowKey == r.RowKey, _accent.Primary, chipW, "favchip"))
             _selected = r;
         if (ImGui.IsItemHovered())
-            ImGui.SetTooltip($"{r.DisplayName}\n{r.SkeletonCode} · mc{r.ModelCharaId} · #{r.BaseId}\nClick to select for the per-puppet Apply.");
+            ImGui.SetTooltip($"{r.DisplayName}\n{r.SkeletonCode} · mc{r.ModelCharaId} · #{r.BaseId}\n" +
+                             (r.NameIsInferred ? ModelNameTip(r) + "\n" : "") + "Click to select for the per-puppet Apply.");
 
         // ── Disguise: wear this mob YOURSELF — the action the merged shelf dropped. Same funnel as the Catalog's
         // Disguise, so scale/elevation and the HMS report all match.
@@ -1634,7 +1671,7 @@ public sealed class MainWindow : Window, IDisposable
         foreach (var r in _index.Rows)
         {
             if (!IsRenderable(r)) continue;
-            if (exclude != null && exclude.Contains(r.BaseId)) continue;
+            if (exclude != null && exclude.Contains(r.RowKey)) continue;
             if (!(r.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase)
                   || (byId && r.BaseId == qid)
                   || r.BaseId.ToString().Contains(query)))
@@ -2187,7 +2224,7 @@ public sealed class MainWindow : Window, IDisposable
                 var fl = f.ToLowerInvariant();
                 q = q.Where(r => r.DisplayName.Contains(f, StringComparison.OrdinalIgnoreCase)
                               || r.SkeletonCode.Equals(f, StringComparison.OrdinalIgnoreCase)
-                              || (_locSearch.TryGetValue(r.BaseId, out var loc) && loc.Contains(fl, StringComparison.Ordinal)));
+                              || (_locSearch.TryGetValue(r.RowKey, out var loc) && loc.Contains(fl, StringComparison.Ordinal)));
             }
         }
 
@@ -2208,9 +2245,26 @@ public sealed class MainWindow : Window, IDisposable
     private void SyncLiveNames()
     {
         _lastSyncedNameCount = _harvest.NameCount;
+        // A shared body (one BaseId, several named rows) gets ONE harvested name, so stamp it only on the row
+        // that carries that name — or, when no row does, on the primary row (the mis-pair correction case).
+        // Stamping every row of the body would overwrite all its alias labels with one name.
+        var sharedNames = new Dictionary<uint, HashSet<string>>();
         foreach (var r in _index.Rows)
-            if (_harvest.TryGetName(r.BaseId, out var n) && r.LiveName != n)
-                r.LiveName = n;
+            if (r.SharedBase)
+            {
+                if (!sharedNames.TryGetValue(r.BaseId, out var set))
+                    sharedNames[r.BaseId] = set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                set.Add(r.Name);
+            }
+        foreach (var r in _index.Rows)
+        {
+            if (!_harvest.TryGetName(r.BaseId, out var n)) continue;
+            n = MobRow.Cap(n);
+            if (r.SharedBase && !r.Name.Equals(n, StringComparison.OrdinalIgnoreCase)
+                && (r.IsAlias || sharedNames[r.BaseId].Contains(n)))
+                continue;
+            if (r.LiveName != n) r.LiveName = n;
+        }
         _cachedFilterKey = "\0";
     }
 
@@ -2237,10 +2291,10 @@ public sealed class MainWindow : Window, IDisposable
     private void DrawMobRow(MobRow r, bool indented = false)
     {
         ImGui.TableNextRow();
-        ImGui.PushID((int)r.BaseId);
+        ImGui.PushID(unchecked((int)r.RowKey)); // per ROW: alias rows share a BaseId
 
         ImGui.TableNextColumn();
-        var fav = _config.Favorites.Contains(r.BaseId);
+        var fav = _config.Favorites.Contains(r.RowKey);
         // Bare star toggle (no button frame — the mockup's clean gold ★): a filled accent star when
         // favourited, a dim hollow star otherwise. Transparent Button bg turns SmallButton into a frameless
         // glyph; the accent tint ties the "on" state to the suite palette (gold by default).
@@ -2253,8 +2307,8 @@ public sealed class MainWindow : Window, IDisposable
         if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unfavourite" : "Add to Favourites");
         if (favToggled)
         {
-            if (fav) _config.Favorites.Remove(r.BaseId);
-            else _config.Favorites.Add(r.BaseId);
+            if (fav) _config.Favorites.Remove(r.RowKey);
+            else _config.Favorites.Add(r.RowKey);
             _pi.SavePluginConfig(_config);
             _cachedFilterKey = "\0";
         }
@@ -2272,7 +2326,7 @@ public sealed class MainWindow : Window, IDisposable
         // one without adding a column.
         if (r.NameIsHeuristic)
             ImGui.PushStyleColor(ImGuiCol.Text, HeuristicNameTint);
-        var clicked = ImGui.Selectable(r.DisplayName, _selected?.BaseId == r.BaseId,
+        var clicked = ImGui.Selectable(r.DisplayName, _selected?.RowKey == r.RowKey,
                                        ImGuiSelectableFlags.SpanAllColumns);
         if (r.NameIsHeuristic)
         {
@@ -2281,6 +2335,8 @@ public sealed class MainWindow : Window, IDisposable
                 ImGui.SetTooltip("Name inferred from the instanced encounter roster (BossMod); this base is\n" +
                                  "unnamed in the crowdsourced catalog; its home instance names its boss.");
         }
+        else if (r.NameIsInferred && ImGui.IsItemHovered())
+            ImGui.SetTooltip(ModelNameTip(r)); // the asterisked model approximation explains itself
         // Home-zone orientation label for a humanoid NPC ("add location where they live next to name").
         // Inline after the name, dimmed so it reads as secondary; "(+N)" flags an NPC placed in multiple
         // zones (distinct-outfit variants are already separate rows, each with its own home). Event rows
@@ -2316,9 +2372,14 @@ public sealed class MainWindow : Window, IDisposable
     /// Dalamud's icon font (always present, so it can't fail like a game-icon lookup); the minion icon
     /// reuses the proven DrawEmoteIcon path. AlignTextToFramePadding keeps the glyph centred on the
     /// Selectable that follows it.</summary>
+    /// <summary>Tooltip for an asterisked, model-approximated name (see <see cref="MobRow.FamilyName"/>).</summary>
+    private static string ModelNameTip(MobRow r)
+        => $"* No name of its own: approximated from its model ({r.SkeletonCode}, ModelChara {r.ModelCharaId}).\n" +
+           $"Also on this model: {r.FamilyHint}";
+
     private void DrawRowMarker(MobRow r)
     {
-        if (r.Source == NpcSource.Event)
+        if (r.Source == NpcSource.Event && r.McType == 1)
         {
             var female = r.Gender == 1;
             ImGui.AlignTextToFramePadding();
@@ -2372,6 +2433,7 @@ public sealed class MainWindow : Window, IDisposable
     // Synthetic key for the single "Minions & summons" node. Sits well clear of both the real
     // TerritoryType ids (small) and the ~7 Unknown keys clustered at the very top of the range.
     private const uint MinionNodeKey = uint.MaxValue - 100;
+    private const uint MountNodeKey  = uint.MaxValue - 101; // b16: the Mount-sheet creatures, drawn under the minions divider
 
     // Synthetic node keys for the humanoid-NPC Race→Clan buckets. An ENpcBase has no TerritoryType home,
     // so instead of one flat "All NPCs" pile the Event rows group by (Race 1-8, Clan/Tribe 1-16) into
@@ -2438,6 +2500,21 @@ public sealed class MainWindow : Window, IDisposable
                 continue;
             }
 
+            // Mount precedence (b16): a Mount-sheet creature has no home zone either; one flat node shown
+            // under the same "Minions, mounts & summons" divider as the minions.
+            if (r.Source == NpcSource.Mount)
+            {
+                if (!nodes.TryGetValue(MountNodeKey, out var mtnode))
+                    nodes[MountNodeKey] = mtnode = new LocNode
+                    {
+                        Key = MountNodeKey, Located = false, Expansion = byte.MaxValue,
+                        CategoryRank = int.MaxValue, SortKey = int.MaxValue,
+                        ZoneLabel = "All mounts", Category = "Mount",
+                    };
+                mtnode.Items.Add(r);
+                continue;
+            }
+
             // Minion precedence (mirrors ComputeCategories): a summonable minion goes to its own section
             // ahead of any location — it never has a real home zone.
             if (_companion.TryGetMinion(r.BaseId, out _))
@@ -2499,11 +2576,14 @@ public sealed class MainWindow : Window, IDisposable
             .ThenBy(n => n.ZoneLabel, StringComparer.Ordinal).ToList();
         nodes.TryGetValue(MinionNodeKey, out var minionNode);
         _treeMinionNode = minionNode;
+        nodes.TryGetValue(MountNodeKey, out var mountNode);
+        _treeMountNode = mountNode;
+        _treeMountCount = mountNode?.Items.Count ?? 0;
         // The humanoid-NPC set is now many Race→Clan nodes (not one flat node); gather them and order the
         // leaves alphabetically by "Race — Clan" label so the section reads A→Z.
         _treeEventNodes = nodes.Values.Where(n => n.Category == "EventNpc")
             .OrderBy(n => n.ZoneLabel, StringComparer.OrdinalIgnoreCase).ToList();
-        _treeUnknown = nodes.Values.Where(n => !n.Located && n.Key != MinionNodeKey && n.Category != "EventNpc")
+        _treeUnknown = nodes.Values.Where(n => !n.Located && n.Key != MinionNodeKey && n.Key != MountNodeKey && n.Category != "EventNpc")
             .OrderBy(n => n.Expansion).ToList();
 
         // Section counts for the dividers below (the pre-header summary line was removed in batch-1 — it
@@ -2593,10 +2673,15 @@ public sealed class MainWindow : Window, IDisposable
         // "located" — but it isn't unidentified either, so it earns its own fence rather than sitting
         // in the Unknown pile. One flat node (id ranges don't track a minion's true era, so an
         // ~expansion split would mislead); collapsed by default like every other node.
-        if (minionNode != null)
+        var mountNode = _treeMountNode;
+        if (minionNode != null || mountNode != null)
         {
-            if (ExpansionDivider("Minions & summons", rowRightEdge, MinionSectionKey, autoExpand, $"{minionCount} minions"))
-                DrawZoneNode(minionNode, autoExpand, rowRightEdge);
+            if (ExpansionDivider("Minions, mounts & summons", rowRightEdge, MinionSectionKey, autoExpand,
+                    $"{minionCount} minions · {_treeMountCount} mounts"))
+            {
+                if (minionNode != null) DrawZoneNode(minionNode, autoExpand, rowRightEdge);
+                if (mountNode != null) DrawZoneNode(mountNode, autoExpand, rowRightEdge);
+            }
         }
 
         // Unknown region: one divider, then the ~expansion buckets (kept out of the located sections
@@ -2782,10 +2867,29 @@ public sealed class MainWindow : Window, IDisposable
         _      => false,                          // McType 0: empty-skeleton placeholder
     };
 
+    /// <summary>Tier S — for a row whose BODY carries several names (<see cref="MobRow.SharedBase"/>). Every
+    /// BaseId-keyed tier (crowdsource, hunt-mark base, instanced roster, harvest, Level) describes the body,
+    /// so it can't say WHICH of its named mobs was where: before pairs, a dungeon add sharing an overworld
+    /// body inherited the overworld zone and vanished from its duty category. This consults the evidence
+    /// that is specific to THIS row's name first: the instanced roster when its encounter names exactly this
+    /// NameId, then the exact-name and name-stem lore tiers, then the web supplement. Falls through (false)
+    /// to the normal chain when none applies.</summary>
+    private bool TryLocateByOwnName(MobRow r, out uint territoryId)
+    {
+        if (_instanced.TryGetName(r.BaseId, out var bossName) && bossName == r.NameId
+            && _instanced.TryGetPrimary(r.BaseId, out territoryId)) return true;
+        if (_lore.TryGetByName(r.NameId, out territoryId)) return true;
+        if (r.Name.Length > 0 && _lore.TryGetByNameStem(r.Name, out territoryId)) return true;
+        if (r.Name.Length > 0 && _webloc.TryGetTerritory(r.Name, EstimateExpansion(r.BaseId), out territoryId)) return true;
+        territoryId = 0;
+        return false;
+    }
+
     private bool TryLocate(MobRow r, out uint territoryId)
     {
         if (_manual.TryGetPrimary(r.BaseId, out territoryId)) return true;    // Tier M: hand-curated tag (cutscene-script props) — overrides every estimate/inference
         if (r.Name.Length > 0 && _stems.TryMatch(r.Name, out territoryId)) return true; // Tier N: curated dungeon name-stem (director-spawned trash "Babil slasher" -> Tower of Babil) — asserts authority over the scattered crowdsource telemetry below it
+        if (r.SharedBase && TryLocateByOwnName(r, out territoryId)) return true; // Tier S: shared body — this row's own name evidence before the body-wide (ambiguous) tiers
         if (_territory.TryGetPrimary(r.BaseId, out territoryId)) return true; // Tier A: crowdsource
         if (_lore.TryGetByBase(r.BaseId, out territoryId)) return true;       // Tier B: hunt-mark base
         if (_instanced.TryGetPrimary(r.BaseId, out territoryId)) return true; // Tier A2: instanced roster (BossMod-derived) — the dungeon/trial/raid tail
@@ -2817,6 +2921,7 @@ public sealed class MainWindow : Window, IDisposable
         territories = new List<uint>(1);
         if (_manual.TryGetPrimary(r.BaseId, out var t)) { territories.Add(t); return true; }               // Tier M
         if (r.Name.Length > 0 && _stems.TryMatch(r.Name, out t)) { territories.Add(t); return true; }       // Tier N
+        if (r.SharedBase && TryLocateByOwnName(r, out t)) { territories.Add(t); return true; }              // Tier S: shared body, own name first
         if (_territory.TryGetAll(r.BaseId, out var crowd)) { territories.AddRange(crowd); return true; }     // Tier A: crowdsource (multi-zone)
         if (_lore.TryGetByBase(r.BaseId, out t)) { territories.Add(t); return true; }                       // Tier B: hunt-mark base
         if (_instanced.TryGetPrimary(r.BaseId, out t)) { territories.Add(t); return true; }                 // Tier A2: instanced roster
@@ -2838,15 +2943,15 @@ public sealed class MainWindow : Window, IDisposable
         foreach (var r in _index.Rows)
         {
             if (!IsRenderable(r)) continue;
-            _categories[r.BaseId] = ComputeCategories(r);
+            _categories[r.RowKey] = ComputeCategories(r);
             var loc = ComputeLocSearch(r);
-            if (loc.Length > 0) _locSearch[r.BaseId] = loc;
+            if (loc.Length > 0) _locSearch[r.RowKey] = loc;
 
             // Zones-pill source: add every distinct, nameable home territory this row locates to. Skip
             // Event NPCs + minions (they're fenced into their own sections with no home zone, exactly as
             // DrawLocationTree buckets them), and skip territories the content sheet can't name (engine
             // limbo — the same TryGet guard DrawLocationTree uses). One-time at load; free at draw.
-            if (r.Source != NpcSource.Event && !_companion.IsMinion(r.BaseId)
+            if (r.Source == NpcSource.Battle && !_companion.IsMinion(r.BaseId)
                 && TryLocateAll(r, out var zterrs))
                 foreach (var terr in zterrs)
                     if (_content.TryGet(terr, out _)) _catalogZones.Add(terr);
@@ -2920,6 +3025,8 @@ public sealed class MainWindow : Window, IDisposable
         // their own category, so short-circuit before the location tiers (which would all miss → Unknown).
         if (r.Source == NpcSource.Event)
             return new HashSet<string> { "EventNpc" };
+        if (r.Source == NpcSource.Mount)
+            return new HashSet<string> { "Mount" };
         if (_companion.IsMinion(r.BaseId))
             return new HashSet<string> { "Minion" };
         var set = new HashSet<string>();
@@ -2934,7 +3041,7 @@ public sealed class MainWindow : Window, IDisposable
 
     /// <summary>The category set from the precomputed table, computing on the fly on a miss (a
     /// non-renderable row that somehow reaches here) so callers never need a null check.</summary>
-    private HashSet<string> CategoriesOf(MobRow r) => _categories.TryGetValue(r.BaseId, out var s) ? s : ComputeCategories(r);
+    private HashSet<string> CategoriesOf(MobRow r) => _categories.TryGetValue(r.RowKey, out var s) ? s : ComputeCategories(r);
 
     /// <summary>Fold a raw content category to its chip key — only the two Solo sub-categories collapse
     /// into one "Solo" chip; every other category (and "Minion"/"Unknown") is already its own chip key.</summary>
@@ -2987,9 +3094,9 @@ public sealed class MainWindow : Window, IDisposable
             if (!IsRenderable(r)) continue;
             // Event NPCs (ENpcBase) aren't part of the BNpc location problem this diagnostic measures —
             // they have their own section and would otherwise inflate the Unknown tail. Skip them.
-            if (r.Source == NpcSource.Event) continue;
+            if (r.Source != NpcSource.Battle) continue; // Event NPCs + mounts have their own sections
             total++;
-            var named = !r.IsUnnamed;
+            var named = !r.IsUnnamed && !r.NameIsInferred; // real names only, not the asterisked model approximation
             if (named) namedTotal++;
             var hint = EstimateExpansion(r.BaseId);
             // Independent Level (Tier D) coverage of this base, for the corroboration/net-new diagnostic.
@@ -3326,7 +3433,7 @@ public sealed class MainWindow : Window, IDisposable
         {
             // Monster/demihuman guise: list the skeleton's catalogued specials, then any glued combos.
             var skel = sel.SkeletonCode;
-            var specials = _timeline.ForSkeleton(skel);
+            var specials = _timeline.ForSkeleton(skel, (uint)sel.ModelCharaId); // literal + template lane
             if (HmUi.GroupHeader($"This mob · {sel.DisplayName}", skel, ref _specialsOpen, "skelhdr"))
             {
                 if (specials.Count == 0)
@@ -3489,6 +3596,35 @@ public sealed class MainWindow : Window, IDisposable
     private void TriggerTimeline(TimelineRow t, ICharacter target)
     {
         var id = (ushort)t.Id;
+
+        // An emote plays through the emote-aware path, which threads three things the raw clip id can't carry: the
+        // emote's INTRO clip (ActionTimeline[1], so the pose BLENDS in instead of snapping), the weapon stance the
+        // Emote sheet performs it with, and its CharacterMode (persistent emotes like /atease carry a ConditionMode
+        // that SetMode must hold, or the resolver snaps back to idle after the intro). Three dispatch paths, one per
+        // actor kind — the emote must "behave as the char's own" regardless (DM directive):
+        //   • SELF (incl. a disguised local player): the game's OWN emote-execution call (native ExecuteEmote via
+        //     PlaySelfEmote). The local player HAS a native input loop, so this makes the emote behave EXACTLY as if
+        //     the DM typed the slash command — full intro/loop/hold fidelity, disguise reskin rendering over it. No
+        //     HDM peer report: HMS observes the DM's own EmoteController and syncs it to peers faithfully (with the
+        //     intro), which HDM's lossy one-shot report (a bare timeline id) never could.
+        //   • The actively-possessed puppet: folded into the possession drive loop via RequestEmote (a direct
+        //     PlayEmote would be stomped by the per-frame DriveLocomotion next frame).
+        //   • Any other guised actor: plays directly via PlayEmote.
+        if (t.Cat == "emote" && Self() is { } s)
+        {
+            if (target.ObjectIndex == s.ObjectIndex)
+            {
+                _anim.PlaySelfEmote(t.EmoteRowId);   // behaves as the char's own; HMS syncs it to peers
+                return;
+            }
+            if (_possession.IsPossessing && _possession.PossessedIndex == target.ObjectIndex)
+                _possession.RequestEmote(id, t.EmoteIntro, t.DrawsWeapon, t.EmoteConditionMode, t.EmoteModeParam);
+            else
+                _anim.PlayEmote(target, id, t.EmoteIntro, t.DrawsWeapon, t.EmoteConditionMode, t.EmoteModeParam);
+            ReportOneShot(target, id);
+            return;
+        }
+
         if (IsResidentSpecialLoop(t.Key)) { _anim.Loop(target, id);       ReportHeldLoop(target, id); }
         else if (_loopMode)               { _anim.LoopReplay(target, id); ReportHeldLoop(target, id); }
         else                              { _anim.PlayOnce(target, id);   ReportOneShot(target, id); }
@@ -3521,6 +3657,10 @@ public sealed class MainWindow : Window, IDisposable
                 TriggerTimeline(t, target);
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip($"id {t.Id} · {t.Key}\n" +
+                                 (t.IsTemplate
+                                     ? $"Template special (mon_sp/[SKL_ID]): the game resolves it on this skeleton.\n" +
+                                       (t.HasTmb ? "Ships its effects timeline (VFX + sound).\n" : "No effects timeline: body animation only.\n")
+                                     : "") +
                                  (forceHold
                                      ? "Click: hold this looping pose (Stop to end). This special only renders while held."
                                      : _loopMode
@@ -3573,7 +3713,7 @@ public sealed class MainWindow : Window, IDisposable
         ("All", "All"), ("World", "World"), ("City", "City"), ("Inn", "Inn"), ("Housing", "Housing"),
         ("Dungeon", "Dungeon"), ("Trial", "Trial"), ("Raid", "Raid"), ("Deep Dungeon", "Deep Dungeon"),
         ("V&C", "Variant & Criterion"), ("Solo", "Solo"), ("PvP", "PvP"), ("Gold Saucer", "Gold Saucer"),
-        ("NPCs", "EventNpc"), ("Minion", "Minion"), ("Unknown", "Unknown"),
+        ("NPCs", "EventNpc"), ("Minion", "Minion"), ("Mounts", "Mount"), ("Unknown", "Unknown"),
     };
 
     /// <summary>Draw a single-select row of <see cref="Chip"/>s that wraps to the next line when the

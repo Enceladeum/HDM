@@ -55,6 +55,7 @@ public sealed class NpcData
     /// </summary>
     public EquipmentModelId[]? TryGetEquipment(uint baseId, NpcSource source)
     {
+        if (source == NpcSource.Mount) return null; // no NPC sheet row behind a mount
         if (source == NpcSource.Event)
             return TryGetEventEquipment(baseId);
 
@@ -151,6 +152,7 @@ public sealed class NpcData
     /// <summary>Source-aware weapon read; see <see cref="TryGetWeapons(uint)"/>.</summary>
     public (NpcWeapon? Main, NpcWeapon? Off) TryGetWeapons(uint baseId, NpcSource source)
     {
+        if (source == NpcSource.Mount) return (null, null);
         if (source == NpcSource.Event)
             return TryGetEventWeapons(baseId);
 
@@ -222,6 +224,7 @@ public sealed class NpcData
     /// </summary>
     public byte[]? TryGetCustomize(uint baseId, NpcSource source)
     {
+        if (source == NpcSource.Mount) return null;
         if (source == NpcSource.Event)
             return TryGetEventCustomize(baseId);
 

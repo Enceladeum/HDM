@@ -90,9 +90,33 @@ public sealed unsafe class PossessionService : IDisposable
     // Timeline. Null in a build without it wired → drive is never paused (pre-fix behaviour).
     private readonly Func<int, bool>? _isRedrawing;
 
+    // Resolve the pilot's live EmoteController.EmoteId (Emote sheet RowId) to the standing emote clip + its
+    // persistence mode, so the CHAT path mirrors the DM's own /emote by RESOLVING it (ARR's approach) rather than
+    // reading tl0 (which carries the locomotion clip, not reliably the emote clip — the "/atease plays on self,
+    // nothing on the puppet" bug). Bound at composition to TimelineIndex.ResolveEmote; null in a build without it
+    // wired -> the CHAT path no-ops (locomotion only), never crashes.
+    private readonly Func<ushort, (ushort Tl, ushort Intro, bool DrawsWeapon, byte ConditionMode, byte ModeParam)?>? _resolveEmote;
+
     // ── Live possession state ──────────────────────────────────────────────────────────────────────────
     private bool _isPossessing;
     private ushort _possessedIndex = ushort.MaxValue;
+
+    // ── Emote layer (sits ABOVE locomotion while the DM is idle) ─────────────────────────────────────────
+    // A puppet the DM possesses is driven every frame by DriveLocomotion, which would stomp any emote — so an
+    // emote must be folded INTO the drive loop's decision, never fired alongside it (guide Principle 1). Two
+    // feeds, most-recent-wins:
+    //   • CHAT: the DM's /atease runs natively on the (hidden) pilot; the drive loop RESOLVES the pilot's live
+    //     EmoteController.EmoteId through the Emote sheet (ARR's approach) and drives that clip + its persistence
+    //     mode onto the puppet. Not stored here — resolved live each frame. (tl0 was mirrored before, but it
+    //     carries the resolved LOCOMOTION clip, not reliably the emote — the "/atease does nothing on the puppet" bug.)
+    //   • CHIP: RequestEmote (the Animations-tab emote button, routed here while possessing) stores the resolved
+    //     emote below; the drive loop holds it while the pilot isn't emoting and the DM is idle.
+    // Movement cancels both (the pilot's own emote cancels natively -> EmoteId 0; _reqEmote is cleared).
+    // _emoteActive tracks whether an emote is applied, so the loop calls EndEmote exactly once when it drops to
+    // locomotion (releasing the emote-loop CharacterMode back to Normal).
+    private ReqEmote? _reqEmote;
+    private bool _emoteActive;
+    private readonly record struct ReqEmote(ushort Tl, ushort Intro, bool DrawsWeapon, byte ConditionMode, byte ModeParam);
 
     // ── Possess anchors (the snap-back freeze) ───────────────────────────────────────────────────────────
     // _dmAnchor: where the DM's body freezes — each frame we snap the DM back here after measuring its native
@@ -133,6 +157,7 @@ public sealed unsafe class PossessionService : IDisposable
     // pilot→tuple→target chain is legible while validating. Demote to Debug once the pipeline is proven.
     private ushort _dbgLastTl0;
     private int _dbgLastTarget = -1; // -1 forces the first frame to log
+    private int _dbgLastEmote = -1;  // emote clip being driven (chat tl0 / chip tl / 0 none) — logs chip emotes the tl0/target gate would miss
 
     // ── Peer-sync report throttle ────────────────────────────────────────────────────────────────────────
     // Fire ReportPuppetMoved change-gated (skip while the puppet is stationary, so an idle-but-possessed puppet
@@ -235,7 +260,8 @@ public sealed unsafe class PossessionService : IDisposable
                              AnimationService anim, IPluginLog log,
                              Action<int, Vector3, float>? reportPuppetMoved = null,
                              Action<bool>? reportOwnBodyHidden = null,
-                             Func<int, bool>? isRedrawing = null)
+                             Func<int, bool>? isRedrawing = null,
+                             Func<ushort, (ushort Tl, ushort Intro, bool DrawsWeapon, byte ConditionMode, byte ModeParam)?>? resolveEmote = null)
     {
         _framework = framework;
         _objects = objects;
@@ -250,6 +276,7 @@ public sealed unsafe class PossessionService : IDisposable
         _reportPuppetMoved = reportPuppetMoved;
         _reportOwnBodyHidden = reportOwnBodyHidden;
         _isRedrawing = isRedrawing;
+        _resolveEmote = resolveEmote;
 
         _framework.Update += OnUpdate;
         _pi.UiBuilder.Draw += DrawOverlay;
@@ -324,6 +351,7 @@ public sealed unsafe class PossessionService : IDisposable
         _facingOffset = 0f;
         _dbgLastTl0 = 0;
         _dbgLastTarget = -1;
+        _dbgLastEmote = -1;
 
         // Seed the sync throttle from the puppet's current transform so the first real movement reports promptly.
         _lastReportedPos = c.Position;
@@ -362,6 +390,7 @@ public sealed unsafe class PossessionService : IDisposable
         // anchor the whole time, so releasing just stops pinning it and native control resumes seamlessly.
         if (_spawn.IsSpawned(idx) && _objects[idx] is ICharacter c && c.Address != nint.Zero)
         {
+            _anim.EndEmote(c);      // release any emote-loop CharacterMode so the puppet returns to a true idle, not stuck looping
             _anim.DriveLocomotion(c, 0);
             // One final report so HMS broadcasts the idle tl0 — otherwise peers keep the last locomotion clip and
             // the mirror is stuck running in place after the DM lets go.
@@ -379,7 +408,24 @@ public sealed unsafe class PossessionService : IDisposable
         SetPilotHidden(false);
 
         _facingOffset = 0f;
+        _reqEmote = null;       // drop any held chip emote so a later possession starts clean
+        _emoteActive = false;
         _log.Information($"Possess: released puppet obj#{idx}; DM unfrozen, camera restored.");
+    }
+
+    /// <summary>
+    /// Request an emote on the puppet the DM is currently possessing — the Animations-tab emote button routes
+    /// here (instead of <see cref="AnimationService.PlayEmote"/>) while possessing, so the per-frame drive loop
+    /// HOLDS the emote rather than stomping it next frame with a locomotion idle. Stores the resolved emote
+    /// (timeline id + weapon stance + the Emote sheet's ConditionMode/param for persistence); the drive loop
+    /// applies it via <see cref="AnimationService.DriveEmote"/> while the pilot isn't emoting and the DM is
+    /// idle, and clears it the moment the DM moves. No-op when not possessing (the direct PlayEmote path handles
+    /// a non-driven target). Framework thread (called from the UI draw, which runs on it).
+    /// </summary>
+    public void RequestEmote(ushort timelineId, ushort introTimelineId, bool drawsWeapon, byte conditionMode, byte modeParam)
+    {
+        if (!_isPossessing) return;
+        _reqEmote = new ReqEmote(timelineId, introTimelineId, drawsWeapon, conditionMode, modeParam);
     }
 
     // Set the pilot-hidden flag and, on a CHANGE, mirror it to peers via HMS. The Alpha=0 write that actually
@@ -411,8 +457,9 @@ public sealed unsafe class PossessionService : IDisposable
         // ── MEASURE the pilot (the DM's own natively-simulated body) — guide §2 ──────────────────────────
         if (_objects.LocalPlayer is not { } dm || dm.Address == nint.Zero) return; // no pilot this frame
         var pilot = (CSCharacter*)dm.Address;
-        ushort tl0 = pilot->Timeline.TimelineSequencer.TimelineIds[0]; // the game's resolved locomotion clip
+        ushort tl0 = pilot->Timeline.TimelineSequencer.TimelineIds[0]; // the game's resolved locomotion clip (or emote clip when emoting)
         bool armed = pilot->Timeline.IsWeaponDrawn;
+        bool pilotEmoting = pilot->EmoteController.EmoteId != 0; // the DM's own /emote runs natively on the (hidden) pilot -> mirror it
         // Read the DM's lag-free movement INTENT (MoveController fwdSpeed/heading) next to the measured position
         // delta. Non-invasive: the snap-back still drives THIS build; logging both (in the diagnostic below)
         // confirms intent tracks WASD and that fwdSpeed matches the delta-derived speed — the CLASSIFY half of
@@ -542,8 +589,43 @@ public sealed unsafe class PossessionService : IDisposable
         // and keep tracking so the puppet doesn't stall in place; only the conflicting Timeline write is skipped.
         // The drive resumes the frame the redraw finishes (SUSTAIN re-pins BaseOverride, which also re-kicks a
         // demihuman's re-rig on the freshly-rebuilt skeleton). Never paused in a build without the predicate wired.
+        bool emoteDriven = false;
+        ushort drivenEmoteTl = 0; // the emote clip actually driven this frame (chat = resolved tl, chip = req tl); 0 = none
         if (_isRedrawing?.Invoke(idx) != true)
-            _anim.DriveLocomotion(puppet, target); // §4b one-writer: EDGE fire+pin / SUSTAIN re-pin / landing release
+        {
+            // EMOTE LANE sits ABOVE locomotion while the DM is idle. Fold it INTO the one writer's decision
+            // (guide Principle 1) — firing an emote alongside DriveLocomotion just gets it stomped next frame
+            // (the "/atease doesn't play while possessing" bug). Priority: movement > chat emote > chip emote >
+            // locomotion. Chat (the pilot's own /emote) supersedes a stale chip — most-recent physical action.
+            if (intentMoving) _reqEmote = null;   // moving cancels a held chip emote (the pilot's own already cancelled natively)
+
+            // CHAT feed: RESOLVE the pilot's live EmoteController.EmoteId through the Emote sheet (ARR's approach)
+            // rather than mirroring tl0 — tl0 carries the resolved LOCOMOTION clip, not reliably the emote clip, so
+            // mirroring it fed the puppet idle ("/atease plays on self, nothing on the puppet"). Null for a facial-
+            // only emote / unwired resolver -> treated as "no chat emote", falling through to chip/locomotion.
+            var chatEmote = (!intentMoving && pilotEmoting) ? _resolveEmote?.Invoke(pilot->EmoteController.EmoteId) : null;
+
+            if (chatEmote is { } ce)
+            {
+                _reqEmote = null;                                  // the pilot's own physical emote supersedes a stale chip
+                _anim.DriveEmote(puppet, ce.Tl, ce.Intro, ce.DrawsWeapon, ce.ConditionMode, ce.ModeParam);
+                emoteDriven = true;
+                drivenEmoteTl = ce.Tl;
+            }
+            else if (!intentMoving && _reqEmote is { } re)
+            {
+                // CHIP: hold the emote the Animations tab requested (resolved from the Emote sheet via RequestEmote).
+                _anim.DriveEmote(puppet, re.Tl, re.Intro, re.DrawsWeapon, re.ConditionMode, re.ModeParam);
+                emoteDriven = true;
+                drivenEmoteTl = re.Tl;
+            }
+            else
+            {
+                if (_emoteActive) _anim.EndEmote(puppet); // just dropped out of an emote -> release its loop CharacterMode
+                _anim.DriveLocomotion(puppet, target); // §4b one-writer: EDGE fire+pin / SUSTAIN re-pin / landing release
+            }
+            _emoteActive = emoteDriven;
+        }
 
         // Peer sync (Phase A): report the driven transform so HMS broadcasts it to session peers. Placed AFTER
         // DriveLocomotion so the puppet's tl0 is current when HMS samples it. Throttled — see ReportDriveIfDue.
@@ -564,19 +646,24 @@ public sealed unsafe class PossessionService : IDisposable
 
         // Change-gated diagnostic: one line per pilot-clip or resolved-target transition. dmDrift reveals whether
         // the snap-back is holding (should stay ~one frame's step); if it grows unbounded the write isn't sticking.
-        if (tl0 != _dbgLastTl0 || target != _dbgLastTarget)
+        // The emote clip we drove this frame (chat mirror = tl0, chip = the requested tl, none = 0) — added to the
+        // change gate so a chip emote (which needn't move tl0/target) still logs its transition.
+        ushort dbgEmote = drivenEmoteTl; // chat = resolved emote clip, chip = requested tl, 0 = none this frame
+        if (tl0 != _dbgLastTl0 || target != _dbgLastTarget || dbgEmote != _dbgLastEmote)
         {
             _dbgLastTl0 = tl0;
             _dbgLastTarget = target;
+            _dbgLastEmote = dbgEmote;
             var dmDrift = (pos - _dmAnchor).Length();
             // intentFwd should track the delta-derived speed; relHead (heading - facing) should track the
             // direction bin — the two readings the clean decouple would source INSTEAD of the position delta.
             var intentStr = haveIntent
                 ? $"intent[fwd={intentFwd:0.0} relHead={LocomotionData.WrapAngle(intentHeading - rot):0.00}]"
                 : "intent[unverified]";
+            var emoteStr = dbgEmote != 0 ? (pilotEmoting ? $"chat:{dbgEmote}" : $"chip:{dbgEmote}") : "-";
             _log.Information(
                 $"Possess obj#{idx}: pilot tl0={tl0} armed={armed} -> mode={mode} speed={moveState}({speed:0.0}y/s) " +
-                $"dir={direction} jump={jumpPhase} turn={isTurning} => target={target}; dmDrift={dmDrift:0.00} {intentStr} sync={_reportsSent}");
+                $"dir={direction} jump={jumpPhase} turn={isTurning} => target={target} emote={emoteStr}; dmDrift={dmDrift:0.00} {intentStr} sync={_reportsSent}");
         }
 
         // Snap-back model: next frame the DM integrates from the anchor again, so prev = anchor (NOT pos). Each
