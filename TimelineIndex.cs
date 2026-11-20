@@ -37,6 +37,9 @@ public sealed record TimelineRow(uint Id, string Cat, string Skel, string Key, s
     /// <summary>Template rows only: the skeleton also ships the external .tmb timeline that carries the
     /// skill's VFX + sound cues. False = body animation only (some specials genuinely have no effects).</summary>
     public bool HasTmb { get; init; }
+
+    /// <summary>Emote rows only: the Emote sheet's icon (shown in the library list).</summary>
+    public uint Icon { get; init; }
 }
 
 /// <summary>
@@ -148,6 +151,7 @@ public sealed class TimelineIndex
         ["battle/turn_loop_l"] = "cbbm_trn_l_lp",
         ["battle/turn_loop_r"] = "cbbm_trn_r_lp",
         ["battle/partsbreak"] = "cbbm_partsbreak",
+        ["battle/damage"] = "cbba_add_dmg_f",   // Flinch (additive hit reaction; Marionette's mapping)
         ["battle/magic_thm_start"] = "cbbm_mgc_thm_1",
         ["battle/magic_thm_loop"] = "cbbm_mgc_thm_2lp",
         ["normal/idle"] = "cbnm_id0",
@@ -226,8 +230,8 @@ public sealed class TimelineIndex
                 {
                     // Prefer a recognisable class-skill name (Hammer Motif) over the key heuristic
                     // (Battle Magic Pt11); the offline join only ever names safe 1:1 combat poses.
-                    var cname = _commonSkillNames.TryGetValue(id, out var sk) && sk.Length > 0
-                        ? sk : Prettify(key);
+                    var cname = key == "battle/damage" ? "Flinch"
+                        : _commonSkillNames.TryGetValue(id, out var sk) && sk.Length > 0 ? sk : Prettify(key);
                     common.Add(new TimelineRow(id, cat, skel, key, cname));
                 }
                 else
@@ -311,7 +315,7 @@ public sealed class TimelineIndex
                 // ActionTimeline[1] = the transition-in clip. The puppet paths play THIS (not the loop) so the
                 // pose blends in; 0 when the emote has none. e.RowId is the Emote sheet id ExecuteEmote takes (self).
                 var intro = (ushort)e.ActionTimeline[1].RowId;
-                var row = new TimelineRow(tid, "emote", "", key, name, e.DrawsWeapon, cond, modeParam, intro, (ushort)e.RowId);
+                var row = new TimelineRow(tid, "emote", "", key, name, e.DrawsWeapon, cond, modeParam, intro, (ushort)e.RowId) { Icon = (uint)e.Icon };
                 byId[(ushort)e.RowId] = row;               // chat path: resolve THIS emote id -> its clip (every id, pre-dedupe)
                 if (seen.Add(tid)) list.Add(row);          // catalog: one button per distinct clip (lowest emote id wins)
             }

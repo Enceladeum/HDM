@@ -388,6 +388,43 @@ public sealed unsafe class GuiseService : IDisposable
     /// protect, unlike Glamourer's human targets. Other params match Glamourer's proven call
     /// (redrawOnEquality=1). An empty (<c>default</c>) model clears the slot.
     /// </summary>
+    // b20: what each actor held before a pose took over its hands (see SetPoseHand). Keyed by object index.
+    private readonly Dictionary<int, OrigWeapons> _poseHand = new();
+
+    /// <summary>
+    /// Put <paramref name="main"/> in the actor's hand for a pose (default = an EMPTY hand) and clear the off-hand,
+    /// remembering what it held so <see cref="RestorePoseHand"/> can put it back.
+    ///
+    /// Why the weapon MODEL and not visibility: many NPC poses (drink, tobacco, "wield hand axe", inspect…) animate
+    /// a hand holding whatever is in the main-hand slot — the game's cutscene props ARE weapon-slot models — so a
+    /// Machinist's handgun appears in a drinking pose. <c>HideWeapons</c>/Glamourer's weapon meta only hide a
+    /// SHEATHED weapon; once a pose puts it in the hand it renders. Loading an empty model leaves nothing to hold.
+    /// The same call with a prop model (a cup, a pipe) is how a pose gets its prop. Client-side only.
+    /// First call captures the original; later calls (pose to pose) keep that original.
+    /// </summary>
+    public void SetPoseHand(ICharacter chara, WeaponModelId main = default)
+    {
+        if (chara.Address == nint.Zero) return;
+        var idx = chara.ObjectIndex;
+        var native = (CSCharacter*)chara.Address;
+        if (!_poseHand.ContainsKey(idx))
+            _poseHand[idx] = new OrigWeapons(native->DrawData.Weapon(WeaponSlot.MainHand).ModelId,
+                                             native->DrawData.Weapon(WeaponSlot.OffHand).ModelId);
+        LoadWeaponsNow(idx, main, default);
+    }
+
+    /// <summary>Give back the weapons <see cref="SetPoseHand"/> took. No-op when no pose took them.</summary>
+    public bool RestorePoseHand(ICharacter chara)
+    {
+        var idx = chara.ObjectIndex;
+        if (!_poseHand.Remove(idx, out var w)) return false;
+        if (chara.Address != nint.Zero) LoadWeaponsNow(idx, w.Main, w.Off);
+        return true;
+    }
+
+    /// <summary>True while a pose is holding this actor's hand slots.</summary>
+    public bool HasPoseHand(int objectIndex) => _poseHand.ContainsKey(objectIndex);
+
     private void LoadWeaponsNow(int idx, WeaponModelId main, WeaponModelId off)
     {
         if (_objects[idx] is not ICharacter c || c.Address == nint.Zero) return;

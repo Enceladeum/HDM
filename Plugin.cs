@@ -113,6 +113,7 @@ public sealed class Plugin : IDalamudPlugin
             PluginInterface.SavePluginConfig(config);
 
         var timeline  = new TimelineIndex(PluginInterface, DataManager, Log);
+        var poses     = new PoseLibrary(DataManager, System.IO.Path.Combine(PluginInterface.AssemblyLocation.DirectoryName!, "Data"), Log); // b18: NPC event poses + job skills, grouped
         var content   = new ContentIndex(DataManager, Log);
         var territory = new TerritoryIndex(PluginInterface, Log);
         var instanced = new InstanceRosterIndex(PluginInterface, Log);
@@ -233,7 +234,7 @@ public sealed class Plugin : IDalamudPlugin
         _possession.AllowPossessOthers = config.AllowPossessOthersPuppets; // seed the ownership gate (default off — only a puppet's originator drives it)
         _harvest.Enabled = config.HarvestMobNames; // seed the runtime name/territory harvester (default off — opt in via Config)
         _guise.ClearDisguiseOnMapChange = config.ClearDisguisesOnMapChange; // seed the opt-in map-hop own-body strip (default off — keep disguise across zones)
-        _main         = new MainWindow(index, timeline, content, territory, manual, stems, instanced, lore, level, webloc, companion, enpcLoc, _harvest, _guise, _humanGuise, _anim, _spawn, _possession, _ipc, moniker, config, PluginInterface, Objects, Targets, ClientState, Textures, Log, accent);
+        _main         = new MainWindow(index, timeline, poses, content, territory, manual, stems, instanced, lore, level, webloc, companion, enpcLoc, _harvest, _guise, _humanGuise, _anim, _spawn, _possession, _ipc, moniker, config, PluginInterface, Objects, Targets, ClientState, Textures, Log, accent);
 
         _windows.AddWindow(_main);
 

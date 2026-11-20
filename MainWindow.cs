@@ -56,11 +56,12 @@ public sealed class MainWindow : Window, IDisposable
     // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
     // the public Release build compiles the plain "HDM v<Version>" header with no b-tag. The
     // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
-    private const int InternalBuild = 17;
+    private const int InternalBuild = 21;
 #endif
 
     private readonly MobIndex _index;
     private readonly TimelineIndex _timeline;
+    private readonly PoseLibrary _poses;   // b18: grouped NPC poses + job skills (human subjects)
     private readonly ContentIndex _content;
     private readonly TerritoryIndex _territory;
     private readonly ManualLocationIndex _manual;
@@ -90,7 +91,6 @@ public sealed class MainWindow : Window, IDisposable
 
     private string _filter = string.Empty;
     private string _animFilter = string.Empty;
-    private string _animGroup = "All"; // Animations tab: which Common-timeline semantic group is shown
     private bool _loopMode;            // Animations tab: named-timeline buttons loop (true) vs play once (false)
     // Animation tab: the animation SUBJECT — false = YOU, true = the Spawn tab's focused puppet. The
     // target-generic funnels let one selection drive either; forced back to self when no puppet is spawned.
@@ -100,15 +100,11 @@ public sealed class MainWindow : Window, IDisposable
     // once on the possess-start EDGE (not every frame) — the DM can still retarget by hand afterward, and a new
     // possession re-focuses. null = not currently auto-focused. See SyncPossessionFocus.
     private int? _autoFocusedFor;
-    private bool _showAllTimelines;    // Animations tab: escape hatch — show the full Common pile instead of
-                                       // trimming it to what the selected skeleton's .pap set can actually play
-    private int? _animPlayableCount;   // Animations tab: cached count of playable (non-Move/React) Common rows
-    // Animations tab (2a redesign): group expand-state, held by us now that the sections use HmUi.GroupHeader
-    // (right-aligned meta + custom triangle) instead of ImGui.CollapsingHeader (which persisted its own state).
-    private bool _commonOpen = true;
-    private bool _specialsOpen = true;
-    private bool _emotesOpen = true;   // Animations tab: Emotes group (human guises only) — default open
-    private bool _combosOpen = true;   // Animations tab: Combos group (compound intro+pose gestures) — default open
+    // Animations tab (b21 library browser): the rail section, each section's dropdown choice, the prop search.
+    private string _animSection = "";                                   // b21 rail selection
+    private readonly Dictionary<string, string> _animDrop = new();      // b21 per-section dropdown choice
+    private string _propSearch = "";                                    // b21 "In hand" picker search
+    private LibEntry? _lastPose;                                        // b21 last pose played (re-dress on picker change)
     private bool _advancedOpen;        // raw-timeline-id group: default CLOSED — the prominent red "Reset to
                                        // Normal" card is now the primary unstick, so the raw Stop needn't sit open.
     private bool _hideUnnamed;
@@ -224,7 +220,7 @@ public sealed class MainWindow : Window, IDisposable
     // populates an empty category brings its chip back with no code change.
     private IReadOnlyList<(string text, string key)> _visibleCategoryChips = CategoryChips;
 
-    public MainWindow(MobIndex index, TimelineIndex timeline, ContentIndex content, TerritoryIndex territory,
+    public MainWindow(MobIndex index, TimelineIndex timeline, PoseLibrary poses, ContentIndex content, TerritoryIndex territory,
                       ManualLocationIndex manual, DungeonStemIndex stems, InstanceRosterIndex instanced, MobLoreIndex lore, LevelPlacementIndex level, WebLocIndex webloc, CompanionIndex companion, EnpcLocationIndex enpcLoc, MobHarvester harvest, GuiseService guise,
                       HumanGuise humanGuise, AnimationService anim, SpawnService spawn, PossessionService possession, HdmIpc ipc, MonikerIpc moniker,
                       Configuration config, IDalamudPluginInterface pi, IObjectTable objects, ITargetManager targets,
@@ -241,7 +237,7 @@ public sealed class MainWindow : Window, IDisposable
         : base($"HDM v{Version}###HDMMain")
 #endif
     {
-        _index = index; _timeline = timeline; _content = content; _territory = territory; _manual = manual; _stems = stems; _instanced = instanced; _lore = lore; _level = level; _webloc = webloc; _companion = companion; _enpcLoc = enpcLoc; _harvest = harvest;
+        _index = index; _timeline = timeline; _poses = poses; _content = content; _territory = territory; _manual = manual; _stems = stems; _instanced = instanced; _lore = lore; _level = level; _webloc = webloc; _companion = companion; _enpcLoc = enpcLoc; _harvest = harvest;
         _guise = guise; _humanGuise = humanGuise; _anim = anim; _spawn = spawn; _possession = possession; _ipc = ipc; _moniker = moniker; _config = config;
         _pi = pi; _objects = objects; _targets = targets; _clientState = clientState; _textures = textures; _log = log; _accent = accent;
 
@@ -338,6 +334,7 @@ public sealed class MainWindow : Window, IDisposable
     private void StopAnim(ICharacter target)
     {
         _anim.Stop(target);
+        _guise.RestorePoseHand(target); // b20: give back the weapons a pose emptied
         ReportHeldLoop(target, 0);
     }
 
@@ -1150,6 +1147,7 @@ public sealed class MainWindow : Window, IDisposable
     private void RevertGuise(ICharacter target)
     {
         _anim.Sanitize(target);
+        _guise.RestorePoseHand(target); // b20: a pose's emptied hands go back before the revert rebuilds weapons
         // Self-apply only (every caller passes the local player), so use the HARD revert: it force-clears
         // a stuck NPC model even when tracking was lost (e.g. a disguise that rode across a zone line and
         // stranded), guaranteeing Revert / "/hdm revert" can always put the DM back to their real body.
@@ -3288,7 +3286,7 @@ public sealed class MainWindow : Window, IDisposable
         // ── Red "Reset to Normal" card — the prominent unstick. Sanitize() forces the actor back to a normal,
         // unlocked idle (clears BaseOverride/OverallSpeed, SetMode Normal); we also clear any held loop for peers.
         if (HmUi.DangerCard("Reset to Normal", "Unstick: clears a frozen or stuck timeline", "unstick") && target != null)
-            { _anim.Sanitize(target); ReportHeldLoop(target, 0); }
+            { _anim.Sanitize(target); _guise.RestorePoseHand(target); ReportHeldLoop(target, 0); }
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Force the character back to a normal, unlocked idle.\n" +
                              "Use this if an animation left it stuck ('operating a siege machine').\n" +
@@ -3375,160 +3373,441 @@ public sealed class MainWindow : Window, IDisposable
             }
         }
 
-        // ── Search + the single global Loop toggle — HOISTED to the TOP (0.9.1) so it visibly HEADS every
-        // animation list below (This-mob specials, the Human Emotes set, and Common) instead of hiding between
-        // them. It filters ALL of them by name or /command through the one _animFilter DrawTimelineButtons reads
-        // (single-control-mechanism rule): emote rows carry the slash command as their Key, so "/wave" matches.
-        // Before 0.9.1 this box sat BELOW the 220px Emotes scroll-box, so a DM filtering emotes never saw it act
-        // ("emote search doesn't appear to be live"). One box, every list. The field fills the row up to the Loop
-        // toggle — measured from the style, so it stays correct on high-DPI (no hardcoded width). ──
-        var animStyle  = ImGui.GetStyle();
-        float animLoopW = ImGui.GetFrameHeight() + animStyle.ItemInnerSpacing.X + ImGui.CalcTextSize("Loop").X;
-        ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - animLoopW - animStyle.ItemSpacing.X);
-        ImGui.InputTextWithHint("##animsearch", "filter animations / emotes by name or /command…", ref _animFilter, 48);
+        // ── b21: the animation LIBRARY BROWSER (rebuilt to the Marionette-style mockup). A rail on the left picks
+        // WHAT KIND of thing to play; the pane on the right is always the same shape — an optional narrowing
+        // dropdown (+ the "In hand" prop picker for poses), the search box, then ONE list that fills the rest of
+        // the window, so it grows and shrinks with the window instead of the old fixed-height boxes. Rows carry the
+        // game's own icon where one exists, the name, and a holds/once tag; ids only appear in tooltips. Each kind
+        // still plays through its single funnel (TriggerTimeline / PlayLibEntry / PlaySequence).
+        var subjectIsHuman = subjectGuise is { McType: 1 } || (subjectGuise is null && target != null);
+        var sections = subjectIsHuman ? HumanSections
+                     : subjectGuise != null ? CreatureSections
+                     : Array.Empty<(string Name, FontAwesomeIcon Glyph)>();
+        if (sections.Length == 0) { ImGui.TextDisabled("Nothing to animate: no subject."); return; }
+        if (Array.FindIndex(sections, s => s.Name == _animSection) < 0) _animSection = sections[0].Name;
+
+        var paneH = MathF.Max(260f, ImGui.GetContentRegionAvail().Y);
+        var lineH = ImGui.GetTextLineHeight();
+        var railRowH = lineH + 10f;
+        var railW = sections.Max(s => ImGui.CalcTextSize(s.Name).X) + lineH + 34f;
+
+        ImGui.BeginChild("##animrail", new Vector2(railW, paneH), true, ImGuiWindowFlags.None);
+        foreach (var (name, glyph) in sections)
+        {
+            var start = ImGui.GetCursorPos();
+            if (ImGui.Selectable($"##rail_{name}", _animSection == name, ImGuiSelectableFlags.None, new Vector2(0f, railRowH)))
+                _animSection = name;
+            var after = ImGui.GetCursorPos();
+            ImGui.SetCursorPos(new Vector2(start.X + 4f, start.Y + (railRowH - lineH) / 2f));
+            DrawGlyph(glyph, _animSection == name);
+            ImGui.SameLine(0f, 8f);
+            ImGui.TextUnformatted(name);
+            ImGui.SetCursorPos(after);
+        }
+        ImGui.EndChild();
+
+        ImGui.SameLine();
+        ImGui.BeginChild("##animpane", new Vector2(0f, paneH), false, ImGuiWindowFlags.None);
+        var body = PoseLibrary.BodyOf(target);
+        switch (_animSection)
+        {
+            case "Emotes":     DrawEmotesPane(target); break;
+            case "Poses":      DrawPosesPane(target, body); break;
+            case "Talking":    DrawGroupPane(target, body, "Talking", talking: true); break;
+            case "Entrances":  DrawGroupPane(target, body, "Warp in & out", talking: false); break;
+            case "Job skills": DrawSkillsPane(target); break;
+            case "Basics":     DrawBasicsPane(target, subjectIsHuman, subjectGuise); break;
+            case "Skills":     if (subjectGuise != null) DrawCreatureSkillsPane(target, subjectGuise); break;
+            default:           DrawAllTimelinesPane(target); break;
+        }
+        ImGui.EndChild();
+    }
+
+    // ---- b21 library browser ------------------------------------------------------------------------------
+
+    private static readonly (string Name, FontAwesomeIcon Glyph)[] HumanSections =
+    [
+        ("Emotes", FontAwesomeIcon.Smile), ("Poses", FontAwesomeIcon.StreetView), ("Talking", FontAwesomeIcon.Comments),
+        ("Entrances", FontAwesomeIcon.HatWizard), ("Job skills", FontAwesomeIcon.HandRock), ("Basics", FontAwesomeIcon.Walking),
+        ("All timelines", FontAwesomeIcon.Feather),
+    ];
+
+    private static readonly (string Name, FontAwesomeIcon Glyph)[] CreatureSections =
+    [
+        ("Skills", FontAwesomeIcon.Dragon), ("Basics", FontAwesomeIcon.Walking), ("All timelines", FontAwesomeIcon.Feather),
+    ];
+
+    private static readonly string[] EmoteModes = ["All emotes", "Holds", "One-shots"];
+    private static readonly string[] TalkModes = ["All gestures", "Through the line", "At the start"];
+
+    // Human "Basics": the handful of everyday moves worth a button, by Common key, with plain names.
+    private static readonly (string Name, string Key)[] HumanBasicKeys =
+    [
+        ("Draw weapon", "battle/battle_start"), ("Sheathe weapon", "battle/battle_end"), ("Battle stance", "battle/idle"),
+        ("Idle", "normal/idle"), ("Walk", "normal/walk"), ("Walk backwards", "normal/walk_b"), ("Run", "normal/run"),
+        ("Jump", "normal/jump_start"), ("Flinch", "battle/damage"),
+    ];
+    private List<TimelineRow>? _humanBasics;
+
+    private static FontAwesomeIcon GroupGlyph(string group) => group switch
+    {
+        "Hurt & collapse" => FontAwesomeIcon.UserInjured, "Lying" => FontAwesomeIcon.Bed,
+        "Prayer & ceremony" or "Kneeling" => FontAwesomeIcon.Pray, "Sitting" => FontAwesomeIcon.Chair,
+        "Crouching" => FontAwesomeIcon.PersonFalling, "Sorrow" => FontAwesomeIcon.SadTear, "Fear" => FontAwesomeIcon.Ghost,
+        "Anger & provoking" => FontAwesomeIcon.Angry, "Joy" => FontAwesomeIcon.Laugh, "Performing" => FontAwesomeIcon.Music,
+        "Talking" => FontAwesomeIcon.Comments, "Thinking & worry" => FontAwesomeIcon.Brain,
+        "Reactions" => FontAwesomeIcon.HandPaper, "Eating & drinking" => FontAwesomeIcon.Utensils,
+        "Crafting & chores" => FontAwesomeIcon.Hammer, "Animals & mounts" => FontAwesomeIcon.Paw,
+        "Battle & weapons" => FontAwesomeIcon.ShieldAlt, "Walking" => FontAwesomeIcon.Walking,
+        "Standing & idle" => FontAwesomeIcon.StreetView, "Warp in & out" => FontAwesomeIcon.HatWizard,
+        _ => FontAwesomeIcon.Feather,
+    };
+
+    /// <summary>What a library row shows: icon (game icon id, else a glyph), name, a dim suffix (e.g. the
+    /// auto-prop), a right-aligned tag (holds / once / Lv 50), and the hover text.</summary>
+    private readonly record struct RowView(string Name, uint Icon, FontAwesomeIcon Glyph, string Tag, bool Accent, string Tip, string Sub = "");
+
+    private void DrawGlyph(FontAwesomeIcon glyph, bool lit)
+    {
+        ImGui.PushFont(UiBuilder.IconFont);
+        if (lit) ImGui.TextColored(_accent.Primary, glyph.ToIconString());
+        else ImGui.TextDisabled(glyph.ToIconString());
+        ImGui.PopFont();
+    }
+
+    /// <summary>The section's narrowing dropdown; remembers its choice per section.</summary>
+    private string Dropdown(string id, IReadOnlyList<string> options, string section, float width)
+    {
+        var cur = _animDrop.GetValueOrDefault(section, "");
+        if (options.Count > 0 && !options.Contains(cur)) cur = options[0];
+        ImGui.SetNextItemWidth(width);
+        if (ImGui.BeginCombo(id, cur, ImGuiComboFlags.HeightLarge))
+        {
+            foreach (var o in options)
+                if (ImGui.Selectable(o, o == cur)) cur = o;
+            ImGui.EndCombo();
+        }
+        _animDrop[section] = cur;
+        return cur;
+    }
+
+    private float LoopReserve()
+    {
+        var st = ImGui.GetStyle();
+        return ImGui.GetFrameHeight() + st.ItemInnerSpacing.X + ImGui.CalcTextSize("Loop").X + st.ItemSpacing.X;
+    }
+
+    private void SearchBox(float reserveRight)
+    {
+        ImGui.SetNextItemWidth(MathF.Max(80f, ImGui.GetContentRegionAvail().X - reserveRight));
+        ImGui.InputTextWithHint("##animsearch", "Search", ref _animFilter, 48);
+    }
+
+    private void LoopToggle()
+    {
         ImGui.SameLine();
         ImGui.Checkbox("Loop", ref _loopMode);
         if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("Checked: clicking a timeline HOLDS it as a looping base pose (until you press Stop).\n" +
-                             "Unchecked: clicking plays it once, then the game blends back to idle.");
+            ImGui.SetTooltip("Checked: clicking a timeline replays it until Stop.\nUnchecked: it plays once, then blends back to idle.");
+    }
 
-        ImGui.Spacing();
+    private bool Matches(string name, string key = "")
+    {
+        var f = _animFilter.Trim();
+        return f.Length == 0 || name.Contains(f, StringComparison.OrdinalIgnoreCase)
+               || (key.Length > 0 && key.Contains(f, StringComparison.OrdinalIgnoreCase));
+    }
 
-        // ── The subject's specials (or a hint to pick one), now BELOW the search that filters it. Scopes to the
-        // SUBJECT's WORN model (subjectGuise = your _wornGuise, or the focused puppet's guise), not the catalog
-        // browse-cursor: browsing while disguised no longer drifts this list off what the subject wears, and
-        // shedding/changing the disguise updates it (batch-3 item #6).
-        // A blank (untracked) puppet is a clone of the local player — a human body that plays emotes even
-        // though it carries no mob identity, so treat it as human here. This is the DM's exact case: "spawned
-        // a humanoid dummy (elezen), I cannot see emotes." Every DISGUISE path records _puppetGuise (spawn-as,
-        // per-row apply, fav, re-guise), so a null guise on a puppet means genuinely blank, never a dressed one
-        // we failed to track. Its Common list falls to the human "playables" view below because its empty
-        // SkeletonCode has no caps profile. (If the DM is themselves monster-disguised when they drop a blank
-        // dummy the clone inherits that body and these emotes won't visibly fire — a rare corner; disguising
-        // the puppet through its row records the real guise and swaps this to the correct specials.)
-        var subjectIsBlankPuppet = toPuppet && subjectGuise is null;
-        var subjectIsHuman = subjectGuise is { McType: 1 } || subjectIsBlankPuppet;
-
-        if (subjectIsHuman)
+    /// <summary>
+    /// Draw a list that fills the rest of the pane, one full-width row per item: icon, name (+ dim suffix), tag.
+    /// Virtualised by hand — fixed row height, only the rows inside the scroll window are submitted — so the
+    /// 1,000-entry pose list costs the same as a short one.
+    /// </summary>
+    private void DrawRows<T>(string id, IReadOnlyList<T> rows, Func<T, RowView> view, Action<T> click)
+    {
+        ImGui.BeginChild(id, new Vector2(0f, MathF.Max(80f, ImGui.GetContentRegionAvail().Y)), true, ImGuiWindowFlags.None);
+        if (rows.Count == 0) { ImGui.TextDisabled("(no matches)"); ImGui.EndChild(); return; }
+        var lineH = ImGui.GetTextLineHeight();
+        var iconSz = MathF.Round(lineH * 1.35f);
+        var rowH = iconSz + 6f;
+        var x0 = ImGui.GetCursorPosX();
+        var y0 = ImGui.GetCursorPosY();
+        var width = ImGui.GetContentRegionAvail().X;
+        var first = Math.Max(0, (int)(ImGui.GetScrollY() / rowH) - 1);
+        var last = Math.Min(rows.Count, first + (int)(ImGui.GetWindowHeight() / rowH) + 3);
+        for (var i = first; i < last; i++)
         {
-            // Human body (a cNNNN NPC guise OR a blank DM-clone puppet): no monster specials, but it DOES play
-            // emotes — /point, /wave, /dance &c. Surface the full emote set here; each is a TimelineRow that
-            // rides the SAME TriggerTimeline funnel (Rule 1) so the global Loop toggle and the search box below
-            // govern it with no bespoke path. Scroll-boxed like Common so ~100 rows don't shove the rest of the
-            // tab off-screen.
-            var emotes = _timeline.Emotes;
-            if (HmUi.GroupHeader("Emotes", $"human · {emotes.Count}", ref _emotesOpen, "emotehdr"))
+            var item = rows[i];
+            var r = view(item);
+            var y = y0 + i * rowH;
+            ImGui.PushID(i);
+            ImGui.SetCursorPos(new Vector2(x0, y));
+            if (ImGui.Selectable("##row", false, ImGuiSelectableFlags.None, new Vector2(width, rowH - 2f)))
+                click(item);
+            if (ImGui.IsItemHovered() && r.Tip.Length > 0) ImGui.SetTooltip(r.Tip);
+            ImGui.SetCursorPos(new Vector2(x0 + 4f, y + (rowH - iconSz) / 2f - 1f));
+            if (!DrawEmoteIcon(r.Icon, iconSz))
             {
-                if (emotes.Count == 0)
-                    ImGui.TextDisabled("No emotes loaded.");
-                else
-                {
-                    ImGui.BeginChild("##emotelist", new Vector2(0f, 220f), true, ImGuiWindowFlags.None);
-                    DrawTimelineButtons(emotes, target);
-                    ImGui.EndChild();
-                }
+                ImGui.SetCursorPos(new Vector2(x0 + 4f + (iconSz - lineH) / 2f, y + (rowH - lineH) / 2f - 1f));
+                DrawGlyph(r.Glyph, false);
             }
+            ImGui.SetCursorPos(new Vector2(x0 + 4f + iconSz + 8f, y + (rowH - lineH) / 2f - 1f));
+            ImGui.TextUnformatted(r.Name);
+            if (r.Sub.Length > 0) { ImGui.SameLine(0f, 8f); ImGui.TextDisabled(r.Sub); }
+            if (r.Tag.Length > 0)
+            {
+                var tw = ImGui.CalcTextSize(r.Tag).X;
+                ImGui.SetCursorPos(new Vector2(x0 + width - tw - 8f, y + (rowH - lineH) / 2f - 1f));
+                if (r.Accent) ImGui.TextColored(_accent.Primary, r.Tag); else ImGui.TextDisabled(r.Tag);
+            }
+            ImGui.PopID();
         }
-        else if (subjectGuise is { } sel)
-        {
-            // Monster/demihuman guise: list the skeleton's catalogued specials, then any glued combos.
-            var skel = sel.SkeletonCode;
-            var specials = _timeline.ForSkeleton(skel, (uint)sel.ModelCharaId); // literal + template lane
-            if (HmUi.GroupHeader($"This mob · {sel.DisplayName}", skel, ref _specialsOpen, "skelhdr"))
-            {
-                if (specials.Count == 0)
-                    ImGui.TextDisabled($"No catalogued specials for {skel}. Try the Common set below.");
-                else
-                    DrawTimelineButtons(specials, target);
-            }
+        ImGui.SetCursorPos(new Vector2(x0, y0 + rows.Count * rowH));
+        ImGui.Dummy(new Vector2(1f, 1f));
+        ImGui.EndChild();
+    }
 
-            // Combos: one-click compound gestures that glue an intro clip to its terminal pose — "Die" =
-            // play the death FALL once, then HOLD the lying dead_pose (the pair a DM would otherwise fire by
-            // hand, and "never uses separately"). Shown ONLY when BOTH constituents resolve as caps-valid for
-            // this skeleton (ResolveCombos), so it never offers a Die the model can't actually perform. Each
-            // rides AnimationService.PlaySequence (the single compound-gesture funnel, Rule 1); the terminal
-            // HOLD is mirrored to peers via ReportHeldLoop so a synced viewer sees the pose held.
-            var combos = ResolveCombos(skel);
-            if (combos.Count > 0 && HmUi.GroupHeader("Combos", $"{combos.Count}", ref _combosOpen, "combohdr"))
-            {
-                foreach (var (label, introId, holdId) in combos)
-                {
-                    if (HmUi.AccentButton(label, $"combo_{label}", false, acc) && target != null)
-                        { _anim.PlaySequence(target, introId, holdId); ReportHeldLoop(target, holdId); }
-                    if (ImGui.IsItemHovered())
-                        ImGui.SetTooltip($"Play the '{label}' sequence: the intro animation once, then hold its final pose.\n" +
-                                         "Press \"Reset to Normal\" above to release the hold.");
-                }
-            }
+    private static string ModeText(PosePlay p) => p switch
+    {
+        PosePlay.Hold      => "Holds this pose until Stop or Reset to Normal.",
+        PosePlay.IntroHold => "Plays its intro, then holds the pose until Stop or Reset to Normal.",
+        _                  => "Plays once, then returns to idle.",
+    };
+
+    private RowView PoseView(LibEntry e, string group, bool showGroup)
+    {
+        var holds = e.Play != PosePlay.Once;
+        var hand = _config.PoseHand == "auto" && e.Prop != null ? e.Prop.Name.ToLowerInvariant() : "";
+        var sub = showGroup ? (hand.Length > 0 ? $"{group} · {hand}" : group) : hand;
+        var tip = ModeText(e.Play) + (e.Note.Length > 0 ? $"\n{e.Note}" : "")
+                  + (e.Prop != null ? $"\nAuto-prop: {e.Prop.Name}" : "") + $"\n{group} · {e.Key} · {e.Id}";
+        return new RowView(e.Name, 0, GroupGlyph(group), holds ? "holds" : "once", holds, tip, sub);
+    }
+
+    private void DrawEmotesPane(ICharacter? target)
+    {
+        var mode = Dropdown("##emotemode", EmoteModes, "Emotes", 120f);
+        ImGui.SameLine();
+        SearchBox(0f);
+        var rows = _timeline.Emotes.Where(t =>
+                (mode == "All emotes" || (mode == "Holds") == (t.EmoteConditionMode != 0)) && Matches(t.Name, t.Key)).ToList();
+        DrawRows("##emoterows", rows,
+            t => new RowView(t.Name, t.Icon, FontAwesomeIcon.Smile, t.EmoteConditionMode != 0 ? "holds" : "once",
+                             t.EmoteConditionMode != 0,
+                             $"{t.Key}\n{(t.EmoteConditionMode != 0 ? "Holds until Stop or Reset to Normal." : "Plays once.")}"),
+            t => { if (target != null) TriggerTimeline(t, target); });
+    }
+
+    private void DrawPosesPane(ICharacter? target, int body)
+    {
+        var groups = _poses.PosesFor(body).Where(g => g.Name is not ("Talking" or "Warp in & out")).ToList();
+        if (groups.Count == 0) { ImGui.TextDisabled("No poses exist for this body."); return; }
+        var pick = Dropdown("##posegroup", groups.Select(g => g.Name).ToList(), "Poses", 170f);
+        ImGui.SameLine();
+        DrawHandPicker(target, 200f);
+        SearchBox(0f);
+        // A search looks across EVERY pose group, so the DM never has to guess the group first.
+        var searching = _animFilter.Trim().Length > 0;
+        var rows = (searching
+                ? groups.SelectMany(g => g.Items.Select(e => (E: e, G: g.Name))).Where(x => Matches(x.E.Name))
+                : groups.First(g => g.Name == pick).Items.Select(e => (E: e, G: pick))).ToList();
+        DrawRows("##poserows", rows, x => PoseView(x.E, x.G, searching),
+            x => { if (target != null) PlayLibEntry(x.E, target, skill: false); });
+    }
+
+    private void DrawGroupPane(ICharacter? target, int body, string group, bool talking)
+    {
+        var g = _poses.PosesFor(body).FirstOrDefault(x => x.Name == group);
+        if (g == null) { ImGui.TextDisabled("None of these exist for this body."); return; }
+        var mode = "";
+        if (talking)
+        {
+            mode = Dropdown("##talkmode", TalkModes, group, 150f);
+            ImGui.SameLine();
+            DrawHandPicker(target, 200f);
         }
-        else
+        else ImGui.TextDisabled("Play an \"out\", move or despawn the puppet, then play an \"in\".");
+        SearchBox(0f);
+        var rows = g.Items.Where(e => Matches(e.Name) && mode switch
         {
-            // Only reached for an undisguised SELF — a blank puppet is handled as human above. Prompt to apply
-            // a disguise so the mob's animations list here.
-            ImGui.BeginChild("##nospecials", new Vector2(0f, ImGui.GetFrameHeightWithSpacing() + 4f), true, ImGuiWindowFlags.None);
-            ImGui.TextDisabled("Disguise yourself from the Catalog to list the mob's animations here.");
-            ImGui.EndChild();
+            "Through the line" => e.Play != PosePlay.Once,
+            "At the start" => e.Play == PosePlay.Once,
+            _ => true,
+        }).ToList();
+        DrawRows(talking ? "##talkrows" : "##warprows", rows, e => PoseView(e, group, false),
+            e => { if (target != null) PlayLibEntry(e, target, skill: false); });
+    }
+
+    private void DrawSkillsPane(ICharacter? target)
+    {
+        var jobs = _poses.JobSkills;
+        if (jobs.Count == 0) { ImGui.TextDisabled("No job skills loaded."); return; }
+        // First visit: open on the subject's current job.
+        if (!_animDrop.ContainsKey("Job skills") && target != null
+            && jobs.FirstOrDefault(j => j.JobId == target.ClassJob.RowId) is { } mine)
+            _animDrop["Job skills"] = mine.Name;
+        var pick = Dropdown("##job", jobs.Select(j => j.Name).ToList(), "Job skills", 210f);
+        ImGui.SameLine();
+        SearchBox(0f);
+        var searching = _animFilter.Trim().Length > 0;
+        var rows = (searching
+                ? jobs.SelectMany(j => j.Items.Select(e => (E: e, G: j.Name))).Where(x => Matches(x.E.Name))
+                : jobs.First(j => j.Name == pick).Items.Select(e => (E: e, G: pick))).ToList();
+        DrawRows("##skillrows", rows,
+            x => new RowView(x.E.Name, x.E.Icon, FontAwesomeIcon.HandRock, x.E.Note.Replace("Level ", "Lv "), false,
+                             $"Plays the skill's animation and effects once.\n{x.G} · {x.E.Key} · {x.E.Id}",
+                             searching ? x.G : ""),
+            x => { if (target != null) PlayLibEntry(x.E, target, skill: true); });
+    }
+
+    private void DrawBasicsPane(ICharacter? target, bool human, MobRow? guise)
+    {
+        SearchBox(LoopReserve());
+        LoopToggle();
+        if (human)
+        {
+            _humanBasics ??= HumanBasicKeys
+                .Select(b => _timeline.Common.FirstOrDefault(t => t.Key == b.Key) is { } row ? row with { Name = b.Name } : null)
+                .Where(t => t != null).Select(t => t!).ToList();
+            var rows = _humanBasics.Where(t => Matches(t.Name, t.Key)).ToList();
+            DrawRows("##basicrows", rows, t => TimelineView(t, FontAwesomeIcon.Walking),
+                t => { if (target != null) TriggerTimeline(t, target); });
+            return;
         }
+        if (guise == null) return;
+        // Creature: the glued combos (Die = fall, then hold the pose) first, then the base moves this skeleton's
+        // animation files actually define (idle / attack / dead / turn / flinch…).
+        var skel = guise.SkeletonCode;
+        var list = new List<(string Name, TimelineRow? T, ushort Intro, ushort Hold)>();
+        foreach (var (label, introId, holdId) in ResolveCombos(skel)) list.Add((label, null, introId, holdId));
+        foreach (var t in _timeline.ValidCommonFor(skel)) list.Add((t.Name, t, 0, 0));
+        var crows = list.Where(x => Matches(x.Name, x.T?.Key ?? "")).ToList();
+        DrawRows("##cbasicrows", crows,
+            x => x.T is { } t ? TimelineView(t, FontAwesomeIcon.Walking)
+                : new RowView(x.Name, 0, FontAwesomeIcon.Walking, "holds", true,
+                              $"Plays the intro once, then holds its final pose until Stop or Reset to Normal.\n{x.Intro} → {x.Hold}"),
+            x =>
+            {
+                if (target == null) return;
+                if (x.T is { } t) TriggerTimeline(t, target);
+                else { _anim.PlaySequence(target, x.Intro, x.Hold); ReportHeldLoop(target, x.Hold); }
+            });
+    }
 
-        ImGui.Spacing();
+    private RowView TimelineView(TimelineRow t, FontAwesomeIcon glyph)
+    {
+        var holds = IsResidentSpecialLoop(t.Key);
+        var tag = holds ? "holds" : _loopMode ? "loops" : "once";
+        var tip = $"{t.Key} · {t.Id}" + (t.IsTemplate
+            ? "\nTemplate special: the game resolves it on this skeleton." + (t.HasTmb ? "\nShips its effects (VFX + sound)." : "\nBody animation only.")
+            : "");
+        return new RowView(t.Name, 0, glyph, tag, holds || _loopMode, tip);
+    }
 
-        // Shared common timelines. For a monster/demihuman guise we now KNOW which of these the skeleton
-        // can actually play: skel-anim-caps.csv carries every resident .pap's internal animation table, so
-        // TimelineIndex.ValidCommonFor trims the ~440-row pile down to the base-lane moves the model
-        // genuinely defines (idle/attack/dead/turn) and drops the ~400 player-body dummies that would fire
-        // nothing. That "works vs dummy" fact was long assumed un-carryable offline — it is exactly what the
-        // caps extraction now carries. The trimmed view needs no chips (it's a handful of rows); the
-        // "Show all timelines" escape hatch restores the full, chip-navigable pile for experimentation and
-        // is the ONLY view for a human (cNNNN) guise, which has no caps profile and really does walk/emote.
-        // Two independent default-trims, both released by "Show all timelines":
-        //  - a MONSTER/DEMIHUMAN guise (has a caps profile) trims to the base-lane rows its .pap set actually
-        //    defines (ValidCommonFor) — a handful of rows, no chips needed;
-        //  - a HUMAN (cNNNN) guise has no caps, so instead we hide the pure locomotion/reaction junk
-        //    (IsPlayable) and let the provenance chips navigate the ~353 playable rows that remain.
-        var skelSel = subjectGuise?.SkeletonCode ?? "";
-        var hasCaps = _timeline.HasCaps(skelSel);
-        var capsTrim = hasCaps && !_showAllTimelines;
-        var playTrim = !hasCaps && !_showAllTimelines;
-        _animPlayableCount ??= _timeline.Common.Count(t => IsPlayable(t.Key));
-
-        string commonTitle, commonMeta;
-        if (capsTrim)      { commonTitle = $"Common · playable by {skelSel}"; commonMeta = $"{_timeline.ValidCommonFor(skelSel).Count} of {_timeline.Common.Count}"; }
-        else if (playTrim) { commonTitle = "Common · playables";              commonMeta = $"{_animPlayableCount} of {_timeline.Common.Count}"; }
-        else               { commonTitle = "Common";                          commonMeta = $"{_timeline.Common.Count}"; }
-        if (HmUi.GroupHeader(commonTitle, commonMeta, ref _commonOpen, "commonhdr"))
+    private void DrawCreatureSkillsPane(ICharacter? target, MobRow guise)
+    {
+        SearchBox(LoopReserve());
+        LoopToggle();
+        var specials = _timeline.ForSkeleton(guise.SkeletonCode, (uint)guise.ModelCharaId);
+        if (specials.Count == 0)
         {
-            ImGui.Checkbox("Show all timelines", ref _showAllTimelines);
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(hasCaps
-                    ? "Off: show only the base-lane timelines THIS skeleton's animation files\n" +
-                      "actually define (idle/attack/dead/turn); the rest are player-body\n" +
-                      "dummies that do nothing on a monster.\n" +
-                      "On: show every Common timeline (grouped by the chips) to experiment."
-                    : "Off: hide pure locomotion & hit-reaction rows (walk/run/swim/knockback)\n" +
-                      "that no skill triggers and your guise already animates itself.\n" +
-                      "On: show every Common timeline, including those, grouped by the chips.");
+            ImGui.TextDisabled($"No skills found for {guise.DisplayName} ({guise.SkeletonCode}). Try Basics or All timelines.");
+            return;
+        }
+        var rows = specials.Where(t => Matches(t.Name, t.Key)).ToList();
+        DrawRows("##cskillrows", rows, t => TimelineView(t, FontAwesomeIcon.Dragon),
+            t => { if (target != null) TriggerTimeline(t, target); });
+    }
 
-            IReadOnlyList<TimelineRow> commonRows;
-            if (capsTrim)
-            {
-                // Already trimmed to what the skeleton can play — the provenance chips add nothing, list it.
-                commonRows = _timeline.ValidCommonFor(skelSel);
-            }
-            else
-            {
-                if (WrappedChips(AnimGroupChips, _animGroup, "animgrp") is { } gk) _animGroup = gk;
-                IEnumerable<TimelineRow> q = _timeline.Common;
-                if (playTrim) q = q.Where(t => IsPlayable(t.Key));                         // human: drop the junk buckets
-                if (_animGroup != "All") q = q.Where(t => ProvenanceCategory(t.Key) == _animGroup);
-                commonRows = q as IReadOnlyList<TimelineRow> ?? q.ToList();
-            }
+    private void DrawAllTimelinesPane(ICharacter? target)
+    {
+        var cat = Dropdown("##provcat", AnimGroupChips.Select(c => c.text).ToList(), "All timelines", 110f);
+        ImGui.SameLine();
+        SearchBox(LoopReserve());
+        LoopToggle();
+        var rows = _timeline.Common.Where(t => (cat == "All" || ProvenanceCategory(t.Key) == cat) && Matches(t.Name, t.Key)).ToList();
+        DrawRows("##allrows", rows, t => TimelineView(t, FontAwesomeIcon.Feather),
+            t => { if (target != null) TriggerTimeline(t, target); });
+    }
 
-            // Common is the LAST section now (Advanced moved above), so fill ALL remaining window
-            // height; floor at 140 so it stays usable on a short window or when the specials list is long.
-            var listH = MathF.Max(140f, ImGui.GetContentRegionAvail().Y);
-            ImGui.BeginChild("##commonlist", new Vector2(0, listH), true, ImGuiWindowFlags.None);
-            DrawTimelineButtons(commonRows, target);
-            ImGui.EndChild();
+    // ---- "In hand": props for poses ----------------------------------------------------------------------
+
+    private string HandLabel()
+    {
+        var m = _config.PoseHand;
+        if (m == "empty") return "In hand: nothing";
+        if (m == "weapon") return "In hand: my weapon";
+        if (m.StartsWith("prop:", StringComparison.Ordinal))
+            return "In hand: " + (_poses.Props.FirstOrDefault(p => PropKey(p) == m)?.Name ?? "prop");
+        return "In hand: auto";
+    }
+
+    private static string PropKey(HandProp p) => $"prop:{p.Set},{p.Base},{p.Variant}";
+
+    /// <summary>The "In hand" picker: Auto (the pose's own prop where it has one, else empty hands — the default),
+    /// nothing, my weapon, or any of the ~800 named props (searchable). Changing it re-dresses a held pose now.</summary>
+    private void DrawHandPicker(ICharacter? target, float width)
+    {
+        ImGui.SetNextItemWidth(width);
+        if (ImGui.BeginCombo("##handpick", HandLabel(), ImGuiComboFlags.HeightLarge))
+        {
+            if (ImGui.Selectable("Auto: the pose's own prop, else nothing", _config.PoseHand == "auto")) SetHand("auto", target);
+            if (ImGui.Selectable("Nothing (empty hands)", _config.PoseHand == "empty")) SetHand("empty", target);
+            if (ImGui.Selectable("My weapon", _config.PoseHand == "weapon")) SetHand("weapon", target);
+            ImGui.Separator();
+            ImGui.SetNextItemWidth(-1f);
+            ImGui.InputTextWithHint("##propsearch", "Search props (cup, pipe, book…)", ref _propSearch, 48);
+            var q = _propSearch.Trim();
+            var shown = 0;
+            foreach (var p in _poses.Props)
+            {
+                if (q.Length > 0 && !p.Name.Contains(q, StringComparison.OrdinalIgnoreCase)) continue;
+                if (++shown > 300) { ImGui.TextDisabled("…type to narrow the list"); break; }
+                ImGui.PushID(shown);
+                if (ImGui.Selectable(p.Name, _config.PoseHand == PropKey(p))) SetHand(PropKey(p), target);
+                ImGui.PopID();
+            }
+            ImGui.EndCombo();
+        }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("What the hand holds while posing. Auto gives drinking poses a cup, smoking a pipe,\n" +
+                             "reading a book and so on, and empties the hand otherwise (so your weapon never\n" +
+                             "appears in it). Reset to Normal gives the weapon back. Visual only, your screen.");
+    }
+
+    private void SetHand(string mode, ICharacter? target)
+    {
+        _config.PoseHand = mode;
+        _pi.SavePluginConfig(_config);
+        if (target != null && _guise.HasPoseHand(target.ObjectIndex)) ApplyHand(target, _lastPose);
+    }
+
+    /// <summary>Dress the hand for a pose per the picker: weapon = give it back; nothing = empty; auto = the
+    /// entry's own prop else empty; a specific prop = that prop.</summary>
+    private void ApplyHand(ICharacter target, LibEntry? e)
+    {
+        var m = _config.PoseHand;
+        if (m == "weapon") { _guise.RestorePoseHand(target); return; }
+        HandProp? prop = m == "auto" ? e?.Prop
+                       : m.StartsWith("prop:", StringComparison.Ordinal) ? _poses.Props.FirstOrDefault(p => PropKey(p) == m)
+                       : null;
+        if (prop == null) { _guise.SetPoseHand(target); return; }
+        _guise.SetPoseHand(target, new FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId
+            { Id = prop.Set, Type = prop.Base, Variant = prop.Variant });
+    }
+
+    /// <summary>Play a library entry through the tab's funnels (hold = Loop + held-loop report; intro-hold =
+    /// PlaySequence like the Combos; once = PlayOnce + one-shot report), dressing the hand first: a job skill gets
+    /// the real weapon back, a pose gets whatever the "In hand" picker says.</summary>
+    private void PlayLibEntry(LibEntry e, ICharacter target, bool skill)
+    {
+        if (skill) _guise.RestorePoseHand(target);
+        else { _lastPose = e; ApplyHand(target, e); }
+        switch (e.Play)
+        {
+            case PosePlay.Hold:      _anim.Loop(target, e.Id);                   ReportHeldLoop(target, e.Id);     break;
+            case PosePlay.IntroHold: _anim.PlaySequence(target, e.Id, e.HoldId); ReportHeldLoop(target, e.HoldId); break;
+            default:                 _anim.PlayOnce(target, e.Id);               ReportOneShot(target, e.Id);      break;
         }
     }
 
@@ -3575,13 +3854,6 @@ public sealed class MainWindow : Window, IDisposable
         return "Other";
     }
 
-    /// <summary>The "playables" default filter for a HUMAN (cNNNN) guise, which has no caps profile and so
-    /// otherwise shows the full ~420-row pile. Hides the two junk provenance buckets — Move (walk/run/swim/
-    /// jump: ~92 rows) and React (hit/knockback/guard: ~16) — that no skill triggers and the guise's own
-    /// locomotion already covers. Leaves the 353 playable rows. The "Show all timelines" checkbox flips this
-    /// off, exactly mirroring the monster caps escape-hatch.</summary>
-    private static bool IsPlayable(string key)
-        => ProvenanceCategory(key) is not ("Move" or "React");
 
     /// <summary>
     /// Fire a timeline on the target per the Loop toggle and the row's nature — the single routing point

@@ -16,6 +16,10 @@ public sealed class Configuration : IPluginConfiguration
     /// synthetic key.</summary>
     public HashSet<uint> Favorites { get; set; } = [];
 
+    /// <summary>b21: what a library pose puts in the hand. "auto" (default) = the pose's own prop (cup, pipe, book…)
+    /// where it has one, else empty hands; "empty"; "weapon" (leave the real weapon); or "prop:Set,Base,Variant".</summary>
+    public string PoseHand { get; set; } = "auto";
+
     /// <summary>
     /// Per-favourite absolute scale override, used by the Favourites tab's focused-library controls.
     /// Keyed by BNpcBase id; a base absent here falls back to the mob's authored native scale

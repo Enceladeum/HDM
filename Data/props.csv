@@ -1,0 +1,796 @@
+# Hand props for HDM poses. Source: Anamnesis Data/Equipment.json (MIT licence, (c) Anamnesis contributors).
+Name,Set,Base,Variant
+1/4th of a Pie,9001,357,2
+3/4ths of a Pie,9001,357,1
+9S' blindfold,9064,1,1
+A Moogle,9001,431,1
+Adventurers Guild Decal,9001,73,1
+Aesthetician Scissors,9029,1,1
+Aether Compass,9044,1,1
+Aetheryte Shard,9033,26,1
+Airship steering wheel,9004,1,1
+Alchemical Phial,9001,38,1
+Alchemical Tools,9001,37,1
+Alcohol Mixer,9001,267,1
+Alien Plant Thing,9001,360,1
+Alisae's Clay Porxie,9001,287,1
+Allagan Cube,9033,11,1
+Altima Stone,9033,15,6
+Ancient Mask,9001,341,1
+Anogg's Left Glove,9001,309,1
+Anogg's Right Glove,9001,310,1
+Anogg's Turban,9001,308,1
+Apple,9001,249,1
+Apple,9901,16,1
+Apple,9001,354,1
+Arbert's Axe of Light,9001,266,1
+Arcane Plug,9001,366,1
+Archon Burger,9083,1,1
+Archon Egg,9030,6,2
+Archon Egg,9030,6,3
+Archon Egg,9030,6,4
+Archon Egg,9030,14,2
+Archon Egg,9030,14,3
+Archon Loaf Bread Slice,9001,299,1
+Archon Loaf Bread Slice,9001,299,2
+Arm Guard,9001,138,1
+Arrow,9001,139,1
+Ascalon,9001,110,1
+Ascalon,9001,109,1
+Ascian Hood,9057,1,1
+Ascian Martyr's Mask,9001,277,1
+Ascian Martyr's Mask,9001,277,2
+Ascian Martyr's Mask,9001,277,3
+Ascian Martyr's Mask,9001,277,4
+Ascian Martyr's Mask,9001,277,5
+Ascian Martyr's Mask,9001,277,6
+Ascian Mask,9001,175,1
+AST Soulstone,9001,114,1
+Astrology plate?,9001,123,1
+Axe,9001,53,1
+Azem Stone,9033,15,14
+Baby,9001,18,1
+Baby,9032,24,1
+Baby,9001,18,2
+Bag of Pumpkins,9030,4,1
+Bamboo Blowgun,9001,215,1
+Basket,9001,6,1
+Basket of Fruit,9001,440,1
+Basket of Fruit,9032,29,1
+Basket of Fruits,9001,259,1
+Basket with Flowers,9001,5,1
+Basket with Flowers,9001,5,2
+Basket with Potatoes and Tomatoes,9032,40,1
+Baskets on a Stick,9001,56,1
+Baskets on a Stick,9032,16,1
+Big Bomb,9030,1,1
+Big Bomb,9030,1,2
+Big Egg,9030,14,1
+Big Hammer,9001,8,1
+Big Hunk of Ore,9030,2,1
+Black Ball,9001,236,2
+Black Potion,9001,125,2
+Black Pouch,9001,209,2
+Black Tipped Arrow,9001,72,1
+Blank Robot Face Screen,9201,1,5
+BLM Soulstone,9001,82,1
+Block of Stone,9032,26,1
+Block of Wood,9032,20,1
+BLU Soulstone,9001,246,1
+Blue Allagan Orb,9001,391,1
+Blue Gem,9001,211,2
+Blue Gem set in Gold,9001,358,1
+Blue Glass Bottle,9001,238,1
+Blue Orb,9033,2,1
+Blue Phial,9001,126,1
+Blue Potion,9901,24,1
+Blue Potion 2,9901,22,1
+Blue Robot Face (Angry),9201,1,2
+Blue Robot Face (Blank),9201,1,8
+Blue Robot Face (Confused),9201,1,3
+Blue Robot Face (Neutral),9201,1,1
+Blue Robot Face (Surprised),9201,1,4
+Blue Sealed Book,9043,1,1
+Blue Signet Ring,9001,272,1
+Bom Boko Taiyaki,9001,218,1
+Bombard,9030,7,1
+Bottle of Wine,9001,334,1
+Bottle on a Rope,9048,1,1
+Bouquet of Flowers,9001,134,1
+Bouquet of Lillies,9001,100,1
+Bouquet of White Flowers,9001,117,1
+Bowl of Rice,9001,153,1
+Bowl of Salad,9033,29,1
+Bowl of Soup (Empty),9001,383,3
+Bowl of Soup (Orange),9001,382,1
+Bowl of Soup (Red),9001,382,2
+Bowl/Wok,9001,16,1
+Branch,9001,324,1
+Branch,9001,325,1
+Branches with Leaves,9001,371,1
+Brass Key?,9001,237,3
+Brass Mug,9001,347,1
+Brass Mug with Lime,9001,319,1
+BRD Soulstone,9001,80,1
+Bread Bun,9901,1,1
+Broken Crystal of Light (Pink),9033,8,2
+Broken Crystal of Light (White),9033,8,1
+Broken Garlean Sword,9001,179,1
+Broken Kickumbob Machine Part,9001,290,1
+Broken Memory Crystal (Top),9033,18,1
+Broken Omicron Leg,9001,346,1
+Broom,9069,1,1
+Broom,9047,1,1
+Brown Pouch,9001,209,1
+Bullet,9001,296,1
+Bullet,9001,333,1
+Bullet Casing,9001,293,1
+Bullet Casing,9001,293,2
+Bullet Casing,9001,293,3
+Bullet Casing,9001,293,4
+Bunch of Green Bananas,9001,97,1
+Bundle of Reeds (Green),9032,43,2
+Bundle of Reeds (Tan),9032,43,1
+Burlap Bag,9032,42,1
+Burlap Sack,9030,20,1
+Burlap Sack Pile,9001,60,1
+Cait Sith Wine,9001,222,2
+Cake Slice,9901,4,1
+Calling Card,9001,92,1
+Cannon ramrod,9035,4,1
+Card Spread,9030,10,1
+Card Spread,9037,1,1
+Carrot,9901,15,1
+Cat Crate,9032,41,1
+Chain,9001,327,1
+Charred Book,9001,129,1
+Cheese Slice,9901,21,1
+Chicken Wing,9901,5,1
+Chocolate Heart,9901,3,1
+Chopsticks,9001,152,1
+Chunk of Auracite,9033,3,1
+Chunk of Wall,9001,389,1
+Cid's Locket Necklace,9001,297,1
+Circlet,9001,36,1
+City of Gold Key,9033,35,1
+Cockpit Chair,9033,19,1
+Cocoon,9030,3,1
+Coffee Biscuit,9001,312,1
+Coffee Biscuit,9001,312,2
+Coffee Biscuit,9001,312,3
+Coffee Cup,9001,318,1
+Coffee Cup,9001,318,3
+Coffee Cup (Light),9001,318,2
+Coiled Necklace,9001,350,1
+Coin,9001,254,1
+Coin,9001,254,2
+Coin,9001,332,1
+Colorful Present Stack,9001,59,1
+Comb,9032,1,1
+Conductor's Baton,9032,21,1
+Constellation Crystal,9033,15,15
+Constellation Crystal,9033,15,16
+Cooking Items,9017,2,1
+Cooking Ladle,9001,9,1
+Cooking Whisk,9001,10,1
+Corked Alcohol Bottle,9001,221,1
+Corked Rose Alcohol Bottle,9001,222,1
+Count Edmont's Walking Stick,9039,1,1
+Crate,9001,42,1
+Crate of Rubble,9030,23,1
+Crest or armor piece?,9001,194,1
+Crown/Circlet,9001,121,1
+Crystal,9001,133,1
+Crystal Coffer (Dim),9033,13,7
+Crystal Coffer (Glow),9033,13,9
+Crystal Coffer w/ Blood (Glow),9033,13,8
+Crystal Exarch's Hood,9056,1,1
+Crystal Exarch's Hood,9056,1,2
+Crystal Focus,9033,14,1
+Crystal Focus,9033,17,1
+Crystal of Light (Corrupted),9001,378,1
+"Crystal of Light, Auracite",9001,66,9
+"Crystal of Light, Darkness",9001,66,7
+"Crystal of Light, Earth",9001,66,4
+"Crystal of Light, Grey",9001,66,8
+"Crystal of Light, Ice",9001,66,2
+"Crystal of Light, Lightning",9001,66,5
+"Crystal of Light, Water",9001,66,6
+"Crystal of Light, Wind",9001,66,3
+Crystal tear,9072,1,1
+Cup,9001,145,1
+Cut Block of Stone,9032,27,1
+Cymbal,9001,27,1
+Decorated Flintlock,9001,124,1
+Deep Blue Phial,9001,125,1
+Demon Head,9033,31,1
+Deudalaphon Stone,9033,15,10
+Discarded Face Mask,9001,96,1
+DNC Soulstone,9001,248,1
+Doman Suketa,9054,1,1
+Dragon Scale,9001,323,1
+DRG Soulstone,9001,79,1
+DRK Soulstone,9001,115,1
+Dwarven Helm,9078,1,1
+Dwarven Helmet,9001,279,1
+Dwarven Helmet,9001,279,2
+Dwarven Helmet,9001,279,3
+Earthenware Bottle,9001,411,1
+Earthenware Mug,9001,412,1
+Easter Egg,9030,6,1
+Egg Slice,9901,11,1
+Electrope Block,9033,36,1
+Elidibus Stone,9033,15,13
+Elpis Flower,9033,23,1
+Elpis Flower,9033,23,2
+Elpis Flower,9033,23,3
+Elpis Flower,9033,23,4
+Elpis Flower,9033,23,5
+Elpis Flower,9033,23,6
+Elpis Flower,9033,23,7
+Elpis Flower,9033,23,8
+Elpis Flower,9033,23,9
+Elpis Flower,9033,23,10
+Elpis Flower,9033,23,11
+Elpis Flower - Gold 2,9033,23,12
+Emet-Selch Stone,9033,15,3
+Emmeroloth Stone,9033,15,11
+Emperor Varis’ Helmet,9001,102,1
+Empty Bowl,9001,207,1
+Empty Glass,9001,386,2
+Empty Lunch Sack,9032,38,1
+Engraved Sword Blade,9001,302,1
+Enormous Painter’s Brush,9001,232,1
+Envelope (Open),9001,344,1
+Envelope (Turali),9001,379,1
+Eternity Ring,9001,322,1
+Ewer,9001,356,1
+Eye of Nidhogg,9001,132,1
+Fall Guys Crown,9001,395,1
+Fancy Fan,9032,23,1
+Fandaniel Stone,9033,15,5
+Feather Quill,9001,30,1
+Fish,9901,19,1
+Fish,9001,348,1
+Flatbread,9001,383,1
+Flatbread (Heart),9001,384,1
+Flintlock Pistol,9001,176,1
+Floating platform or drone?,9001,181,1
+Flute,9001,410,1
+Forge Hammer,9032,25,1
+Fork,9032,10,1
+Fried Fish,9901,7,1
+Fruit,9001,251,1
+G-Saviour MIRV,9076,1,1
+G-Saviour MIRV Warheads,9077,1,1
+G-Saviour Missile,9075,1,1
+G-Warrior Controller,9067,1,1
+G-Warrior Controller,9066,1,1
+Gae Bolg,9033,12,1
+Galleas wheel,9004,3,1
+Galleas wheel,9004,2,1
+Garlean armour fragment,9001,94,1
+Garlean Decal,9001,70,1
+"Garlean Map Marker, Red",9001,70,2
+Garlean Sword Blade Fragment,9001,180,1
+Gem Cube (Aqua),9001,402,4
+Gem Cube (Blue),9001,402,1
+Gem Cube (Green),9001,402,6
+Gem Cube (Multi),9001,402,7
+Gem Cube (Orange),9001,402,2
+Gem Cube (Red),9001,402,3
+Gem Cube (Yellow),9001,402,5
+Giant Armor Plate,9001,367,1
+Giant Blue Carrot,9032,39,3
+Giant Canister,9033,30,1
+Giant Carrot,9001,326,1
+Giant Carrot,9001,326,2
+Giant Carrot,9001,326,3
+Giant Carrot,9001,326,4
+Giant Carrot,9001,326,5
+Giant Carrot,9001,326,6
+Giant Flan,9001,396,1
+Giant Pipe,9001,376,1
+Giant Red Carrot,9032,39,1
+Giant Sword,9001,353,1
+Giant Yellow Carrot,9032,39,2
+Gigantic Meol,9001,269,1
+Gigantic Sword,9001,390,1
+Gil Coin,9001,303,1
+Gil Coin,9001,303,2
+Gil Coin,9001,303,3
+Gladiator Sword,9001,174,1
+Glass w/ Orange Liquid and Straw,9001,359,1
+Glass with Blue Juice,9001,386,7
+Glass with Caramel Drink,9001,386,1
+Glass with Green Liquid,9001,386,6
+Glass with Milk,9001,386,3
+Glass with Purple Juice,9001,386,4
+Glass with Red Juice,9001,386,5
+Glass with Yellow Juice,9001,386,8
+Glasses,9001,177,1
+Gleaner's Backpack,9079,1,1
+Glowing Astrologian Card,9030,13,1
+Glowing Banana,9001,413,1
+Glowing Blue Orb,9030,12,1
+Glowing Blue Teardrop,9033,33,1
+Glowing Canister,9033,32,1
+Glowing Cyan Mushroom,9001,283,1
+Glowing Fragment of Rock,9033,10,1
+Glowing Horn,9001,85,1
+Glowing pendant,9033,4,1
+Glowing Staff,9001,243,1
+Gnath Pot,9030,16,1
+Goblet,9001,105,1
+Golbez's Helmet,9001,375,1
+Gold Saucer Hammer,9032,3,1
+Golden Key,9001,237,1
+Golden Pouch,9001,231,1
+"Golden Ring, Red Gem",9001,98,1
+Green Fruit,9001,405,1
+Green Gem,9001,264,1
+Green wine bottle,9001,284,1
+Green wine bottle,9001,284,2
+Green wine bottle,9001,284,3
+Green wine bottle,9001,284,4
+Grey Ball,9001,236,3
+Grey Beret,9001,178,1
+Grub,9001,250,1
+Gunblade Soulstone,9001,247,1
+Hades Mask,9001,276,1
+Hair Brush,9001,261,1
+Half a Dumping,9001,361,2
+Half a Dumpling,9001,361,1
+Half a Dumpling,9001,361,4
+Half of DRK Soulstone,9001,193,1
+Halmarut Stone,9033,15,7
+Hammer,9001,63,1
+Hammer,9001,163,1
+Hanami Dango,9901,28,1
+Hancock's Glasses,9001,244,1
+Hand Plane,9001,204,1
+Handgun,9001,295,1
+Hannish Fabric Rolls,9032,31,1
+Hannish Rotating Grinder Top,9006,1,1
+Harp,9001,3,1
+Helmet,9001,192,1
+"Helmet, Dragoon?",9001,122,1
+Hingan Brush,9001,151,1
+Hingan Card 1,9001,173,1
+Hingan Card 2,9001,172,1
+Hingan Card 3,9001,171,1
+Hingan Scroll,9001,150,1
+Horn,9001,4,1
+Horn,9001,26,1
+Horn from Zenos’ Helmet,9001,190,1
+"Horn-shaped Crystal, Blue",9001,85,3
+"Horn-shaped Crystal, Green",9001,85,4
+"Horn-shaped Crystal, Red",9001,85,2
+Horned Helmet,9001,108,1
+Hot Iron in Tongs,9001,12,1
+Hraesvelgr,9071,1,1
+Hraesvelgr’s Eye,9001,86,2
+Hraesvelgr’s Eye,9001,86,4
+Huge Rolled Tatami,9001,147,1
+Hythlodaeus' Arrow,9001,343,1
+Icicle Necklace,9033,20,1
+Icicle Necklace,9033,21,1
+Igeyorhm Stone,9033,15,9
+Il Mheg Looking Grass,9001,268,1
+Immortal Flames Decal,9001,68,1
+Immortal Flames Flag,9024,1,1
+Imperial Grenade,9033,22,1
+Imperial Handgun,9085,1,1
+Imperial Pot Helm,9001,300,1
+Imperial Remote Switch,9033,5,1
+Jack Cookie,9901,25,1
+Japanese Bell,9001,226,1
+Japanese Cask,9030,19,1
+Japanese Fan,9001,227,1
+Japanese hat,9001,162,1
+Japanese Smoking Pipe,9001,169,1
+Juggling Items,9017,1,1
+Kairos,9001,342,1
+Katana,9001,229,1
+Knife,9032,11,1
+Knocked Out Namazu,9032,14,1
+Koban,9032,19,1
+Konogg's Turban,9001,314,1
+Konogg's Turban Feathers,9001,315,1
+Krile's Earring,9001,392,1
+Kunai,9001,130,1
+Lahabrea Stone,9033,15,12
+Lantern,9082,1,1
+Large Box of Crystals,9001,255,1
+Large Box of Hay,9001,257,1
+Large Box of Potions,9001,256,1
+Large Briefcase,9001,91,1
+Large Fish,9001,216,1
+Large Glass Gem,9001,185,1
+Large Pot,9030,5,1
+Large Rolled Papers,9001,196,1
+Large Ronkan Disc,9001,265,1
+Large Stick,9001,2,1
+Large Stick,9001,1,1
+Large wooden Spike,9001,205,1
+Large Wooden Spoon,9001,46,1
+Length of Rope,9001,61,1
+Letter (Turali),9001,380,1
+Letter or note,9001,275,1
+Lightbulb (Blue),9001,368,1
+Lightbulb (Orange),9001,368,4
+Lightbulb (Red),9001,368,2
+Lightbulb (Yellow),9001,368,3
+Lipstick,9001,313,1
+Lipstick,9001,313,2
+Loghrif Stone,9033,15,1
+Long Rock,9001,415,1
+Loom reed,9005,2,1
+Loom reed,9005,2,2
+Loom reed,9005,2,3
+Lugae Head,9033,27,1
+Lump of Clay,9001,288,1
+Lute,9001,199,1
+Lute,9001,199,2
+Machinist Ammo Pack,9001,111,1
+Machinist Satellite Beam Turret,9102,1,1
+Maelstrom Decal,9001,67,1
+Maelstrom Flag,9023,1,1
+Magitek Projectile?,9001,118,1
+Map Marker,9001,75,1
+Mask,9001,35,1
+Mask of Azuro,9001,294,1
+Massive Gear,9001,273,1
+Mate Cup,9001,417,1
+Matoya's Staff,9039,2,1
+MCH Soulstone,9001,113,1
+Meat Chunk,9901,17,1
+Memoriam Crystal (Dark),9033,28,2
+Memoriam Crystal (Dim),9033,28,3
+Memoriam Crystal (Glow),9033,28,1
+Menu/Flier,9001,107,1
+Meol,9001,252,1
+Metal Bucket,9009,1,1
+Metal Cage,9001,377,1
+Metal Cup,9001,17,1
+Metal Mug,9001,239,1
+Metal Phial,9032,22,1
+Metal Spear or Lance,9001,281,1
+Meyhane Cup,9001,321,1
+Minor Ascian Mask,9001,214,1
+Missile,9001,140,1
+Missile,9001,349,1
+Mitarashi Dango,9901,27,1
+Mitron Stone,9033,15,2
+Mitron's Mask,9001,305,1
+MNK Soulstone,9001,77,1
+Moenbryda’s Aether Siphon,9001,101,1
+Morin Khuur Base,9001,161,1
+Morin Khuur Fiddle,9001,160,1
+Morpho Totrm,9001,424,1
+Muffin,9901,8,1
+Multi Scoop Ice Cream Cone,9001,428,1
+Mushroom,9901,20,1
+Nabriales Stone,9033,15,8
+Nael van Darnus’ helmet,9001,93,1
+Nanamo's Tiara,9031,1,1
+Narwhal Totem,9001,422,1
+Necklace,9001,224,1
+Necklace,9001,223,1
+Nero's Compass,9026,1,1
+Nero's Scanner,9001,286,1
+New Years' Box,9001,370,1
+Niddhog's Eye,9001,86,1
+Niddhog’s Eye,9001,86,3
+NIN Soulstone,9001,103,1
+Note,9001,92,3
+Note attached with Knife,9001,92,2
+Notepad,9001,48,1
+Oar,9001,54,1
+Odder Otter Taiyaki,9001,217,1
+Omicron Head,9001,345,1
+Onigiri,9901,32,1
+Onigiri,9901,26,1
+Open Book,9001,317,1
+Open Book,9001,317,2
+Opera binoculars,9035,1,0
+Opera Glasses,9035,1,1
+Ornate Sword,9001,374,1
+Ornate Tea Cup (Filled),9090,1,1
+Owl Totem,9001,426,1
+Package,9001,230,1
+Paint Brush,9001,260,1
+Paint Brush,9001,260,2
+Paint Can - Handle Down (Blue),9001,369,6
+Paint Can - Handle Down (Red),9001,369,5
+Paint Can - Handle Down (Teal),9001,369,7
+Paint Can - Handle Down (White),9001,369,8
+Paint Can - Handle Up (Blue),9001,369,2
+Paint Can - Handle Up (Red),9001,369,1
+Paint Can - Handle Up (Teal),9001,369,3
+Paint Can - Handle Up (White),9001,369,4
+Painter’s Brush,9001,232,2
+Painter’s Brush,9001,232,3
+Painter’s Brush,9001,232,4
+Painter’s Brush,9001,232,5
+Palm Leaf,9016,1,1
+Pangolin Totem,9001,425,1
+Paper,9019,1,1
+Paper bag,9032,30,1
+Paper Pinwheel,9049,1,1
+Pashtarot Stone,9033,15,4
+Perfume Bottle,9032,32,1
+Persimmon,9901,30,1
+Person-sized planet?,9001,274,1
+Pictomancer Job Stone,9001,435,1
+Piece of Flatbread,9001,385,1
+Piece of Gaius' Helm,9001,245,1
+Pink Bento,9032,15,1
+Pitchfork,9001,51,1
+Pizza,9901,33,1
+Plate,9001,336,1
+Plate (Ornate),9001,355,1
+PLD Soulstone,9001,76,1
+Pod 054,9061,1,1
+Pole,9001,62,1
+Pommander,9030,17,1
+Pork Chop,9001,393,1
+Pork Chop (Eaten),9001,393,2
+Pork Chop Bone,9001,394,1
+Poro Rogo Card,9001,206,1
+Porridge?,9001,210,1
+Poster,9001,57,1
+Pot,9001,50,1
+Potion,9001,233,1
+Potion,9001,233,2
+Potion,9001,233,3
+Pouch,9901,14,1
+Present,9030,25,1
+Present,9030,25,2
+Present,9030,25,3
+Present,9030,25,4
+Prybar,9034,2,1
+Pure Black Orb,9030,8,1
+Purple Flower,9001,280,1
+Purple Phial,9001,127,1
+Purple Robot Face (Angry),9201,1,7
+Purple Robot Face (Neutral),9201,1,6
+Quarter of a Dumpling,9001,361,3
+Quill (Blue),9001,439,1
+Rag,9001,212,1
+Rak'Tika Owl Statue,9030,21,1
+Rake,9035,5,1
+Rapier,9001,338,1
+Raubahn's Helmet,9014,1,1
+Raubahn's Left Arm,9001,106,1
+Ravana's Sword,9001,116,1
+RDM Soulstone,9001,188,1
+Realm Reborn Red,9030,9,1
+Reaper hood,9080,1,1
+Reaper Soulstone,9001,330,1
+Rectangular Crate,9001,19,1
+Rectangular Crate,9032,5,1
+Red Flask,9001,128,1
+Red Gem,9001,211,1
+Red Glowing Crystal,9001,66,1
+Red Japanese Umbrella,9032,17,1
+Red Pot,9001,170,1
+Red Pot,9032,18,1
+Red Present with Hearts,9001,198,1
+Red Tag,9001,365,1
+Red wine bottle,9001,285,1
+Red wine bottle,9001,285,2
+Red wine bottle,9001,285,3
+Red wine bottle,9001,285,4
+Reddish-Pink Ring,9001,270,1
+Regulator,9033,34,1
+Regulator - Large,9033,34,2
+Regulator - Purple,9033,34,3
+Regulus Van Hydrus' Sword,9001,168,1
+Regulus Van Hydrus' Sword,9001,167,1
+Remote Detonator,9033,6,1
+Remote Detonator,9033,6,2
+Reporter's Mask,9001,387,1
+Ring with huge gemstone,9001,271,1
+Rock,9001,133,2
+Rolled Paper,9001,120,1
+Rolled Up Map,9001,397,1
+Round Blue Gem,9001,81,2
+Round Bullet,9001,183,1
+Royal Bracelet,9001,263,1
+Royal Crown,9001,262,1
+Rubber Tube?,9001,298,1
+Rusty Whatsit Machine Part,9001,292,1
+Sable Death Mask,9001,240,1
+Sack,9001,329,1
+Sage Soulstone,9001,331,1
+Sake Cup,9001,144,1
+"Sake cup, filled",9001,145,2
+Salad,9901,9,1
+Salmon Sushi,9901,29,1
+SAM Soulstone,9001,189,1
+Samurai Blade (no handle),9001,149,1
+Saucer,9001,373,1
+SCH Soulstone,9001,84,1
+Scorpion Totem,9001,423,1
+Scraper,9001,203,1
+Scythe Head,9001,398,1
+Scythe Shaft,9001,399,1
+Sealed Barrel,9032,28,1
+Sealed Envelope,9001,235,1
+Seed from Grand Cosmos,9030,22,1
+Seraph,9101,1,1
+Serving Tray,9001,47,1
+Serving Tray with Glasses,9032,4,1
+Sharlayan Aetheric Control Interface,9033,25,1
+Sharlayan Aetherometer Goggles,9020,1,1
+Sharlayan Aetherometer Goggles,9020,2,1
+Sharlayan Aetherometer Goggles,9021,1,1
+Sharlayan Aetherometer Goggles,9022,1,1
+Sharlayan Aetherometer Goggles,9022,2,1
+Sharlayan Paper,9084,1,1
+Sharlayan Transport Cart,9068,1,1
+Short Wooden Pole,9001,213,1
+Shortened Arrow,9001,45,1
+Shoulderpad,9001,95,1
+Shovel,9001,253,1
+Sickle,9001,242,1
+Silver Bracelet,9001,289,1
+Silver Key,9001,237,2
+Silver Mask,9001,135,1
+Silver Tipped Arrow,9001,71,1
+Single Blue Flower,9001,24,1
+Single Blue Lily,9001,388,3
+Single Red Lily,9001,388,2
+Single White Flower,9001,7,1
+Single White Lily,9001,388,1
+Size Card?,9001,206,3
+Skewer 2,9901,6,1
+Skewered Meat,9901,10,1
+Skyworker's Goggles,9001,64,1
+Small Ball,9030,11,1
+Small Blue Cushion,9001,131,1
+Small Log,9015,1,1
+Small Red Lantern,9032,12,1
+Small Tankard,9901,12,1
+Smelting Ladle,9001,13,1
+SMN Soulstone,9001,83,1
+Snowball,9033,16,1
+Some type of Nut,9901,31,1
+Sophias Sarcophagus,9001,137,1
+Soul Vessel,9033,13,1
+Soul Vessel,9033,13,2
+Soul Vessel,9033,13,3
+Soul Vessel,9033,13,4
+Soul Vessel,9033,13,5
+Soul Vessel,9033,13,6
+Sparrow Taiyaki,9001,219,1
+Spatula,9001,11,1
+Spatula,9001,408,1
+Spearfishing Gig,9001,282,1
+Sphene's Headpiece,9033,37,1
+Spiked Halo,9001,136,1
+Split Round Bullet,9001,184,1
+Spoon,9032,37,1
+Spraypaint,9001,416,1
+Spraypaint,9001,416,2
+Spyglass,9035,2,1
+Spyglass,9035,6,1
+Stack of Bamboo,9001,157,1
+Stack of Blankets,9001,337,1
+Stack of Logs,9001,156,1
+Stack of Posters,9001,58,1
+Stack of Wood,9001,155,1
+Star chart,9001,119,1
+Starbucks Coffee Cup (Black),9032,45,1
+Starbucks Coffee Cup (Purple),9032,45,2
+Stepstool,9034,1,1
+Stone Hammer,9001,414,1
+Stone Tablet,9001,15,1
+Stuffed Moogle,9030,24,1
+Susano's Sword,9001,186,1
+Sylph Podling Cocoon,9030,3,2
+Tablet with Gem (Turali),9001,400,45298
+Tablet without Gem (Turali),9001,401,45298
+Taco,9001,407,1
+Tall Lantern,9032,13,1
+Tankard,9001,28,1
+Tankard of Ale,9001,258,1
+Tankard of Ale (Empty),9001,258,2
+Tankard of Ale (No Handle),9001,258,3
+Target,9001,228,1
+Tarnished Thingamajig Machine Part,9001,291,1
+Tea Cup,9001,143,1
+Tea Cup,9001,418,1
+Tea Cup (Full),9001,372,1
+Tea Cup with saucer,9088,1,1
+Teleportation Device (Dark),9033,5,2
+Test Tube,9001,316,1
+Test Tube,9001,316,2
+Test Tube,9001,316,3
+Thancred’s Gunblade,9001,301,1
+The Nullstone,9046,1,1
+Thick Book 1,9002,1,1
+Thick Book 2,9002,2,1
+Thick Book 3,9002,3,1
+Thin Book,9002,4,1
+Three Multi Scoop Ice Cream,9001,427,1
+Tomestone (Poetics),9001,362,1
+Tomestone Phone,9001,200,1
+Tongue,9053,1,1
+Torn Forbidden Dissonance Wing,9045,2,1
+Torn Hraesvelgr's Wing,9045,1,1
+Tortilla with Meat,9001,403,1
+Tortilla with Meat (Closed),9001,404,1
+Tray with Curry and Naan,9032,35,1
+Tray with Glasses,9035,3,1
+Tray with Kebab,9032,34,1
+Tray with Ngiri,9001,381,1
+Tray with Shakers and Bowl,9032,36,1
+Treasure Map,9001,363,1
+Tropical Fish,9901,18,1
+Tsukoyomi's Katana,9001,225,2
+"Tupsimati, Top part",9001,104,1
+Twin Adder Decal,9001,69,1
+Twin Adders Flag,9025,1,1
+Unknown Wooden Tool,9001,241,1
+Unlit Paper Lantern,9001,220,1
+Urushi Jar,9001,158,1
+Very Thick Book,9042,1,1
+Viber Job Stone,9001,436,1
+Vintage Wine Bottle,9001,222,3
+Vundu Totem,9030,15,1
+Walnut,9001,328,1
+WAR Soulstone,9001,78,1
+Warding Scale,9033,24,1
+Washcloth,9001,52,1
+Water Card,9001,206,2
+Water Flask,9901,2,1
+Water Flask,9200,1,1
+Watering Can,9001,23,1
+Watering Can,9032,2,1
+Western Wanted Poster,9001,434,1
+Western Wanted Poster,9001,434,2
+Western Wanted Poster,9001,434,3
+Western Wanted Poster,9001,434,4
+Wheelchair,9081,1,1
+White Ancient Mask,9001,364,1
+White Auracite,9033,1,1
+White Auracite,9033,7,1
+White Auracite Shard,9033,9,1
+White Ball,9001,236,1
+White Feather,9001,278,1
+White Gemstone,9001,197,1
+White Glowing Orb,9001,31,1
+white half orb,9001,234,1
+White Rock,9001,14,1
+White Sealed Book,9043,2,1
+White Smoking Pipe,9001,55,1
+WHM Soulstone,9001,81,1
+Wicker Tray,9001,339,1
+Wine Bottle,9001,20,1
+Wine Cup,9001,21,1
+Wine Cup (White),9001,21,2
+Wine Glass (Purple),9001,335,1
+Wine Jug,9001,406,1
+Withered Apple,9001,352,1
+Wooden Chest,9007,1,1
+Wooden mask,9001,35,2
+Wooden Spoon,9001,208,1
+Worn out/Cracked wooden mask,9001,34,1
+Wrench,9001,112,1
+Written letter,9003,1,1
+Yasakani�no�Magatama,9001,187,1
+Yellow Gem,9001,211,3
+Yellow Glowing Crystal,9001,74,1
+Yellow Potion,9901,23,1
+Yotsuyu's Mirror,9001,202,1
+Zenos' Katana,9001,225,1
+Zenos' Scythe,9001,340,1
+Zenos' Sword Carrier,9001,164,1
+Zenos’ Eye FX,9001,195,1
+Zenos’ Helmet,9001,191,1
+Zenos’ Sword Carrier: All swords,9001,164,0
+"Zenos’ Sword Hilt, Black",9001,165,1
+"Zenos’ Sword Hilt, White",9001,166,1
+Zero's Hat,9001,351,1
