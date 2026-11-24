@@ -67,6 +67,7 @@ public sealed class Plugin : IDalamudPlugin
     internal const string BuildIdSuffix = "";
 #endif
 
+    private readonly UniversalPoses _universal;
     private readonly WindowSystem _windows = new("HDM");
     private readonly MainWindow _main;
     private readonly GuiseService _guise;
@@ -234,6 +235,9 @@ public sealed class Plugin : IDalamudPlugin
         _possession.AllowPossessOthers = config.AllowPossessOthersPuppets; // seed the ownership gate (default off — only a puppet's originator drives it)
         _harvest.Enabled = config.HarvestMobNames; // seed the runtime name/territory harvester (default off — opt in via Config)
         _guise.ClearDisguiseOnMapChange = config.ClearDisguisesOnMapChange; // seed the opt-in map-hop own-body strip (default off — keep disguise across zones)
+        // b31: experimental cross-body pose porting (Human ResolvePapPath hook; no Penumbra). See UniversalPoses.
+        _universal    = new UniversalPoses(PluginInterface, Framework, DataManager, Log, config, poses);
+        poses.Porter  = _universal;
         _main         = new MainWindow(index, timeline, poses, content, territory, manual, stems, instanced, lore, level, webloc, companion, enpcLoc, _harvest, _guise, _humanGuise, _anim, _spawn, _possession, _ipc, moniker, config, PluginInterface, Objects, Targets, ClientState, Textures, Log, accent);
 
         _windows.AddWindow(_main);
@@ -244,7 +248,7 @@ public sealed class Plugin : IDalamudPlugin
 
         CommandManager.AddHandler(Command, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open the catalog (no arg). Subcommands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · help.",
+            HelpMessage = "Open the catalog (no arg). Subcommands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · play <animation> · stop · help.",
         });
 #if !HDM_TESTING
         CommandManager.AddHandler(CommandAlias, new CommandInfo(OnCommand) { ShowInHelp = false });
@@ -272,6 +276,7 @@ public sealed class Plugin : IDalamudPlugin
         // Order matters: stop animation overrides before reverting models —
         // both revert game state, and both must run before teardown completes.
         _harvest.Dispose();
+        _universal.Dispose();
         _spawn.Dispose();    // delete every live puppet FIRST — it Forgets guise/anim tracking, so those services must still be live
         _anim.Dispose();
         _guise.Dispose();
@@ -303,6 +308,8 @@ public sealed class Plugin : IDalamudPlugin
             "revert" or "off" or "reset" => _main.CommandRevert(),
             "hide" or "unhide" or "show" => _main.CommandHide(),
             "wisp"                       => _main.CommandWisp(),
+            "play" or "anim" or "pose"   => _main.CommandPlay(rest),
+            "stop"                       => _main.CommandPlay("stop"),
             "apply" or "become"          => _main.CommandApply(rest),
             "spawn"                      => _main.CommandSpawn(rest),
             "despawn" or "despawnall"    => _main.CommandDespawnAll(),
@@ -319,7 +326,7 @@ public sealed class Plugin : IDalamudPlugin
     }
 
     private const string HelpText =
-        "commands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · open · (no argument opens the window).";
+        "commands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · play <animation> · stop · open · (no argument opens the window).";
 
     private string OpenAndSilence() { _main.IsOpen = true; return ""; }
 }

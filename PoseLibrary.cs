@@ -22,7 +22,7 @@ public sealed record LibEntry(string Name, PosePlay Play, ushort Id, ushort Hold
 
 /// <summary>A hand prop: a weapon-slot model (Set/Base/Variant) loaded into the main hand while posing — the way
 /// the game's own cutscene props work. From Data/props.csv (Anamnesis, MIT).</summary>
-public sealed record HandProp(string Name, ushort Set, ushort Base, ushort Variant);
+public sealed record HandProp(string Name, ushort Set, ushort Base, ushort Variant, bool OffHand = false);
 
 /// <summary>A named group of entries ("Hurt & collapse", "Dragoon (DRG)").</summary>
 public sealed record LibGroup(string Name, IReadOnlyList<LibEntry> Items, uint JobId = 0);
@@ -121,30 +121,61 @@ public sealed class PoseLibrary
         (5643, "Light warp"), (5644, "Ninja vanish"), (6192, "Forced warp"), (8488, "Return"),
     ];
 
-    // Keyword groups for the uncurated event poses, first match wins (order matters: "kneel_pray" is Prayer,
-    // "ground_tired" is Hurt). Matched against the key stem without its event_/event_base_ prefix.
-    private static readonly (string Group, Regex Pattern)[] Keywords =
+    // Keyword groups for the uncurated event poses, first match wins (order matters: a chair pose is "On a chair"
+    // before anything else; "ground_tired" is Hurt before "On the ground"). b27: matched against WHOLE WORDS of the stem
+    // (split on '_' and digits), not substrings, so "bread" is no longer "read" and "paint" is no longer "pain".
+    // Token forms: "x" = a word starting with x; "x$" = a word that IS x; "a_b" = that phrase in the stem.
+    // Validated offline against all 1,084 event keys.
+    private static readonly (string Group, string[] Tokens)[] Keywords =
     [
-        ("Hurt & collapse", new(@"damage|pain|hurt|injur|suffer|collapse|faint|dying|dead|ded$|stagger|crawl|exhaust|wound|bleed|tired|sick|dizzy|knockdown|fall|explosion|disappear")),
-        ("Lying", new(@"lie|lying|sleep|nap|lay|bed")),
-        ("Prayer & ceremony", new(@"pray|worship|bow|salute|ceremony|ritual|oath|faith|bless|spirit|muse|healing")),
-        ("Kneeling", new(@"kneel|knee|seiza")),
-        ("Sitting", new(@"sit|chair|seat|bench|ground|floor|agura")),
-        ("Crouching", new(@"crouch|squat|stoop|headdown")),
-        ("Sorrow", new(@"cry|sad|sob|weep|grief|mourn|tear|regret|sorry|depress|orz")),
-        ("Fear", new(@"fear|scare|cower|shiver|tremble|panic|cold|startle|frighten|escape|captured|bind")),
-        ("Anger & provoking", new(@"angry|anger|rage|furious|threat|annoy|provoke|come_on|menace|brawl")),
-        ("Joy", new(@"laugh|joy|happy|cheer|clap|smile|celebrat|toast|excited|appreciat")),
-        ("Performing", new(@"dance|sing|harp|perform|play|appeal|sexy|cardgame")),
-        ("Talking", new(@"talk|speech|speak|explain|guide|call|shout|coach|direction|announce|lecture|order")),
-        ("Thinking & worry", new(@"think|ponder|worr|trouble|confus|question|doubt|look|search|check|review|read|study|listen|wonder|watch|fidget|mysterious")),
-        ("Reactions", new(@"reaction|shock|surprise|nod|yes|_no$|^no$|please|thank|greet|wave|attention|agree|deny|add_|point|beckon|hand|byebye|give")),
-        ("Eating & drinking", new(@"eat|drink|tea|food|meal|cup|bottle|sake|tobacco|glass")),
-        ("Crafting & chores", new(@"work|carry|dig|hammer|craft|cook|chef|write|memo|sweep|scrub|box|lift|pull|push|fish|angler|chop|leather|carpenter|smith|alchem|weav|tailor|grass|water|manure|plow|brush|shine|sprinkle|harvest|clean|wash|repair|build|saw|paint|sew|forge|item|rack|shop|waiter|sell|serve|deliver|count|money|ledger|mineral|mat_")),
-        ("Animals & mounts", new(@"chocobo|horse|cat|dog|bird|pet|feed|ride")),
-        ("Battle & weapons", new(@"battle|guard|stance|ready|draw|sword|spear|bow|yumi|axe|dagger|attack|fight|train|swing|shoot|magic|cast|aim|shield|warming_up|harpoon|arms|archer|colosseum|rogue")),
-        ("Walking", new(@"walk|run|step|stroll|wander|jump|bound")),
-        ("Standing & idle", new(@"stand|idle|wait|wall|lean|rest|pose|base|comfortable|old_person")),
+        ("On a chair", "chair seat bench stool sofa box_sit handrail_sit katana_chair_sit".Split(' ')),
+        ("Hurt & collapse", "damage pain$ painful hurt injur suffer collapse faint dying dead ded$ stagger crawl exhaust wound bleed tired sick dizzy knockdown fall blowaway explosion groggy vomit nausea shudder chest_pain hold_head".Split(' ')),
+        ("Lying", "lie$ lie lying sleep nap$ nap snooze lay$ bed$ float".Split(' ')),
+        ("Prayer & ceremony", "pray worship salute ceremony ritual oath bless healing jp_bow gentleman_bow greeting_respect".Split(' ')),
+        ("Kneeling", "kneel knee seiza both_knees".Split(' ')),
+        ("On the ground", "sit$ sit ground floor agura stroke_sit rock_sit peep_sit".Split(' ')),
+        ("Crouching", "crouch squat stoop headdown hang_body hang_down hangdman".Split(' ')),
+        ("Sorrow", "cry$ sad sob weep grief mourn tear regret sorry depress orz sulk sigh disappoint".Split(' ')),
+        ("Fear", "fear scare cower shiver tremble panic cold$ startle frighten escape captured bind jail hand_cold".Split(' ')),
+        ("Anger & provoking", "angry anger rage furious threat annoy provoke come_on menace brawl catfight".Split(' ')),
+        ("Joy", "laugh joy happy cheer clap smile celebrat celeb toast excited appreciat confetti special_joy gal_peace skillget soulget relicget zodiacget kettleget spirit".Split(' ')),
+        ("Performing", "dance danc sing$ song harp$ bowharp perform play appeal sexy flute drum lute piano morin psyllium pirouette".Split(' ')),
+        ("Eating & drinking", "eat drink tea$ food meal cup$ bottle sake tobacco glass_set hotdrink tequila juice soup mug tumbler alcohol drunk drunker bite".Split(' ')),
+        ("Talking", "talk speech speak explain guide call shout coach direction announce lecture order teach strategy_meeting school_lesson".Split(' ')),
+        ("Battle & weapons", "battle guard stance sword spear bow$ bow_action bow_repair minstrel_bow yumi axe dagger attack fight fighter swing shoot magic cast shield warming_up harpoon archer colosseum rogue skirmish grapple sasumata katana gun gunblade weapon mock_battle samurai soldier ninja gladiator snipe practice_swing bandit chaser flamethrower gravity_beam tractor_beam verthunder arcanist astrologian machinist divination".Split(' ')),
+        ("Crafting & chores", "work working carry dig diggy hammer sledgehammer craft cook$ cooking chef write memo sweep broom scrub box lift fish fishing angler chop woodchop leather carpenter smith alchemist weav weaving tailor grass water manure plow brush shine sprinkle harvest clean wash washing wipe repair build saw paint spray sew forge rack shop waiter sell serve deliver count$ box_count money ledger mineral mat_remove maintenance drill welding vacuum machine panel_operation rammer cannon knead bake make mowing reaping salt sculptor shipbuilder sharpen snow_removal scoop milking sericulture plane$ kitchen dust_off draw_picture lantern_drawing growth_promoter feeding gather scavenge pick_up brick farmer coffee fitting bike check_item".Split(' ')),
+        ("Thinking & worry", "think ponder worr trouble confus question doubt look search review read$ read reading study listen wonder watch fidget mysterious observe peep inspiration perceive take_look onlooker uneasy caution muse".Split(' ')),
+        ("Reactions", "reaction shock surprise nod yes$ no$ please thank greet greeting wave attention agree deny add_ point beckon hand$ byebye give welcome blushing shy myself oneself finger_snap scratch touch_cheeks comfort$ cling protect rescue hold_out baby".Split(' ')),
+        ("Animals & mounts", "chocobo horse cat$ dog bird pet$ feed alpaca punuty ride riding mount".Split(' ')),
+        ("Walking", "walk run$ step stroll wander jump bound fly_away".Split(' ')),
+        ("Standing & idle", "stand idle wait wall lean rest pose base comfortable old_person cute_stand arms$ adjust equip mask gird lipstick necklace stretch yawn breath inhale exhale sniff waist rubbing_hands table_elbow push_up pull_up".Split(' ')),
+    ];
+
+    // Rows never offered: low-poly/test/vfx/no-sound duplicates, mount/monster-only and race-variant debris.
+    private static readonly Regex Junk = new(@"lowpoly|^test$|^test_mount$|vfx|no_se|^m\d{4}_|buddychocobo|^id\d|_practice$");
+
+    private static bool TokenMatch(string tok, string[] words, string stem)
+    {
+        if (tok.Contains('_')) return ("_" + stem + "_").Contains("_" + tok + "_") || ("_" + stem).Contains("_" + tok);
+        if (tok.EndsWith('$')) return words.Contains(tok[..^1]);
+        return words.Any(w => w.StartsWith(tok, StringComparison.Ordinal));
+    }
+
+    /// <summary>The library group for a bare event stem ("stand_eat_bread_yum" -> "Eating &amp; drinking").</summary>
+    public static string GroupOf(string stem)
+    {
+        var words = Regex.Split(stem, @"[_\d]+").Where(w => w.Length > 0).ToArray();
+        foreach (var (g, toks) in Keywords)
+            if (toks.Any(t => TokenMatch(t, words, stem))) return g;
+        return "More";
+    }
+
+    /// <summary>The order groups appear in (rail + "All poses"): postures first, then moods, then activities.</summary>
+    public static readonly string[] GroupOrder =
+    [
+        "Hurt & collapse", "On a chair", "On the ground", "Kneeling", "Lying", "Crouching", "Standing & idle", "Walking",
+        "Talking", "Thinking & worry", "Reactions", "Joy", "Sorrow", "Fear", "Anger & provoking", "Prayer & ceremony",
+        "Performing", "Eating & drinking", "Crafting & chores", "Battle & weapons", "Animals & mounts", "Warp in & out", "More",
     ];
 
     private static readonly Regex Suffix = new(@"_(start|loop|end|st|lp|ed)$");
@@ -211,14 +242,11 @@ public sealed class PoseLibrary
             for (var n = 2; !names.Add(unique); n++) unique = $"{name} ({n})";
             if (unique != name) e = e with { Name = unique };
             var bare = Regex.Replace(stem, @"^event_(base_)?", "");
-            var group = Keywords.FirstOrDefault(kw => kw.Pattern.IsMatch(bare)).Group ?? "More";
-            Add(group, e);
+            if (Junk.IsMatch(bare)) continue;
+            Add(GroupOf(bare), e);
         }
 
-        var order = new List<string> { "Hurt & collapse", "Warp in & out" };
-        order.AddRange(Keywords.Select(k => k.Group).Where(g => !order.Contains(g)));
-        order.Add("More");
-        return order.Where(groups.ContainsKey)
+        return GroupOrder.Where(groups.ContainsKey)
             .Select(g => new LibGroup(g, groups[g]
                 .OrderBy(e => IsCurated(e.Id) ? 0 : 1)
                 .ThenBy(e => IsCurated(e.Id) ? CuratedRank(e.Id) : 0)
@@ -245,6 +273,26 @@ public sealed class PoseLibrary
 
     // ---- per-body gate ----------------------------------------------------------------------------------
 
+    /// <summary>b28: how long a timeline runs, in seconds, from its .tmb header (TMDH frame count at 30 fps); 0 if
+    /// unreadable. Used to freeze a one-shot on its last frame ("Hold the ending").</summary>
+    public float ClipSeconds(LibEntry e)
+    {
+        if (_clipSeconds.TryGetValue(e.Id, out var cached)) return cached;
+        var secs = 0f;
+        try
+        {
+            var f = _data.GetFile($"chara/action/{e.Key}.tmb");
+            var d = f?.Data;
+            // TMLB header (12 bytes), then TMDH: magic(4) size(4) id(2) unk(2) duration(2, frames) unk(2).
+            if (d is { Length: >= 0x1C } && d[0x0C] == (byte)'T' && d[0x0D] == (byte)'M' && d[0x0E] == (byte)'D' && d[0x0F] == (byte)'H')
+                secs = BitConverter.ToUInt16(d, 0x18) / 30f;
+        }
+        catch { /* unreadable: caller falls back to plain once */ }
+        _clipSeconds[e.Id] = secs;
+        return secs;
+    }
+    private readonly Dictionary<ushort, float> _clipSeconds = new();
+
     /// <summary>The subject's drawn human body (<c>Human.RaceSexId</c>, e.g. 101, 1801), or 0 when it isn't
     /// drawn as a human (then no per-body filtering is applied).</summary>
     public static unsafe int BodyOf(ICharacter? chara)
@@ -261,16 +309,75 @@ public sealed class PoseLibrary
     {
         if (body <= 0 || !_keyById.TryGetValue(id, out var key)) return true;
         if (_hasMemo.TryGetValue((body, id), out var ok)) return ok;
-        ok = _data.FileExists($"chara/human/c{body:D4}/animation/a0001/bt_common/{key}.pap")
-             || (body % 100 != 4 && _data.FileExists($"chara/human/c0101/animation/a0001/bt_common/{key}.pap"));
+        // b31: the body's OWN file only. Proven in game (adjust cap, ground talk, ground rest on Midlander ♀ / Au Ra ♀):
+        // the game does not fall back to another body for these bt_common event paps. UniversalPoses lifts that.
+        ok = _data.FileExists($"chara/human/c{body:D4}/animation/a0001/bt_common/{key}.pap");
         _hasMemo[(body, id)] = ok;
         return ok;
     }
 
+    /// <summary>b30: the body followed by its fallback bodies, depth first, read from each skeleton's .sklb header
+    /// (u32 own id at 0x14, then up to four u32 parent ids at 0x18, 0xFFFFFFFF = none). Memoized.</summary>
+    public IReadOnlyList<int> BodyChain(int body)
+    {
+        if (_chains.TryGetValue(body, out var hit)) return hit;
+        var chain = new List<int>();
+        void Walk(int b)
+        {
+            if (b <= 0 || chain.Contains(b) || chain.Count > 8) return;
+            chain.Add(b);
+            try
+            {
+                var d = _data.GetFile($"chara/human/c{b:D4}/skeleton/base/b0001/skl_c{b:D4}b0001.sklb")?.Data;
+                if (d is not { Length: >= 0x28 } || BitConverter.ToUInt32(d, 0x14) != (uint)b) return;
+                for (var o = 0x18; o < 0x28; o += 4)
+                {
+                    var parent = BitConverter.ToUInt32(d, o);
+                    if (parent != uint.MaxValue) Walk((int)parent);
+                }
+            }
+            catch { /* unreadable skeleton: own body only */ }
+        }
+        Walk(body);
+        _chains[body] = chain;
+        return chain;
+    }
+    private readonly Dictionary<int, IReadOnlyList<int>> _chains = new();
+
     /// <summary>Pose groups trimmed to what this body can play (empty groups dropped). Memoized per body.</summary>
+    /// <summary>b31: true while UniversalPoses ports missing animations, so every body is offered every pose.</summary>
+    public bool Universal
+    {
+        get => _universal;
+        set { _universal = value; _posesByBody.Clear(); }
+    }
+    private bool _universal;
+
+    /// <summary>The live porter (null until Plugin wires it), for the "plays natively on" info.</summary>
+    public UniversalPoses? Porter { get; set; }
+
+    /// <summary>b33: every event / event_base ActionTimeline key (what UniversalPoses ports).</summary>
+    public IReadOnlyList<string> EventKeys => _eventKeys ??= _keyById.Values
+        .Where(k => k.StartsWith("event/", StringComparison.Ordinal) || k.StartsWith("event_base/", StringComparison.Ordinal))
+        .Distinct().ToList();
+    private List<string>? _eventKeys;
+
+    // b33: does ANY adult body ship this timeline? (Universal mode lists only these: Escape has a timeline but no file.)
+    private static readonly int[] AdultBodies =
+        [101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201, 1301, 1401, 1501, 1601, 1701, 1801];
+    private bool AnyBodyHas(ushort id) => !_keyById.ContainsKey(id) || AdultBodies.Any(b => HasAnimation(b, id));
+
     public IReadOnlyList<LibGroup> PosesFor(int body)
     {
         if (body <= 0) return Poses;
+        if (_universal)
+        {
+            if (_posesByBody.TryGetValue(-1, out var all)) return all;
+            var u = Poses.Select(g => new LibGroup(g.Name, g.Items.Where(e => AnyBodyHas(e.Id) && (e.HoldId == 0 || AnyBodyHas(e.HoldId))).ToList()))
+                         .Where(g => g.Items.Count > 0).ToList();
+            _posesByBody[-1] = u;
+            return u;
+        }
         if (_posesByBody.TryGetValue(body, out var hit)) return hit;
         var result = Poses
             .Select(g => new LibGroup(g.Name, g.Items.Where(e => HasAnimation(body, e.Id) && (e.HoldId == 0 || HasAnimation(body, e.HoldId))).ToList()))
@@ -351,12 +458,53 @@ public sealed class PoseLibrary
         return list;
     }
 
-    // Auto-prop rules: a WORD in the pose's key (split on '_' and digits) -> a named prop. First rule wins, so the
-    // specific drinks precede the generic "drink". Whole words only: "teach" never gets a tea cup.
+    // Auto-props (b27, combed against all 1,084 event keys). First an exact-stem override (stem = the key leaf without
+    // event_/event_base_ and _start/_loop), then word rules: a WORD of the stem -> a named prop, first rule wins, so
+    // specific drinks precede the generic "drink". Whole words only: "teach" never gets a tea cup. "" = keep the hand
+    // empty (a carry pose's load is two-handed and would sit wrong in one hand).
+    private static readonly Dictionary<string, string> PropOverrides = new(StringComparer.Ordinal)
+    {
+        // b29, from the game's own pairing (what the world NPCs standing in these poses actually hold, from their sheets):
+        //   stand_read: book w9002 b1 v1 in the OFF hand (69 NPCs; 23 main) - the main-hand book was why it sat backwards.
+        //   stand_with_book, chair_read: the same book, main hand. arcanist_reading: an Arcanist book weapon, main hand.
+        //   stand_read2 has no NPC or quest using it; it takes stand_read's pairing.
+        ["stand_read"] = "Thick Book 1|off", ["stand_read2"] = "Thick Book 1|off",
+        ["stand_with_book"] = "Thick Book 1", ["chair_read"] = "Thick Book 1",
+        ["arcanist_reading"] = "w1709 b1 v1=Arcanist grimoire",
+        ["look_front_glasses"] = "Opera Glasses", ["look_up_glasses"] = "Opera Glasses",
+        ["look_front_scope"] = "Spyglass", ["look_up_scope"] = "Spyglass", ["look_down_scope"] = "Spyglass",
+        ["stand_memo_brush"] = "Hingan Brush", ["stand_memo_up_brush"] = "Hingan Brush",
+        ["seiza_memo_brush"] = "Hingan Brush", ["talk_memo_brush"] = "Hingan Brush",
+        ["chair_drink_hotcoffee"] = "Coffee Cup",
+        ["chair_tropical_juice"] = "Glass w/ Orange Liquid and Straw", ["stand_tropical_juice"] = "Glass w/ Orange Liquid and Straw",
+        ["sit_drink_tequila"] = "Corked Alcohol Bottle", ["stand_talk_tequila"] = "Corked Alcohol Bottle",
+        ["sit_drink_soup"] = "Bowl of Soup (Orange)", ["eat_rice"] = "Bowl of Rice", ["eat_sushi"] = "Salmon Sushi",
+        ["eat_riceball"] = "Onigiri", ["seiza_eat_riceball"] = "Onigiri", ["eat_cake"] = "Cake Slice",
+        ["eat_ice_cream"] = "Multi Scoop Ice Cream Cone", ["sell_ice_cream"] = "Multi Scoop Ice Cream Cone",
+        ["eat_cookie"] = "Jack Cookie", ["bt_cookie_gaia"] = "Jack Cookie", ["bt_cookie_ryne"] = "Jack Cookie",
+        ["eat_dumpling"] = "Half a Dumpling", ["eat_scoop"] = "Spoon", ["chair_cutlery"] = "Fork",
+        ["cooking_spoon"] = "Large Wooden Spoon", ["bow_repair"] = "",
+        ["old_person_stick"] = "Count Edmont's Walking Stick", ["stick_idle"] = "Count Edmont's Walking Stick",
+        ["spray_paint"] = "Spraypaint", ["baby_hold"] = "Baby", ["leaf_fan"] = "Palm Leaf",
+        ["paper_bag_listen"] = "Paper bag", ["handbills_call"] = "Paper", ["handbills_look"] = "Paper",
+        ["hold_gun"] = "Handgun", ["gun_shoot"] = "Handgun", ["draw_picture"] = "Paint Brush", ["draw_picture2"] = "Paint Brush",
+        ["lute_tuning"] = "Lute", ["morin_khuur"] = "Morin Khuur Fiddle",
+        ["play_flute"] = "Flute", ["play_vertical_flute"] = "Flute",
+        ["test_tube"] = "Test Tube", ["test_tube2"] = "Test Tube", ["beaker"] = "Test Tube",
+        ["pinwheel"] = "Paper Pinwheel",
+        ["bt_lipstick_gaia"] = "Lipstick", ["bt_lipstick_ryne"] = "Lipstick",
+        ["bt_necklace_gaia"] = "Necklace", ["bt_necklace_ryne"] = "Necklace",
+        ["guard_sasumata"] = "Pole", ["sasumata_action"] = "Pole", ["dagger_touch"] = "Knife",
+        ["chair_cardgame"] = "Card Spread", ["cardgame"] = "Card Spread",
+    };
+
     private static readonly (string[] Words, string Prop)[] AutoPropRules =
     [
+        (["carry", "noitem"], ""),
+        (["tomestone"], "Tomestone Phone"),
         (["tea"], "Tea Cup"), (["sake"], "Sake Cup"), (["wine"], "Wine Cup"),
         (["beer", "ale", "tankard", "beerhall"], "Tankard of Ale"),
+        (["mug"], "Brass Mug"), (["tumbler"], "Glass with Caramel Drink"),
         (["drink", "hotdrink", "drunk", "tumbler", "cup"], "Cup"),
         (["tobacco", "smoke", "smoking", "pipe"], "White Smoking Pipe"),
         (["letter", "note"], "Letter or note"), (["scroll"], "Hingan Scroll"),
@@ -364,8 +512,43 @@ public sealed class PoseLibrary
         (["write", "writing", "memo", "quill", "pen"], "Feather Quill"),
         (["sweep", "broom"], "Broom"),
         (["fan"], "Japanese Fan"), (["umbrella"], "Red Japanese Umbrella"), (["lantern"], "Lantern"),
-        (["flower", "bouquet"], "Bouquet of Flowers"), (["bottle"], "Wine Bottle"),
+        (["flower", "bouquet"], "Bouquet of Flowers"), (["basket"], "Basket"), (["bottle"], "Wine Bottle"),
+        (["bread"], "Bread Bun"), (["tacos", "taco"], "Taco"),
+        (["harp", "bowharp"], "Harp"),
+        // tools: a pose whose motion clearly works a tool shouldn't do it empty-handed (bike maintenance)
+        (["maintenance", "maintain", "repair", "fix", "mechanic", "wrench", "spanner"], "Wrench"),
+        (["sledgehammer"], "Big Hammer"), (["hammer", "hammering", "smith", "anvil"], "Hammer"),
+        (["paint", "painting"], "Paint Brush"), (["rake"], "Rake"), (["pitchfork"], "Pitchfork"),
+        (["ladle", "stir", "cook", "cooking"], "Cooking Ladle"), (["oar", "rowing"], "Oar"),
+        (["wipe", "scrub"], "Rag"), (["snow", "scoop", "diggy", "dig", "shovel"], "Shovel"),
+        (["reaping", "mowing", "sickle"], "Sickle"), (["grass"], "Sickle"),
+        (["axe", "woodchop"], "Axe"), (["katana"], "Katana"), (["harpoon"], "Spearfishing Gig"),
+        (["brush"], "Hair Brush"), (["waiter"], "Tray with Glasses"),
     ];
+
+    /// <summary>b26: a pose meant to be performed seated ON something (chair, bench, stool, sofa…), as opposed to
+    /// on the ground. Used to snap the DM into a chair with a native /sit first.</summary>
+    public static bool IsChairPose(LibEntry e)
+    {
+        var leaf = e.Key[(e.Key.IndexOf('/') + 1)..];
+        var words = Regex.Split(leaf, @"[_\d]+");
+        return words.Any(w => w is "chair" or "seat" or "bench" or "stool" or "sofa" or "couch" or "throne")
+               && !words.Any(w => w is "ground" or "floor" or "agura");
+    }
+
+    // "Name" | "Name|off" | "wSET bBASE vVAR=Label" (a model not in props.csv) | either with "|off". "" = empty hand.
+    private static readonly Regex ModelSpec = new(@"^w(\d+) b(\d+) v(\d+)=(.+)$");
+    private HandProp? ParseOverride(string spec)
+    {
+        if (spec.Length == 0) return null;
+        var off = spec.EndsWith("|off", StringComparison.Ordinal);
+        if (off) spec = spec[..^4];
+        var m = ModelSpec.Match(spec);
+        var p = m.Success
+            ? new HandProp(m.Groups[4].Value, ushort.Parse(m.Groups[1].Value), ushort.Parse(m.Groups[2].Value), ushort.Parse(m.Groups[3].Value))
+            : _propByName.GetValueOrDefault(spec);
+        return p == null ? null : off ? p with { OffHand = true } : p;
+    }
 
     private IReadOnlyList<LibGroup> AttachAutoProps(IReadOnlyList<LibGroup> groups)
     {
@@ -373,9 +556,13 @@ public sealed class PoseLibrary
         HandProp? For(string key)
         {
             var leaf = key[(key.IndexOf('/') + 1)..];
-            var words = Regex.Split(leaf, @"[_\d]+").Where(w => w.Length > 0).ToHashSet(StringComparer.Ordinal);
+            var m = Suffix.Match(leaf);
+            var stem = Regex.Replace(m.Success ? leaf[..m.Index] : leaf, @"^event_(base_)?", "");
+            if (PropOverrides.TryGetValue(stem, out var named)) return ParseOverride(named);
+            var words = Regex.Split(stem, @"[_\d]+").Where(w => w.Length > 0).ToHashSet(StringComparer.Ordinal);
             foreach (var (ws, prop) in AutoPropRules)
-                if (ws.Any(words.Contains) && _propByName.TryGetValue(prop, out var p)) return p;
+                if (ws.Any(words.Contains))
+                    return prop.Length > 0 && _propByName.TryGetValue(prop, out var p) ? p : null;
             return null;
         }
         return groups.Select(g => g with { Items = g.Items.Select(e => For(e.Key) is { } p ? e with { Prop = p } : e).ToList() }).ToList();

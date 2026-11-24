@@ -56,7 +56,7 @@ public sealed class MainWindow : Window, IDisposable
     // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
     // the public Release build compiles the plain "HDM v<Version>" header with no b-tag. The
     // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
-    private const int InternalBuild = 21;
+    private const int InternalBuild = 33;
 #endif
 
     private readonly MobIndex _index;
@@ -239,6 +239,8 @@ public sealed class MainWindow : Window, IDisposable
     {
         _index = index; _timeline = timeline; _poses = poses; _content = content; _territory = territory; _manual = manual; _stems = stems; _instanced = instanced; _lore = lore; _level = level; _webloc = webloc; _companion = companion; _enpcLoc = enpcLoc; _harvest = harvest;
         _guise = guise; _humanGuise = humanGuise; _anim = anim; _spawn = spawn; _possession = possession; _ipc = ipc; _moniker = moniker; _config = config;
+        _anim.SelfOneShotEnded += OnSelfOneShotEnded;            // b24: settle peers when the DM's own one-shot ends
+        _anim.SelfReleasedByMovement += OnSelfReleasedByMovement;  // b24: moving releases the DM's held pose
         _pi = pi; _objects = objects; _targets = targets; _clientState = clientState; _textures = textures; _log = log; _accent = accent;
 
         SizeConstraints = new WindowSizeConstraints
@@ -314,16 +316,53 @@ public sealed class MainWindow : Window, IDisposable
     /// <summary>Emit a one-shot animation EVENT (PlayOnce) for the subject. Never stored/snapshotted.</summary>
     private void ReportOneShot(ICharacter actor, ushort id)
     {
-        if (TrySyncSubject(actor, out var slot)) _ipc.ReportAction(slot, id);
+        if (!TrySyncSubject(actor, out var slot)) return;
+        _ipc.ReportAction(slot, id);
+        // b24: on the DM's OWN body the game ends a looping one-shot by itself; a peer's copy would loop it forever
+        // (e.g. "Seat eat sequence" stayed seated on peers). Watch it here and settle peers when it ends.
+        if (slot is null) _anim.WatchSelfOneShot(actor, id);
     }
 
-    /// <summary>Emit a held-loop STATE change for the subject (0 clears). No-op on an undisguised subject
-    /// (HdmIpc drops a loop with no disguise to attach it to). Both a BaseOverride hold and a full-timeline
+    // b24: the DM's own one-shot ended locally (and nothing newer replaced it) -> tell peers to settle to idle. Sent
+    // as a plain one-shot of the idle timeline, which every HDM version already plays (no wire change).
+    private const ushort IdleTimeline = 3;
+    private void OnSelfOneShotEnded(ICharacter self)
+    {
+        if (TrySyncSubject(self, out var slot) && slot is null) _ipc.ReportAction(null, IdleTimeline);
+    }
+
+    // b24: the DM moved out of a held pose (AnimLock released) -> give the hand back and release it on peers.
+    private void OnSelfReleasedByMovement(ICharacter self)
+    {
+        HandRestore(self);
+        ReportHeldLoop(self, 0);
+    }
+
+    /// <summary>Emit a held-loop STATE change for the subject (0 clears). Works disguised OR undisguised (b22:
+    /// an undisguised subject's held pose rides a Kind-0 atom; it used to be dropped). Both a BaseOverride hold and a full-timeline
     /// replay report their id here — the wire atom carries only LoopId (§3), so a replay-loop currently
     /// renders as a hold on the receiver; exact replay fidelity would need a loop-kind bit (deferred).</summary>
-    private void ReportHeldLoop(ICharacter actor, ushort id)
+    private void ReportHeldLoop(ICharacter actor, ushort id, ushort intro = 0)
     {
-        if (TrySyncSubject(actor, out var slot)) _ipc.ReportLoop(slot, id);
+        if (TrySyncSubject(actor, out var slot)) _ipc.ReportLoop(slot, id, intro);
+    }
+
+    /// <summary>Put a prop (or, with null, nothing) in the subject's hand for a pose AND report it, so peers and
+    /// late joiners see the same cup / pipe / book (IPC Minor 6). The single hand-change funnel with
+    /// <see cref="HandRestore"/>.</summary>
+    private void HandSet(ICharacter target, FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId? prop, bool offHand = false)
+    {
+        if (offHand && prop is { } o) _guise.SetPoseHand(target, default, o);
+        else _guise.SetPoseHand(target, prop ?? default);
+        // Hand: 1 empty, 2 prop in the main hand, 3 (b29) prop in the off hand.
+        if (TrySyncSubject(target, out var slot))
+            _ipc.ReportHand(slot, prop is null ? (byte)1 : offHand ? (byte)3 : (byte)2, prop?.Value ?? 0);
+    }
+
+    /// <summary>Give the subject its real weapon back after a pose, and tell peers (no-op if no pose took it).</summary>
+    private void HandRestore(ICharacter target)
+    {
+        if (_guise.RestorePoseHand(target) && TrySyncSubject(target, out var slot)) _ipc.ReportHand(slot, 0, 0);
     }
 
     /// <summary>THE single "stop the held/looping animation" funnel (Rule 1). Blends the actor back to idle
@@ -334,7 +373,7 @@ public sealed class MainWindow : Window, IDisposable
     private void StopAnim(ICharacter target)
     {
         _anim.Stop(target);
-        _guise.RestorePoseHand(target); // b20: give back the weapons a pose emptied
+        HandRestore(target); // give back the weapons a pose took (and tell peers)
         ReportHeldLoop(target, 0);
     }
 
@@ -1082,6 +1121,7 @@ public sealed class MainWindow : Window, IDisposable
             _log.Warning($"HDM: refused to apply '{row.DisplayName}' to obj#{target.ObjectIndex} — self-apply-only (not you or an HDM puppet).");
             return;
         }
+        HandRestore(target);   // a pose's prop/empty hand goes back before the disguise rebuilds the weapons
 
         if (row.McType == 1)
         {
@@ -1147,7 +1187,7 @@ public sealed class MainWindow : Window, IDisposable
     private void RevertGuise(ICharacter target)
     {
         _anim.Sanitize(target);
-        _guise.RestorePoseHand(target); // b20: a pose's emptied hands go back before the revert rebuilds weapons
+        HandRestore(target); // a pose's prop / emptied hands go back before the revert rebuilds weapons
         // Self-apply only (every caller passes the local player), so use the HARD revert: it force-clears
         // a stuck NPC model even when tracking was lost (e.g. a disguise that rode across a zone line and
         // stranded), guaranteeing Revert / "/hdm revert" can always put the DM back to their real body.
@@ -1551,12 +1591,7 @@ public sealed class MainWindow : Window, IDisposable
         ImGui.PushID(unchecked((int)r.RowKey)); // per ROW: alias rows share a BaseId
 
         var fav = _config.Favorites.Contains(r.RowKey);
-        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
-        ImGui.PushStyleColor(ImGuiCol.Text, fav ? _accent.Primary : new Vector4(0.45f, 0.47f, 0.52f, 1f));
-        var favToggled = ImGui.SmallButton(fav ? "★" : "☆");
-        ImGui.PopStyleColor(4);
+        var favToggled = FavStarButton(fav);
         if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unpin from favourites" : "Pin to favourites");
         if (favToggled)
         {
@@ -1882,7 +1917,7 @@ public sealed class MainWindow : Window, IDisposable
             ushort dieHold  = (ushort)_timeline.ResolveCommonId("battle/dead_pose");
             using (new Disabled(dieIntro == 0 || dieHold == 0))
             {
-                if (ImGui.SmallButton("Die")) { _anim.PlaySequence(chara, dieIntro, dieHold); ReportHeldLoop(chara, dieHold); }
+                if (ImGui.SmallButton("Die")) { _anim.PlaySequence(chara, dieIntro, dieHold); ReportHeldLoop(chara, dieHold, dieIntro); }
             }
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Play the death fall, then hold the lying dead pose. Press Stop to clear.");
@@ -2296,12 +2331,7 @@ public sealed class MainWindow : Window, IDisposable
         // Bare star toggle (no button frame — the mockup's clean gold ★): a filled accent star when
         // favourited, a dim hollow star otherwise. Transparent Button bg turns SmallButton into a frameless
         // glyph; the accent tint ties the "on" state to the suite palette (gold by default).
-        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
-        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
-        ImGui.PushStyleColor(ImGuiCol.Text, fav ? _accent.Primary : new Vector4(0.45f, 0.47f, 0.52f, 1f));
-        var favToggled = ImGui.SmallButton(fav ? "★" : "☆");
-        ImGui.PopStyleColor(4);
+        var favToggled = FavStarButton(fav);
         if (ImGui.IsItemHovered()) ImGui.SetTooltip(fav ? "Unfavourite" : "Add to Favourites");
         if (favToggled)
         {
@@ -2370,6 +2400,23 @@ public sealed class MainWindow : Window, IDisposable
     /// Dalamud's icon font (always present, so it can't fail like a game-icon lookup); the minion icon
     /// reuses the proven DrawEmoteIcon path. AlignTextToFramePadding keeps the glyph centred on the
     /// Selectable that follows it.</summary>
+    /// <summary>A frameless ★/☆ toggle one FRAME tall, so the glyph sits on the same centre line as the row's text.
+    /// (It was a SmallButton, which has no vertical padding: one text line tall, pinned to the TOP of a row whose name
+    /// is frame-padded to the middle — the star and the name didn't line up.)</summary>
+    private bool FavStarButton(bool fav)
+    {
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0f, 0f, 0f, 0f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(1f, 1f, 1f, 0.08f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(1f, 1f, 1f, 0.12f));
+        ImGui.PushStyleColor(ImGuiCol.Text, fav ? _accent.Primary : StarOff);
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(3f, ImGui.GetStyle().FramePadding.Y));
+        var clicked = ImGui.Button(fav ? "★" : "☆");
+        ImGui.PopStyleVar();
+        ImGui.PopStyleColor(4);
+        return clicked;
+    }
+    private static readonly Vector4 StarOff = new(0.45f, 0.47f, 0.52f, 1f);
+
     /// <summary>Tooltip for an asterisked, model-approximated name (see <see cref="MobRow.FamilyName"/>).</summary>
     private static string ModelNameTip(MobRow r)
         => $"* No name of its own: approximated from its model ({r.SkeletonCode}, ModelChara {r.ModelCharaId}).\n" +
@@ -3286,7 +3333,7 @@ public sealed class MainWindow : Window, IDisposable
         // ── Red "Reset to Normal" card — the prominent unstick. Sanitize() forces the actor back to a normal,
         // unlocked idle (clears BaseOverride/OverallSpeed, SetMode Normal); we also clear any held loop for peers.
         if (HmUi.DangerCard("Reset to Normal", "Unstick: clears a frozen or stuck timeline", "unstick") && target != null)
-            { _anim.Sanitize(target); _guise.RestorePoseHand(target); ReportHeldLoop(target, 0); }
+            ResetToNormal(target);
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip("Force the character back to a normal, unlocked idle.\n" +
                              "Use this if an animation left it stuck ('operating a siege machine').\n" +
@@ -3384,37 +3431,59 @@ public sealed class MainWindow : Window, IDisposable
                      : subjectGuise != null ? CreatureSections
                      : Array.Empty<(string Name, FontAwesomeIcon Glyph)>();
         if (sections.Length == 0) { ImGui.TextDisabled("Nothing to animate: no subject."); return; }
-        if (Array.FindIndex(sections, s => s.Name == _animSection) < 0) _animSection = sections[0].Name;
+        var body = PoseLibrary.BodyOf(target);
+
+        // The rail: the fixed sections, with this body's pose groups as indented rows right under "All poses".
+        var rail = new List<(string Id, string Label, FontAwesomeIcon Glyph, bool Child)>();
+        foreach (var (name, glyph) in sections)
+        {
+            rail.Add((name, name, glyph, false));
+            if (name == "All poses")
+                foreach (var g in _poses.PosesFor(body))
+                    if (g.Items.Count > 0) rail.Add((PoseSectionPrefix + g.Name, GroupDisplay(g.Name), GroupGlyph(g.Name), true));
+        }
+        // First visit lands on Favourites once something is bookmarked, else on the first real section.
+        if (!rail.Any(r => r.Id == _animSection))
+            _animSection = _config.AnimFavourites.Count > 0 ? sections[0].Name : sections[subjectIsHuman ? 3 : 1].Name;
 
         var paneH = MathF.Max(260f, ImGui.GetContentRegionAvail().Y);
         var lineH = ImGui.GetTextLineHeight();
-        var railRowH = lineH + 10f;
-        var railW = sections.Max(s => ImGui.CalcTextSize(s.Name).X) + lineH + 34f;
+        var railRowH = lineH + 8f;
+        const float childIndent = 14f;
+        var railW = rail.Max(r => ImGui.CalcTextSize(r.Label).X + (r.Child ? childIndent : 0f)) + lineH + 34f;
 
         ImGui.BeginChild("##animrail", new Vector2(railW, paneH), true, ImGuiWindowFlags.None);
-        foreach (var (name, glyph) in sections)
+        foreach (var (id, label, glyph, child) in rail)
         {
             var start = ImGui.GetCursorPos();
-            if (ImGui.Selectable($"##rail_{name}", _animSection == name, ImGuiSelectableFlags.None, new Vector2(0f, railRowH)))
-                _animSection = name;
+            if (ImGui.Selectable($"##rail_{id}", _animSection == id, ImGuiSelectableFlags.None, new Vector2(0f, railRowH)))
+                _animSection = id;
             var after = ImGui.GetCursorPos();
-            ImGui.SetCursorPos(new Vector2(start.X + 4f, start.Y + (railRowH - lineH) / 2f));
-            DrawGlyph(glyph, _animSection == name);
+            ImGui.SetCursorPos(new Vector2(start.X + 4f + (child ? childIndent : 0f), start.Y + (railRowH - lineH) / 2f));
+            DrawGlyph(glyph, _animSection == id);
             ImGui.SameLine(0f, 8f);
-            ImGui.TextUnformatted(name);
+            if (child && _animSection != id) ImGui.TextDisabled(label); else ImGui.TextUnformatted(label);
             ImGui.SetCursorPos(after);
+        }
+        if (_config.HiddenAnims.Count > 0)
+        {
+            ImGui.Spacing();
+            ImGui.Checkbox($"Show hidden ({_config.HiddenAnims.Count})", ref _showHidden);
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Rows you hid with right-click > Hide. Tick to see them (and unhide).");
         }
         ImGui.EndChild();
 
         ImGui.SameLine();
         ImGui.BeginChild("##animpane", new Vector2(0f, paneH), false, ImGuiWindowFlags.None);
-        var body = PoseLibrary.BodyOf(target);
-        switch (_animSection)
+        _ctxHuman = subjectIsHuman; _ctxGuise = subjectGuise; _ctxBody = body;
+        if (_animSection.StartsWith(PoseSectionPrefix, StringComparison.Ordinal))
+            DrawPosesPane(target, body, _animSection[PoseSectionPrefix.Length..]);
+        else switch (_animSection)
         {
+            case "Favourites": DrawFavouritesPane(target, subjectIsHuman, subjectGuise, body); break;
+            case "Search all": DrawSearchAllPane(target, body); break;
             case "Emotes":     DrawEmotesPane(target); break;
-            case "Poses":      DrawPosesPane(target, body); break;
-            case "Talking":    DrawGroupPane(target, body, "Talking", talking: true); break;
-            case "Entrances":  DrawGroupPane(target, body, "Warp in & out", talking: false); break;
+            case "All poses":  DrawPosesPane(target, body, null); break;
             case "Job skills": DrawSkillsPane(target); break;
             case "Basics":     DrawBasicsPane(target, subjectIsHuman, subjectGuise); break;
             case "Skills":     if (subjectGuise != null) DrawCreatureSkillsPane(target, subjectGuise); break;
@@ -3425,20 +3494,24 @@ public sealed class MainWindow : Window, IDisposable
 
     // ---- b21 library browser ------------------------------------------------------------------------------
 
+    // b27: the human rail. Pose groups are rail rows of their own (indented under "All poses"), Talking and Entrances
+    // are just pose groups now, and the human Basics are gone (DM). Creatures keep Basics: it holds their Die combos.
     private static readonly (string Name, FontAwesomeIcon Glyph)[] HumanSections =
     [
-        ("Emotes", FontAwesomeIcon.Smile), ("Poses", FontAwesomeIcon.StreetView), ("Talking", FontAwesomeIcon.Comments),
-        ("Entrances", FontAwesomeIcon.HatWizard), ("Job skills", FontAwesomeIcon.HandRock), ("Basics", FontAwesomeIcon.Walking),
-        ("All timelines", FontAwesomeIcon.Feather),
+        ("Favourites", FontAwesomeIcon.Star), ("Search all", FontAwesomeIcon.Search),
+        ("Emotes", FontAwesomeIcon.Smile), ("All poses", FontAwesomeIcon.StreetView),
+        ("Job skills", FontAwesomeIcon.HandRock), ("All timelines", FontAwesomeIcon.Feather),
     ];
+    private const string PoseSectionPrefix = "pose:";
+    private static string GroupDisplay(string group) => group == "Warp in & out" ? "Entrances" : group;
 
     private static readonly (string Name, FontAwesomeIcon Glyph)[] CreatureSections =
     [
+        ("Favourites", FontAwesomeIcon.Star),
         ("Skills", FontAwesomeIcon.Dragon), ("Basics", FontAwesomeIcon.Walking), ("All timelines", FontAwesomeIcon.Feather),
     ];
 
     private static readonly string[] EmoteModes = ["All emotes", "Holds", "One-shots"];
-    private static readonly string[] TalkModes = ["All gestures", "Through the line", "At the start"];
 
     // Human "Basics": the handful of everyday moves worth a button, by Common key, with plain names.
     private static readonly (string Name, string Key)[] HumanBasicKeys =
@@ -3448,11 +3521,16 @@ public sealed class MainWindow : Window, IDisposable
         ("Jump", "normal/jump_start"), ("Flinch", "battle/damage"),
     ];
     private List<TimelineRow>? _humanBasics;
+    private bool _showHidden;
+    private List<TimelineRow> HumanBasics() => _humanBasics ??= HumanBasicKeys
+        .Select(b => _timeline.Common.FirstOrDefault(t => t.Key == b.Key) is { } row ? row with { Name = b.Name } : null)
+        .Where(t => t != null).Select(t => t!).ToList();
 
     private static FontAwesomeIcon GroupGlyph(string group) => group switch
     {
         "Hurt & collapse" => FontAwesomeIcon.UserInjured, "Lying" => FontAwesomeIcon.Bed,
-        "Prayer & ceremony" or "Kneeling" => FontAwesomeIcon.Pray, "Sitting" => FontAwesomeIcon.Chair,
+        "Prayer & ceremony" or "Kneeling" => FontAwesomeIcon.Pray, "Sitting" or "On a chair" => FontAwesomeIcon.Chair,
+        "On the ground" => FontAwesomeIcon.Campground, "More" => FontAwesomeIcon.EllipsisH,
         "Crouching" => FontAwesomeIcon.PersonFalling, "Sorrow" => FontAwesomeIcon.SadTear, "Fear" => FontAwesomeIcon.Ghost,
         "Anger & provoking" => FontAwesomeIcon.Angry, "Joy" => FontAwesomeIcon.Laugh, "Performing" => FontAwesomeIcon.Music,
         "Talking" => FontAwesomeIcon.Comments, "Thinking & worry" => FontAwesomeIcon.Brain,
@@ -3465,7 +3543,16 @@ public sealed class MainWindow : Window, IDisposable
 
     /// <summary>What a library row shows: icon (game icon id, else a glyph), name, a dim suffix (e.g. the
     /// auto-prop), a right-aligned tag (holds / once / Lv 50), and the hover text.</summary>
-    private readonly record struct RowView(string Name, uint Icon, FontAwesomeIcon Glyph, string Tag, bool Accent, string Tip, string Sub = "");
+    private readonly record struct RowView(string Name, uint Icon, FontAwesomeIcon Glyph, string Tag, bool Accent, string Tip, string Sub = "", string FavKey = "");
+
+    // b25: animation bookmarks. Keys: emote:<EmoteRowId> · pose:<id> · skill:<id> · tl:<id> (common timeline) ·
+    // mob:<skel>:<id> (a creature skill) · combo:<skel>:<intro>:<hold>.
+    private bool IsAnimFav(string key) => key.Length > 0 && _config.AnimFavourites.Contains(key);
+    private void ToggleAnimFav(string key)
+    {
+        if (!_config.AnimFavourites.Remove(key)) _config.AnimFavourites.Add(key);
+        _pi.SavePluginConfig(_config);
+    }
 
     private void DrawGlyph(FontAwesomeIcon glyph, bool lit)
     {
@@ -3499,8 +3586,15 @@ public sealed class MainWindow : Window, IDisposable
 
     private void SearchBox(float reserveRight)
     {
-        ImGui.SetNextItemWidth(MathF.Max(80f, ImGui.GetContentRegionAvail().X - reserveRight));
+        // b30: a clear (×) button right of the box; it sits inside the reserved width, so callers' layouts don't move.
+        var clearW = ImGui.GetFrameHeight();
+        var gap = ImGui.GetStyle().ItemInnerSpacing.X;
+        ImGui.SetNextItemWidth(MathF.Max(80f, ImGui.GetContentRegionAvail().X - reserveRight - clearW - gap));
         ImGui.InputTextWithHint("##animsearch", "Search", ref _animFilter, 48);
+        ImGui.SameLine(0f, gap);
+        using (new Disabled(_animFilter.Length == 0))
+            if (ImGui.Button("×##animsearchclear", new Vector2(clearW, 0f))) _animFilter = "";
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled)) ImGui.SetTooltip("Clear the search");
     }
 
     private void LoopToggle()
@@ -3525,6 +3619,8 @@ public sealed class MainWindow : Window, IDisposable
     /// </summary>
     private void DrawRows<T>(string id, IReadOnlyList<T> rows, Func<T, RowView> view, Action<T> click)
     {
+        if (_config.HiddenAnims.Count > 0 && !_showHidden)
+            rows = rows.Where(r => !_config.HiddenAnims.Contains(view(r).FavKey)).ToList();
         ImGui.BeginChild(id, new Vector2(0f, MathF.Max(80f, ImGui.GetContentRegionAvail().Y)), true, ImGuiWindowFlags.None);
         if (rows.Count == 0) { ImGui.TextDisabled("(no matches)"); ImGui.EndChild(); return; }
         var lineH = ImGui.GetTextLineHeight();
@@ -3533,6 +3629,10 @@ public sealed class MainWindow : Window, IDisposable
         var x0 = ImGui.GetCursorPosX();
         var y0 = ImGui.GetCursorPosY();
         var width = ImGui.GetContentRegionAvail().X;
+        // b25: a bookmark star leads each row. It sits on the row's TEXT centre line (same offset as the name), so the
+        // stars form a neat column level with the names. Clicking it toggles the bookmark; the rest of the row plays.
+        var starW = ImGui.CalcTextSize("★").X;
+        var lead = 4f + starW + 6f;
         var first = Math.Max(0, (int)(ImGui.GetScrollY() / rowH) - 1);
         var last = Math.Min(rows.Count, first + (int)(ImGui.GetWindowHeight() / rowH) + 3);
         for (var i = first; i < last; i++)
@@ -3542,16 +3642,46 @@ public sealed class MainWindow : Window, IDisposable
             var y = y0 + i * rowH;
             ImGui.PushID(i);
             ImGui.SetCursorPos(new Vector2(x0, y));
+            var onStar = r.FavKey.Length > 0 && ImGui.GetMousePos().X - ImGui.GetCursorScreenPos().X < lead - 2f;
             if (ImGui.Selectable("##row", false, ImGuiSelectableFlags.None, new Vector2(width, rowH - 2f)))
-                click(item);
-            if (ImGui.IsItemHovered() && r.Tip.Length > 0) ImGui.SetTooltip(r.Tip);
-            ImGui.SetCursorPos(new Vector2(x0 + 4f, y + (rowH - iconSz) / 2f - 1f));
+            {
+                if (onStar) ToggleAnimFav(r.FavKey); else click(item);
+            }
+            var fav = IsAnimFav(r.FavKey);
+            if (ImGui.IsItemHovered())
+            {
+                if (onStar) ImGui.SetTooltip(fav ? "Remove from Favourites" : "Add to Favourites");
+                else if (r.FavKey.Length > 0) ImGui.SetTooltip((r.Tip.Length > 0 ? r.Tip + "\n" : "") + "Right-click: copy as a macro command for the hotbar.");
+                else if (r.Tip.Length > 0) ImGui.SetTooltip(r.Tip);
+            }
+            if (r.FavKey.Length > 0 && ImGui.BeginPopupContextItem("##rowctx"))
+            {
+                var line = MacroLine(r);
+                ImGui.TextDisabled(line);
+                ImGui.Separator();
+                if (ImGui.Selectable("Copy macro command")) ImGui.SetClipboardText(line);
+                if (ImGui.Selectable(fav ? "Remove from Favourites" : "Add to Favourites")) ToggleAnimFav(r.FavKey);
+                var hidden = _config.HiddenAnims.Contains(r.FavKey);
+                if (ImGui.Selectable(hidden ? "Unhide" : "Hide from lists"))
+                {
+                    if (!_config.HiddenAnims.Remove(r.FavKey)) _config.HiddenAnims.Add(r.FavKey);
+                    _pi.SavePluginConfig(_config);
+                }
+                ImGui.EndPopup();
+            }
+            var textY = y + (rowH - lineH) / 2f - 1f;
+            if (r.FavKey.Length > 0)
+            {
+                ImGui.SetCursorPos(new Vector2(x0 + 4f, textY));
+                ImGui.TextColored(fav ? _accent.Primary : StarOff, fav ? "★" : "☆");
+            }
+            ImGui.SetCursorPos(new Vector2(x0 + lead, y + (rowH - iconSz) / 2f - 1f));
             if (!DrawEmoteIcon(r.Icon, iconSz))
             {
-                ImGui.SetCursorPos(new Vector2(x0 + 4f + (iconSz - lineH) / 2f, y + (rowH - lineH) / 2f - 1f));
+                ImGui.SetCursorPos(new Vector2(x0 + lead + (iconSz - lineH) / 2f, textY));
                 DrawGlyph(r.Glyph, false);
             }
-            ImGui.SetCursorPos(new Vector2(x0 + 4f + iconSz + 8f, y + (rowH - lineH) / 2f - 1f));
+            ImGui.SetCursorPos(new Vector2(x0 + lead + iconSz + 8f, textY));
             ImGui.TextUnformatted(r.Name);
             if (r.Sub.Length > 0) { ImGui.SameLine(0f, 8f); ImGui.TextDisabled(r.Sub); }
             if (r.Tag.Length > 0)
@@ -3574,15 +3704,63 @@ public sealed class MainWindow : Window, IDisposable
         _                  => "Plays once, then returns to idle.",
     };
 
+    // b29: one-shot poses hold their ending while the "Hold emote" toggle is on (DM: a toggle, like Use chair).
+    private bool HoldsEnding(LibEntry e) => e.Play == PosePlay.Once && _config.HoldEmote;
+
+    /// <summary>The pose toolbar's two toggles, after the "In hand" picker.</summary>
+    private void PoseToggles()
+    {
+        ImGui.SameLine();
+        var snap = _config.SnapSeatedPoses;
+        if (ImGui.Checkbox("Use chair", ref snap)) { _config.SnapSeatedPoses = snap; _pi.SavePluginConfig(_config); }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("On: a chair, bench or stool pose played on yourself first does a native /sit, so the game\n" +
+                             "snaps you into the nearest seat, then plays the pose there. Already seated: plays in place.\n" +
+                             "Off: the pose plays wherever you stand.");
+        ImGui.SameLine();
+        var hold = _config.HoldEmote;
+        if (ImGui.Checkbox("Hold emote", ref hold)) { _config.HoldEmote = hold; _pi.SavePluginConfig(_config); }
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("On: a pose that plays once stops on its last frame and stays there (a fall stays down)\n" +
+                             "until you move or Reset to Normal. Off: it returns to idle when it ends.");
+    }
+
+    // b31: which races/sexes ship this pose's animation, and where this body borrows it from (Universal poses).
+    private readonly Dictionary<ushort, string> _nativeLine = new();
+    private string NativeBodiesLine(LibEntry e)
+    {
+        if (_poses.Porter is not { } porter || !e.Key.StartsWith("event", StringComparison.Ordinal)) return "";
+        if (!_nativeLine.TryGetValue(e.Id, out var line))
+        {
+            var own = porter.NativeBodies(e.Key);
+            line = own.Count == 18 ? "\nAnimation: every race" : $"\nAnimation ships for: {string.Join(", ", own.Select(UniversalPoses.BodyName))}";
+            _nativeLine[e.Id] = line;
+        }
+        var donor = _ctxBody > 0 ? porter.DonorFor(_ctxBody, e.Key) : 0;
+        return donor > 0 ? line + $"\nThis body borrows it from {UniversalPoses.BodyName(donor)}" + (porter.Active ? "" : " (Universal poses is off)") : line;
+    }
+
     private RowView PoseView(LibEntry e, string group, bool showGroup)
     {
-        var holds = e.Play != PosePlay.Once;
+        var holdEnd = HoldsEnding(e);
+        var holds = e.Play != PosePlay.Once || holdEnd;
         var hand = _config.PoseHand == "auto" && e.Prop != null ? e.Prop.Name.ToLowerInvariant() : "";
         var sub = showGroup ? (hand.Length > 0 ? $"{group} · {hand}" : group) : hand;
-        var tip = ModeText(e.Play) + (e.Note.Length > 0 ? $"\n{e.Note}" : "")
-                  + (e.Prop != null ? $"\nAuto-prop: {e.Prop.Name}" : "") + $"\n{group} · {e.Key} · {e.Id}";
-        return new RowView(e.Name, 0, GroupGlyph(group), holds ? "holds" : "once", holds, tip, sub);
+        var tip = (holdEnd ? "Plays once, then holds its ending until you move or Reset to Normal." : ModeText(e.Play))
+                  + (e.Note.Length > 0 ? $"\n{e.Note}" : "")
+                  + (e.Prop != null ? $"\nAuto-prop: {e.Prop.Name}" : "") + NativeBodiesLine(e) + $"\n{group} · {e.Key} · {e.Id}";
+        return new RowView(e.Name, 0, GroupGlyph(group), holds ? "holds" : "once", holds, tip, sub, $"pose:{e.Id}");
     }
+
+    private static RowView EmoteView(TimelineRow t)
+        => new(t.Name, t.Icon, FontAwesomeIcon.Smile, t.EmoteConditionMode != 0 ? "holds" : "once", t.EmoteConditionMode != 0,
+               $"{t.Key}\n{(t.EmoteConditionMode != 0 ? "Holds until Stop or Reset to Normal." : "Plays once.")}",
+               FavKey: $"emote:{t.EmoteRowId}");
+
+    private static RowView SkillView(LibEntry e, string job, bool showJob)
+        => new(e.Name, e.Icon, FontAwesomeIcon.HandRock, e.Note.Replace("Level ", "Lv "), false,
+               $"Plays the skill's animation and effects once.\n{job} · {e.Key} · {e.Id}", showJob ? job : "",
+               FavKey: $"skill:{e.Id}");
 
     private void DrawEmotesPane(ICharacter? target)
     {
@@ -3591,51 +3769,48 @@ public sealed class MainWindow : Window, IDisposable
         SearchBox(0f);
         var rows = _timeline.Emotes.Where(t =>
                 (mode == "All emotes" || (mode == "Holds") == (t.EmoteConditionMode != 0)) && Matches(t.Name, t.Key)).ToList();
-        DrawRows("##emoterows", rows,
-            t => new RowView(t.Name, t.Icon, FontAwesomeIcon.Smile, t.EmoteConditionMode != 0 ? "holds" : "once",
-                             t.EmoteConditionMode != 0,
-                             $"{t.Key}\n{(t.EmoteConditionMode != 0 ? "Holds until Stop or Reset to Normal." : "Plays once.")}"),
-            t => { if (target != null) TriggerTimeline(t, target); });
+        DrawRows("##emoterows", rows, EmoteView, t => { if (target != null) TriggerTimeline(t, target); });
     }
 
-    private void DrawPosesPane(ICharacter? target, int body)
+    /// <summary>A pose group (from the rail), or every pose when <paramref name="group"/> is null. Typing in the
+    /// search always looks across EVERY pose group, so the DM never has to guess the group first.</summary>
+    private void DrawPosesPane(ICharacter? target, int body, string? group)
     {
-        var groups = _poses.PosesFor(body).Where(g => g.Name is not ("Talking" or "Warp in & out")).ToList();
+        var groups = _poses.PosesFor(body);
         if (groups.Count == 0) { ImGui.TextDisabled("No poses exist for this body."); return; }
-        var pick = Dropdown("##posegroup", groups.Select(g => g.Name).ToList(), "Poses", 170f);
-        ImGui.SameLine();
-        DrawHandPicker(target, 200f);
+        DrawHandPicker(target, 220f);
+        PoseToggles();
         SearchBox(0f);
-        // A search looks across EVERY pose group, so the DM never has to guess the group first.
         var searching = _animFilter.Trim().Length > 0;
-        var rows = (searching
+        var all = searching || group == null;
+        var rows = (all
                 ? groups.SelectMany(g => g.Items.Select(e => (E: e, G: g.Name))).Where(x => Matches(x.E.Name))
-                : groups.First(g => g.Name == pick).Items.Select(e => (E: e, G: pick))).ToList();
-        DrawRows("##poserows", rows, x => PoseView(x.E, x.G, searching),
+                : (groups.FirstOrDefault(g => g.Name == group)?.Items ?? []).Select(e => (E: e, G: group!))).ToList();
+        DrawRows("##poserows", rows, x => PoseView(x.E, x.G, all),
             x => { if (target != null) PlayLibEntry(x.E, target, skill: false); });
     }
 
-    private void DrawGroupPane(ICharacter? target, int body, string group, bool talking)
+    /// <summary>b27: one search over everything a human can play: emotes, every pose group and job skills.</summary>
+    private void DrawSearchAllPane(ICharacter? target, int body)
     {
-        var g = _poses.PosesFor(body).FirstOrDefault(x => x.Name == group);
-        if (g == null) { ImGui.TextDisabled("None of these exist for this body."); return; }
-        var mode = "";
-        if (talking)
-        {
-            mode = Dropdown("##talkmode", TalkModes, group, 150f);
-            ImGui.SameLine();
-            DrawHandPicker(target, 200f);
-        }
-        else ImGui.TextDisabled("Play an \"out\", move or despawn the puppet, then play an \"in\".");
+        DrawHandPicker(target, 220f);
+        PoseToggles();
         SearchBox(0f);
-        var rows = g.Items.Where(e => Matches(e.Name) && mode switch
+        if (_animFilter.Trim().Length == 0)
         {
-            "Through the line" => e.Play != PosePlay.Once,
-            "At the start" => e.Play == PosePlay.Once,
-            _ => true,
-        }).ToList();
-        DrawRows(talking ? "##talkrows" : "##warprows", rows, e => PoseView(e, group, false),
-            e => { if (target != null) PlayLibEntry(e, target, skill: false); });
+            ImGui.TextDisabled("Type to search emotes, poses, talking, entrances and job skills at once.");
+            return;
+        }
+        var items = new List<FavItem>();
+        foreach (var t in _timeline.Emotes)
+            if (Matches(t.Name, t.Key)) { var et = t; items.Add(new FavItem(EmoteView(et) with { Sub = "Emote" }, c => TriggerTimeline(et, c))); }
+        foreach (var g in _poses.PosesFor(body))
+            foreach (var e in g.Items)
+                if (Matches(e.Name)) { var pe = e; items.Add(new FavItem(PoseView(pe, GroupDisplay(g.Name), showGroup: true), c => PlayLibEntry(pe, c, skill: false))); }
+        foreach (var j in _poses.JobSkills)
+            foreach (var e in j.Items)
+                if (Matches(e.Name)) { var se = e; items.Add(new FavItem(SkillView(se, j.Name, showJob: true), c => PlayLibEntry(se, c, skill: true))); }
+        DrawRows("##searchall", items, f => f.View, f => { if (target != null) f.Play(target); });
     }
 
     private void DrawSkillsPane(ICharacter? target)
@@ -3653,10 +3828,7 @@ public sealed class MainWindow : Window, IDisposable
         var rows = (searching
                 ? jobs.SelectMany(j => j.Items.Select(e => (E: e, G: j.Name))).Where(x => Matches(x.E.Name))
                 : jobs.First(j => j.Name == pick).Items.Select(e => (E: e, G: pick))).ToList();
-        DrawRows("##skillrows", rows,
-            x => new RowView(x.E.Name, x.E.Icon, FontAwesomeIcon.HandRock, x.E.Note.Replace("Level ", "Lv "), false,
-                             $"Plays the skill's animation and effects once.\n{x.G} · {x.E.Key} · {x.E.Id}",
-                             searching ? x.G : ""),
+        DrawRows("##skillrows", rows, x => SkillView(x.E, x.G, searching),
             x => { if (target != null) PlayLibEntry(x.E, target, skill: true); });
     }
 
@@ -3664,17 +3836,7 @@ public sealed class MainWindow : Window, IDisposable
     {
         SearchBox(LoopReserve());
         LoopToggle();
-        if (human)
-        {
-            _humanBasics ??= HumanBasicKeys
-                .Select(b => _timeline.Common.FirstOrDefault(t => t.Key == b.Key) is { } row ? row with { Name = b.Name } : null)
-                .Where(t => t != null).Select(t => t!).ToList();
-            var rows = _humanBasics.Where(t => Matches(t.Name, t.Key)).ToList();
-            DrawRows("##basicrows", rows, t => TimelineView(t, FontAwesomeIcon.Walking),
-                t => { if (target != null) TriggerTimeline(t, target); });
-            return;
-        }
-        if (guise == null) return;
+        if (human || guise == null) return;   // b27: human Basics retired (DM); old "tl:" bookmarks still resolve
         // Creature: the glued combos (Die = fall, then hold the pose) first, then the base moves this skeleton's
         // animation files actually define (idle / attack / dead / turn / flinch…).
         var skel = guise.SkeletonCode;
@@ -3685,23 +3847,147 @@ public sealed class MainWindow : Window, IDisposable
         DrawRows("##cbasicrows", crows,
             x => x.T is { } t ? TimelineView(t, FontAwesomeIcon.Walking)
                 : new RowView(x.Name, 0, FontAwesomeIcon.Walking, "holds", true,
-                              $"Plays the intro once, then holds its final pose until Stop or Reset to Normal.\n{x.Intro} → {x.Hold}"),
+                              $"Plays the intro once, then holds its final pose until Stop or Reset to Normal.\n{x.Intro} → {x.Hold}",
+                              FavKey: $"combo:{skel}:{x.Intro}:{x.Hold}"),
             x =>
             {
                 if (target == null) return;
                 if (x.T is { } t) TriggerTimeline(t, target);
-                else { _anim.PlaySequence(target, x.Intro, x.Hold); ReportHeldLoop(target, x.Hold); }
+                else { _anim.PlaySequence(target, x.Intro, x.Hold); ReportHeldLoop(target, x.Hold, x.Intro); }
             });
     }
 
-    private RowView TimelineView(TimelineRow t, FontAwesomeIcon glyph)
+    /// <summary>A bookmarked row resolved for the CURRENT subject: what to show and how to play it.</summary>
+    private readonly record struct FavItem(RowView View, Action<ICharacter> Play);
+
+    /// <summary>Favourites: every bookmark that applies to this subject (human-only kinds are skipped on a creature,
+    /// and a creature skill only shows on its own skeleton), sorted by name, played through the usual funnels.</summary>
+    private void DrawFavouritesPane(ICharacter? target, bool human, MobRow? guise, int body)
+    {
+        SearchBox(LoopReserve());
+        LoopToggle();
+        if (_config.AnimFavourites.Count == 0)
+        {
+            ImGui.TextDisabled("Nothing bookmarked yet. Click the ☆ at the start of any row to pin it here.");
+            return;
+        }
+        var items = new List<FavItem>();
+        foreach (var key in _config.AnimFavourites)
+            if (ResolveFav(key, human, guise, body) is { } fi && Matches(fi.View.Name)) items.Add(fi);
+        items.Sort((a, b) => string.Compare(a.View.Name, b.View.Name, StringComparison.OrdinalIgnoreCase));
+        if (items.Count == 0 && _animFilter.Trim().Length == 0)
+            ImGui.TextDisabled(human ? "None of your bookmarks apply to this body." : "None of your bookmarks apply to this creature.");
+        DrawRows("##favrows", items, f => f.View, f => { if (target != null) f.Play(target); });
+    }
+
+    private FavItem? ResolveFav(string key, bool human, MobRow? guise, int body)
+    {
+        var parts = key.Split(':');
+        if (parts.Length < 2) return null;
+        switch (parts[0])
+        {
+            case "emote" when human && ushort.TryParse(parts[1], out var er):
+                return _timeline.Emotes.FirstOrDefault(t => t.EmoteRowId == er) is { } et
+                    ? new FavItem(EmoteView(et), c => TriggerTimeline(et, c)) : null;
+            case "pose" when human && ushort.TryParse(parts[1], out var pid):
+                foreach (var g in _poses.PosesFor(body))
+                    if (g.Items.FirstOrDefault(e => e.Id == pid) is { } pe)
+                        return new FavItem(PoseView(pe, g.Name, showGroup: true), c => PlayLibEntry(pe, c, skill: false));
+                return null;
+            case "skill" when human && ushort.TryParse(parts[1], out var sid):
+                foreach (var j in _poses.JobSkills)
+                    if (j.Items.FirstOrDefault(e => e.Id == sid) is { } se)
+                        return new FavItem(SkillView(se, j.Name, showJob: true), c => PlayLibEntry(se, c, skill: true));
+                return null;
+            case "tl" when uint.TryParse(parts[1], out var tid):
+                var row = HumanBasics().FirstOrDefault(t => t.Id == tid) ?? _timeline.Common.FirstOrDefault(t => t.Id == tid);
+                return row is null ? null : new FavItem(TimelineView(row, FontAwesomeIcon.Walking), c => TriggerTimeline(row, c));
+            case "mob" when !human && guise != null && parts.Length == 3 && parts[1] == guise.SkeletonCode && uint.TryParse(parts[2], out var mid):
+                return _timeline.ForSkeleton(guise.SkeletonCode, (uint)guise.ModelCharaId).FirstOrDefault(t => t.Id == mid) is { } mt
+                    ? new FavItem(TimelineView(mt, FontAwesomeIcon.Dragon, key), c => TriggerTimeline(mt, c)) : null;
+            case "combo" when !human && guise != null && parts.Length == 4 && parts[1] == guise.SkeletonCode
+                              && ushort.TryParse(parts[2], out var ci) && ushort.TryParse(parts[3], out var ch):
+                foreach (var (label, introId, holdId) in ResolveCombos(guise.SkeletonCode))
+                    if (introId == ci && holdId == ch)
+                        return new FavItem(new RowView(label, 0, FontAwesomeIcon.Walking, "holds", true,
+                                               "Plays the intro once, then holds its final pose until Stop or Reset to Normal.", FavKey: key),
+                                           c => { _anim.PlaySequence(c, ci, ch); ReportHeldLoop(c, ch, ci); });
+                return null;
+        }
+        return null;
+    }
+
+    // ---- b26: macro / hotbar commands -------------------------------------------------------------------
+    // "/hdm play <name>" plays a library row exactly as clicking it would, on the Animations tab's subject (you, or
+    // the focused puppet when Drive is set to it). "/hdm play pose:1068" (the bookmark key) also works and never
+    // breaks if a name changes. "/hdm stop" = Reset to Normal. Right-click a row to copy its line.
+    private bool _ctxHuman = true;
+    private MobRow? _ctxGuise;
+    private int _ctxBody;
+
+    private void ResetToNormal(ICharacter target)
+    {
+        _anim.Sanitize(target);
+        HandRestore(target);
+        ReportHeldLoop(target, 0);
+    }
+
+    private string MacroLine(RowView r)
+        => $"{Plugin.Command} play " + (FindAnimKey(r.Name, _ctxHuman, _ctxGuise, _ctxBody) == r.FavKey ? r.Name : r.FavKey);
+
+    /// <summary>Name -> bookmark key, searched in the tab's own order. Exact (case-insensitive) names only.</summary>
+    private string? FindAnimKey(string q, bool human, MobRow? guise, int body)
+    {
+        bool Eq(string n) => string.Equals(n, q, StringComparison.OrdinalIgnoreCase);
+        if (human)
+        {
+            if (_timeline.Emotes.FirstOrDefault(t => Eq(t.Name)) is { } em) return $"emote:{em.EmoteRowId}";
+            foreach (var g in _poses.PosesFor(body))
+                if (g.Items.FirstOrDefault(e => Eq(e.Name)) is { } pe) return $"pose:{pe.Id}";
+            foreach (var j in _poses.JobSkills)
+                if (j.Items.FirstOrDefault(e => Eq(e.Name)) is { } se) return $"skill:{se.Id}";
+            if (HumanBasics().FirstOrDefault(t => Eq(t.Name)) is { } hb) return $"tl:{hb.Id}";
+        }
+        else if (guise != null)
+        {
+            var skel = guise.SkeletonCode;
+            if (_timeline.ForSkeleton(skel, (uint)guise.ModelCharaId).FirstOrDefault(t => Eq(t.Name)) is { } mt) return $"mob:{skel}:{mt.Id}";
+            foreach (var (label, introId, holdId) in ResolveCombos(skel))
+                if (Eq(label)) return $"combo:{skel}:{introId}:{holdId}";
+            if (_timeline.ValidCommonFor(skel).FirstOrDefault(t => Eq(t.Name)) is { } vc) return $"tl:{vc.Id}";
+        }
+        return _timeline.Common.FirstOrDefault(t => Eq(t.Name)) is { } c ? $"tl:{c.Id}" : null;
+    }
+
+    /// <summary>Chat/macro: play an animation by name or key on the Animations tab's subject; "stop" resets.
+    /// Silent on success so a hotbar macro doesn't spam chat.</summary>
+    public string CommandPlay(string arg)
+    {
+        arg = arg.Trim().Trim('"');
+        var self = Self();
+        var puppet = FocusedPuppet();
+        var target = _animApplyToPuppet && puppet != null ? puppet : self;
+        if (target == null) return "no one to animate.";
+        if (arg.Length == 0) return $"usage: {Plugin.Command} play <animation name>  ·  {Plugin.Command} stop. Right-click a row in the Animations tab to copy one.";
+        if (arg is "stop" or "reset" or "normal") { ResetToNormal(target); return ""; }
+        var guise = target == puppet && _animApplyToPuppet ? _puppetGuise.GetValueOrDefault(target.ObjectIndex) : _wornGuise;
+        var human = guise is { McType: 1 } || guise is null;
+        var body = PoseLibrary.BodyOf(target);
+        var key = arg.Contains(':') ? arg : FindAnimKey(arg, human, guise, body);
+        if (key == null) return $"no animation called \"{arg}\" for {(target == self ? "you" : "the puppet")} right now.";
+        if (ResolveFav(key, human, guise, body) is not { } fi) return $"\"{arg}\" doesn't apply to {(target == self ? "your current body" : "the puppet")}.";
+        fi.Play(target);
+        return "";
+    }
+
+    private RowView TimelineView(TimelineRow t, FontAwesomeIcon glyph, string favKey = "")
     {
         var holds = IsResidentSpecialLoop(t.Key);
         var tag = holds ? "holds" : _loopMode ? "loops" : "once";
         var tip = $"{t.Key} · {t.Id}" + (t.IsTemplate
             ? "\nTemplate special: the game resolves it on this skeleton." + (t.HasTmb ? "\nShips its effects (VFX + sound)." : "\nBody animation only.")
             : "");
-        return new RowView(t.Name, 0, glyph, tag, holds || _loopMode, tip);
+        return new RowView(t.Name, 0, glyph, tag, holds || _loopMode, tip, FavKey: favKey.Length > 0 ? favKey : $"tl:{t.Id}");
     }
 
     private void DrawCreatureSkillsPane(ICharacter? target, MobRow guise)
@@ -3715,7 +4001,7 @@ public sealed class MainWindow : Window, IDisposable
             return;
         }
         var rows = specials.Where(t => Matches(t.Name, t.Key)).ToList();
-        DrawRows("##cskillrows", rows, t => TimelineView(t, FontAwesomeIcon.Dragon),
+        DrawRows("##cskillrows", rows, t => TimelineView(t, FontAwesomeIcon.Dragon, $"mob:{guise.SkeletonCode}:{t.Id}"),
             t => { if (target != null) TriggerTimeline(t, target); });
     }
 
@@ -3787,13 +4073,13 @@ public sealed class MainWindow : Window, IDisposable
     private void ApplyHand(ICharacter target, LibEntry? e)
     {
         var m = _config.PoseHand;
-        if (m == "weapon") { _guise.RestorePoseHand(target); return; }
+        if (m == "weapon") { HandRestore(target); return; }
         HandProp? prop = m == "auto" ? e?.Prop
                        : m.StartsWith("prop:", StringComparison.Ordinal) ? _poses.Props.FirstOrDefault(p => PropKey(p) == m)
                        : null;
-        if (prop == null) { _guise.SetPoseHand(target); return; }
-        _guise.SetPoseHand(target, new FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId
-            { Id = prop.Set, Type = prop.Base, Variant = prop.Variant });
+        if (prop == null) { HandSet(target, null); return; }
+        HandSet(target, new FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId
+            { Id = prop.Set, Type = prop.Base, Variant = prop.Variant }, prop.OffHand);
     }
 
     /// <summary>Play a library entry through the tab's funnels (hold = Loop + held-loop report; intro-hold =
@@ -3801,12 +4087,43 @@ public sealed class MainWindow : Window, IDisposable
     /// the real weapon back, a pose gets whatever the "In hand" picker says.</summary>
     private void PlayLibEntry(LibEntry e, ICharacter target, bool skill)
     {
-        if (skill) _guise.RestorePoseHand(target);
+        // b26: chair snap. Self only (a puppet can't /sit), and only when not already sitting or riding.
+        if (!skill && _config.SnapSeatedPoses && PoseLibrary.IsChairPose(e) && Self() is { } me
+            && me.ObjectIndex == target.ObjectIndex && !AnimationService.IsNativelySeated(target) && !IsRidingNow(target)
+            && _anim.PlaySelfEmote(SitEmoteId()))
+        {
+            _anim.AfterSeated(target, () => PlayLibEntryNow(e, target, skill));
+            return;
+        }
+        PlayLibEntryNow(e, target, skill);
+    }
+
+    private static unsafe bool IsRidingNow(ICharacter c)
+        => c.Address != nint.Zero && AnimationService.IsRiding((FFXIVClientStructs.FFXIV.Client.Game.Character.Character*)c.Address);
+
+    // /sit's Emote row, read from the sheet by name (fallback: 50, the long-standing id).
+    private ushort _sitEmote;
+    private ushort SitEmoteId()
+    {
+        if (_sitEmote == 0)
+            _sitEmote = _timeline.Emotes.FirstOrDefault(t => string.Equals(t.Name, "Sit", StringComparison.OrdinalIgnoreCase)) is { } t
+                ? (ushort)t.EmoteRowId : (ushort)50;
+        return _sitEmote;
+    }
+
+    private void PlayLibEntryNow(LibEntry e, ICharacter target, bool skill)
+    {
+        // b30 diagnostic (race-glamour bug): which body the pose was played on and where its animation file comes from.
+        var body = PoseLibrary.BodyOf(target);
+        _log.Information($"Anim[lib] {e.Name} ({e.Key} {e.Id}) on obj#{target.ObjectIndex} body c{body:D4}, chain [{string.Join(",", _poses.BodyChain(body))}], has={_poses.HasAnimation(body, e.Id)}");
+        if (skill) HandRestore(target);
         else { _lastPose = e; ApplyHand(target, e); }
         switch (e.Play)
         {
+            case PosePlay.Once when HoldsEnding(e) && _poses.ClipSeconds(e) is > 0.1f and var secs:
+                _anim.PlayHoldEnd(target, e.Id, secs); ReportOneShot(target, e.Id); break;
             case PosePlay.Hold:      _anim.Loop(target, e.Id);                   ReportHeldLoop(target, e.Id);     break;
-            case PosePlay.IntroHold: _anim.PlaySequence(target, e.Id, e.HoldId); ReportHeldLoop(target, e.HoldId); break;
+            case PosePlay.IntroHold: _anim.PlaySequence(target, e.Id, e.HoldId); ReportHeldLoop(target, e.HoldId, e.Id); break;
             default:                 _anim.PlayOnce(target, e.Id);               ReportOneShot(target, e.Id);      break;
         }
     }
@@ -4077,6 +4394,29 @@ public sealed class MainWindow : Window, IDisposable
         var swatch = new Vector2(28, 28);   // one size for EVERY accent swatch below (kept identical, Rule 2)
 
         ImGui.Spacing();
+        ImGui.TextDisabled("Animations · experimental");
+        ImGui.Separator();
+        ImGui.Spacing();
+        if (_poses.Porter is { } porter)
+        {
+            var uni = _config.UniversalPoses;
+            if (ImGui.Checkbox("Universal poses: every pose on every race", ref uni))
+            {
+                porter.SetEnabled(uni);
+                _pi.SavePluginConfig(_config);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Many NPC poses ship for only a few races (adjust cap: male Midlander and male Elezen).\n" +
+                                 "On: a body without its own animation borrows the closest race's, through an in-memory\n" +
+                                 "Penumbra swap, for every character on your screen (you, puppets, peers running HDM).\n" +
+                                 "No files are changed; the swap goes away when HDM unloads.\n" +
+                                 "Off: only poses this body has its own animation for are listed.");
+            ImGui.SameLine();
+            ImGui.TextDisabled(porter.Active ? $"active · {porter.Rewrites} borrowed animations" : porter.Status);
+        }
+        ImGui.Spacing();
+
+        ImGui.Spacing();
         ImGui.TextDisabled("Theme · accent");
         ImGui.Separator();
         ImGui.Spacing();
@@ -4176,7 +4516,11 @@ public sealed class MainWindow : Window, IDisposable
         ImGui.TextDisabled("Off by default, so a disguise stays on across a zone line (walk between areas in character).\nWhen on, your own look, scale, and elevation revert at every map change, to re-apply by hand.\nLogging out always reverts either way.");
     }
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+        _anim.SelfOneShotEnded -= OnSelfOneShotEnded;
+        _anim.SelfReleasedByMovement -= OnSelfReleasedByMovement;
+    }
 
     /// <summary>Tiny RAII helper for ImGui.BeginDisabled/EndDisabled.</summary>
     private readonly struct Disabled : IDisposable

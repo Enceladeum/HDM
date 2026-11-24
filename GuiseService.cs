@@ -402,7 +402,7 @@ public sealed unsafe class GuiseService : IDisposable
     /// The same call with a prop model (a cup, a pipe) is how a pose gets its prop. Client-side only.
     /// First call captures the original; later calls (pose to pose) keep that original.
     /// </summary>
-    public void SetPoseHand(ICharacter chara, WeaponModelId main = default)
+    public void SetPoseHand(ICharacter chara, WeaponModelId main = default, WeaponModelId off = default)
     {
         if (chara.Address == nint.Zero) return;
         var idx = chara.ObjectIndex;
@@ -410,7 +410,7 @@ public sealed unsafe class GuiseService : IDisposable
         if (!_poseHand.ContainsKey(idx))
             _poseHand[idx] = new OrigWeapons(native->DrawData.Weapon(WeaponSlot.MainHand).ModelId,
                                              native->DrawData.Weapon(WeaponSlot.OffHand).ModelId);
-        LoadWeaponsNow(idx, main, default);
+        LoadWeaponsNow(idx, main, off);   // b29: a prop may go in the OFF hand (stand_read's book)
     }
 
     /// <summary>Give back the weapons <see cref="SetPoseHand"/> took. No-op when no pose took them.</summary>
@@ -421,6 +421,10 @@ public sealed unsafe class GuiseService : IDisposable
         if (chara.Address != nint.Zero) LoadWeaponsNow(idx, w.Main, w.Off);
         return true;
     }
+
+    /// <summary>Drop the remembered weapons WITHOUT loading them — when something else (a re-guise) rebuilds the
+    /// actor's weapons itself, so restoring the old ones later would be stale.</summary>
+    public void ForgetPoseHand(int objectIndex) => _poseHand.Remove(objectIndex);
 
     /// <summary>True while a pose is holding this actor's hand slots.</summary>
     public bool HasPoseHand(int objectIndex) => _poseHand.ContainsKey(objectIndex);

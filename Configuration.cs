@@ -20,6 +20,25 @@ public sealed class Configuration : IPluginConfiguration
     /// where it has one, else empty hands; "empty"; "weapon" (leave the real weapon); or "prop:Set,Base,Variant".</summary>
     public string PoseHand { get; set; } = "auto";
 
+    /// <summary>b25: bookmarked animations (the Animations tab's ★ / Favourites section). Keys: emote:&lt;EmoteRowId&gt;,
+    /// pose:&lt;id&gt;, skill:&lt;id&gt;, tl:&lt;id&gt;, mob:&lt;skel&gt;:&lt;id&gt;, combo:&lt;skel&gt;:&lt;intro&gt;:&lt;hold&gt;.</summary>
+    public HashSet<string> AnimFavourites { get; set; } = [];
+
+    /// <summary>b26: playing a chair/seat pose on yourself first does a native /sit, so the game snaps you into the
+    /// nearest chair, then plays the pose there.</summary>
+    public bool SnapSeatedPoses { get; set; } = true;
+
+    /// <summary>b27: library rows the DM hid (right-click > Hide), by bookmark key. Shown again with "Show hidden".</summary>
+    public HashSet<string> HiddenAnims { get; set; } = [];
+
+    /// <summary>b29 "Hold emote": one-shot library poses pause on their last frame (a fall stays down) instead of
+    /// returning to idle. Released by moving or Reset to Normal.</summary>
+    public bool HoldEmote { get; set; } = true;
+
+    /// <summary>b31 (experimental): play every NPC event pose on every adult body by borrowing another body's animation
+    /// when this one has none (UniversalPoses, no Penumbra).</summary>
+    public bool UniversalPoses { get; set; } = true;
+
     /// <summary>
     /// Per-favourite absolute scale override, used by the Favourites tab's focused-library controls.
     /// Keyed by BNpcBase id; a base absent here falls back to the mob's authored native scale

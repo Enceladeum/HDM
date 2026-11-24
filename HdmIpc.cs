@@ -30,7 +30,9 @@ public sealed class DisguiseAtom
     public uint Epoch { get; set; }
 
     /// <summary>McType — 1 Human / 2 Demihuman / 3 Monster — selects the receiver's apply path, exactly as
-    /// it selects HDM's own. <b>0 = revert</b> (no disguise): the actor should be restored to its real body.</summary>
+    /// it selects HDM's own. <b>0 = no disguise</b>: the actor shows its real body. Since MinorVersion 5 a
+    /// Kind-0 atom may still carry a held <see cref="LoopId"/> — an UNDISGUISED subject holding a pose (the NPC
+    /// pose library is used without disguises) — so Kind 0 means "real body", not "nothing to show".</summary>
     public byte Kind { get; set; }
 
     /// <summary>The BNpcBase (or 1,000,000+ ENpcBase) id. The receiver resolves NpcEquip / BNpcCustomize
@@ -51,6 +53,20 @@ public sealed class DisguiseAtom
     /// <summary>Held animation loop timeline (Timeline.BaseOverride); 0 = none. This is STATE, not an event:
     /// a peer who starts rendering the actor mid-loop must pick up the current loop from the snapshot.</summary>
     public ushort LoopId { get; set; }
+
+    /// <summary>(MinorVersion 6) The intro clip played ONCE before <see cref="LoopId"/> is held — start→loop poses
+    /// and combos (e.g. Die = the fall, then the lying pose). The receiver plays it only on a LIVE loop change; a
+    /// late joiner / first sight just holds the loop (replaying an intro that already happened is a visible bug).
+    /// 0 = none (the loop is held directly).</summary>
+    public ushort IntroId { get; set; }
+
+    /// <summary>(MinorVersion 6) What the subject's main hand holds while posing: 0 = its own weapon (no
+    /// override), 1 = empty, 2 = the prop in <see cref="HandModel"/>. STATE, snapshotted like the loop.</summary>
+    public byte Hand { get; set; }
+
+    /// <summary>(MinorVersion 6) The hand prop's weapon-slot model when <see cref="Hand"/> == 2, packed like
+    /// FFXIVClientStructs' <c>WeaponModelId.Value</c> (Id | Type &lt;&lt; 16 | Variant &lt;&lt; 32).</summary>
+    public ulong HandModel { get; set; }
 
     /// <summary>True when this atom means "take the disguise off" rather than "put one on".</summary>
     [JsonIgnore] public bool IsRevert => Kind == 0;
@@ -115,7 +131,7 @@ public sealed class HdmIpc : IDisposable
     // Bump Minor for additive changes (new label / new atom field), Major only for a breaking change to an
     // existing label's signature or semantics. HMS gates on Major and treats Minor as capability discovery.
     public const uint MajorVersion = 1;
-    public const uint MinorVersion = 4;   // 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
+    public const uint MinorVersion = 6;   // 1.6: atom + IntroId (intro before a held loop, live changes only) + Hand/HandModel (pose hand props). 1.5: ApplyDisguise/GetDisguise/DisguiseChanged accept a Kind-0 atom carrying a held LoopId (an UNDISGUISED subject holding a pose; b22). 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
     public const string NameSpace = "HDM";
 
     private readonly IDalamudPluginInterface _pi;
@@ -264,16 +280,20 @@ public sealed class HdmIpc : IDisposable
         EmitDisguiseChanged(slot, atom);
     }
 
-    /// <summary>Report a loop-only change (started, replaced, or cleared with 0) on an already-disguised
-    /// own-body/puppet subject. Mutates the stored atom's <see cref="DisguiseAtom.LoopId"/>, bumps the epoch,
-    /// and re-emits — the receiver diffs it to a loop drive without a model redraw. No-op if the subject
-    /// currently holds no disguise (a loop with nothing to attach it to isn't synced).</summary>
-    public void ReportLoop(int? slot, ushort loopId)
+    /// <summary>Report a loop-only change (started, replaced, or cleared with 0) on an own-body/puppet subject.
+    /// Mutates the stored atom's <see cref="DisguiseAtom.LoopId"/>, bumps the epoch, and re-emits — the receiver
+    /// diffs it to a loop drive without a model redraw.
+    /// <para>b22 (MinorVersion 5): an UNDISGUISED subject (Kind 0) is reported too. Before, a held loop rode
+    /// only on a disguise, so every held NPC pose played on the DM's own undisguised body stayed local — and the
+    /// pose library is meant to be used without disguises, alongside emotes. The Kind-0 atom now carries the
+    /// LoopId; the receiver holds it on the real body (see <see cref="ApplyDisguise"/>).</para></summary>
+    public void ReportLoop(int? slot, ushort loopId, ushort introId = 0)
     {
         if (_disposed) return;
         var atom = slot is null ? _ownBody : (_puppets.TryGetValue(slot.Value, out var p) ? p.Atom : null);
-        if (atom is null || atom.Kind == 0) return;
+        if (atom is null) return;   // a puppet we don't track
         atom.LoopId = loopId;
+        atom.IntroId = loopId == 0 ? (ushort)0 : introId;   // Minor 6: receivers play it on a live change only
         atom.Epoch = ++_epoch;
         EmitDisguiseChanged(slot, atom);
     }
@@ -324,8 +344,25 @@ public sealed class HdmIpc : IDisposable
         // drives peers): this stops a later scale/voffset re-emit — or a late-join snapshot — from
         // resurrecting the now-gone Special. The receiver clears its mirror symmetrically in PlayAction.
         var atom = slot is null ? _ownBody : (_puppets.TryGetValue(slot.Value, out var p) ? p.Atom : null);
-        if (atom is not null) atom.LoopId = 0;
+        if (atom is not null) { atom.LoopId = 0; atom.IntroId = 0; }
         _actionFired.SendMessage(slot ?? -1, playId);
+    }
+
+    /// <summary>(MinorVersion 6) Report what the subject's hand holds while posing — 0 own weapon, 1 empty, 2 a
+    /// prop (<paramref name="model"/> = packed WeaponModelId). STATE on the atom (disguised or not), so peers and
+    /// late joiners see the cup / pipe / book, and the real weapon never appears in a held-item pose. Deduped:
+    /// re-reporting the same hand (pose to pose with the same prop) emits nothing.</summary>
+    public void ReportHand(int? slot, byte hand, ulong model)
+    {
+        if (_disposed) return;
+        var atom = slot is null ? _ownBody : (_puppets.TryGetValue(slot.Value, out var p) ? p.Atom : null);
+        if (atom is null) return;
+        if (hand != 2) model = 0;
+        if (atom.Hand == hand && atom.HandModel == model) return;
+        atom.Hand = hand;
+        atom.HandModel = model;
+        atom.Epoch = ++_epoch;
+        EmitDisguiseChanged(slot, atom);
     }
 
     /// <summary>Record + announce a puppet the DM just spawned. Called synchronously right after TrySpawn
@@ -438,7 +475,9 @@ public sealed class HdmIpc : IDisposable
 
     private string GetDisguiseJson()
     {
-        if (_disposed || _ownBody.Kind == 0) return string.Empty;
+        // Nothing to report only when there's neither a disguise nor a held pose (b22: an undisguised body holding a
+        // pose is state a late joiner must see).
+        if (_disposed || (_ownBody.Kind == 0 && _ownBody.LoopId == 0 && _ownBody.Hand == 0)) return string.Empty;
         try { return JsonConvert.SerializeObject(_ownBody); }
         catch (Exception e) { _log.Error(e, "HDM IPC: GetDisguise serialize failed."); return string.Empty; }
     }
@@ -478,7 +517,18 @@ public sealed class HdmIpc : IDisposable
 
         if (atom.Kind == 0)
         {
-            RevertInternal(chara);
+            // b22: Kind 0 = "real body", which may still hold a pose. Restore the real look only when a disguise
+            // was on (or on first sight, as before) — re-reverting an already-real body every time a held pose
+            // changes would Sanitize the pose we're about to hold. Then hold / release the LoopId.
+            var wasDisguised = prev is null || prev.Kind != 0;
+            if (wasDisguised) RevertInternal(chara);
+            if (atom.LoopId != 0)
+            {
+                if (wasDisguised || prev!.LoopId != atom.LoopId) HoldLoop(chara, atom, live: prev is not null);
+            }
+            else if (prev is { Kind: 0, LoopId: not 0 })
+                _anim.Sanitize(chara);   // the undisguised subject released its held pose
+            ApplyHand(chara, wasDisguised ? null : prev, atom);
             _lastApplied[objectIndex] = atom;
             return;
         }
@@ -503,14 +553,40 @@ public sealed class HdmIpc : IDisposable
             if (prev.LoopId != atom.LoopId)
             {
                 if (atom.LoopId == 0) _anim.Sanitize(chara);
-                else _anim.Loop(chara, atom.LoopId);
+                else HoldLoop(chara, atom, live: true);
             }
+            ApplyHand(chara, prev, atom);
             _lastApplied[objectIndex] = atom;
             return;
         }
 
+        if (prev is { Hand: not 0 }) _guise.ForgetPoseHand(chara.ObjectIndex); // the re-guise rebuilds the weapons
         ApplyAtomFull(chara, atom);
+        ApplyHand(chara, null, atom);
         _lastApplied[objectIndex] = atom;
+    }
+
+    /// <summary>Hold the atom's loop; on a LIVE change with an <see cref="DisguiseAtom.IntroId"/>, play the intro
+    /// first (intro → hold, the same PlaySequence the sender used). First sight / late join holds directly.</summary>
+    private void HoldLoop(ICharacter chara, DisguiseAtom atom, bool live)
+    {
+        if (live && atom.IntroId != 0) _anim.PlaySequence(chara, atom.IntroId, atom.LoopId);
+        else _anim.Loop(chara, atom.LoopId);
+    }
+
+    /// <summary>(Minor 6) Bring the mirror's hand in line with the atom: own weapon / empty / a prop. Diffs against
+    /// <paramref name="prev"/> (null = no known hand state, so only a non-default hand acts).</summary>
+    private void ApplyHand(ICharacter chara, DisguiseAtom? prev, DisguiseAtom atom)
+    {
+        if (prev is not null && prev.Hand == atom.Hand && prev.HandModel == atom.HandModel) return;
+        if (prev is null && atom.Hand == 0) return;
+        switch (atom.Hand)
+        {
+            case 1: _guise.SetPoseHand(chara); break;
+            case 2: _guise.SetPoseHand(chara, new FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId { Value = atom.HandModel }); break;
+            case 3: _guise.SetPoseHand(chara, default, new FFXIVClientStructs.FFXIV.Client.Game.Character.WeaponModelId { Value = atom.HandModel }); break; // b29: off hand
+            default: _guise.RestorePoseHand(chara); break;
+        }
     }
 
     /// <summary>The full model/customize apply + redraw, mirroring MainWindow.ApplyGuise: Human (Kind 1)
@@ -565,6 +641,7 @@ public sealed class HdmIpc : IDisposable
     private void RevertInternal(ICharacter chara)
     {
         _anim.Sanitize(chara);
+        _guise.RestorePoseHand(chara);   // Minor 6: a pose's prop / emptied hand goes back
         _guise.Revert(chara, null);
         _humanGuise.Revert(chara.ObjectIndex);
     }
@@ -628,8 +705,11 @@ public sealed class HdmIpc : IDisposable
     /// paint the atom and seed the diff baseline for a later ApplyDisguise.</summary>
     private Action<ICharacter> MirrorOnReady(DisguiseAtom atom) => p =>
     {
-        if (atom.Kind == 0) { _guise.SetHidden(p, true); return; }
+        // A blank (Kind-0) mirror is a clone of the RECEIVER's own body, so it stays hidden here by design. Seed the
+        // diff baseline anyway (b22) so a later held-pose / disguise atom for it diffs from a known state.
+        if (atom.Kind == 0) { _guise.SetHidden(p, true); _lastApplied[p.ObjectIndex] = atom; return; }
         ApplyAtomFull(p, atom);
+        ApplyHand(p, null, atom);
         if (ResolveChara(p.ObjectIndex) is not null)
             _lastApplied[p.ObjectIndex] = atom; // seed the diff baseline for later ApplyDisguise
     };

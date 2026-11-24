@@ -6,6 +6,8 @@ using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.System.Input;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using CSCharacter = FFXIVClientStructs.FFXIV.Client.Game.Character.Character;
 
 namespace HDM;
@@ -187,7 +189,29 @@ public sealed unsafe class AnimationService : IDisposable
     // playback entry points (not the per-frame drive loop; possession uses EndEmote for the same release).
     private static void ClearEmoteMode(CSCharacter* n)
     {
+        if (IsRiding(n)) return;                    // b26: a rider keeps the mount; the pose plays on top of it
         if (n->Mode != CharacterModes.Normal) n->SetMode(CharacterModes.Normal, 0);
+    }
+
+    // b27 (DM): roll back b26's "poses play on top of the ride". The game already resolves many emotes for a rider
+    // (seated greetings, waves); HDM's own poses stay off a rider rather than fight the ride or eject them. The rider
+    // guards below (ClearEmoteMode / Sanitize never force Normal on a rider) stay: they only prevent a dismount.
+    private bool RefuseRider(CSCharacter* n, ushort id)
+    {
+        if (!IsRiding(n)) return false;
+        _log.Information($"Anim: timeline {id} not played: the actor is mounted (poses are off while riding).");
+        return true;
+    }
+
+    /// <summary>b26: mounted or riding pillion. Poses on a rider leave the mode alone (no Normal, no AnimLock),
+    /// so a pose can be played while mounted instead of being refused or knocking the ride over.</summary>
+    public static bool IsRiding(CSCharacter* n) => n->Mode is CharacterModes.Mounted or CharacterModes.RidingPillion;
+
+    /// <summary>b26: sitting in a native seated emote (/sit in a chair, /groundsit, their cpose variants).</summary>
+    public static bool IsNativelySeated(ICharacter chara)
+    {
+        var n = (CSCharacter*)chara.Address;
+        return n != null && n->Mode is CharacterModes.InPositionLoop or CharacterModes.EmoteLoop;
     }
 
     /// <summary>
@@ -200,14 +224,16 @@ public sealed unsafe class AnimationService : IDisposable
     public void PlayOnce(ICharacter chara, ushort timelineId)
     {
         var n = (CSCharacter*)chara.Address;
-        if (n == null) return;
+        if (n == null || RefuseRider(n, timelineId)) return;
         var idx = chara.ObjectIndex;
         ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight this clip
         n->Timeline.BaseOverride = 0;
         _replays.Remove(idx);
         _sequences.Remove(idx);
+        _animLocked.Remove(idx);
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId);
         _touched.Add(idx);
+        Bump(idx);
     }
 
     /// <summary>
@@ -334,11 +360,24 @@ public sealed unsafe class AnimationService : IDisposable
     public void Loop(ICharacter chara, ushort timelineId)
     {
         var n = (CSCharacter*)chara.Address;
-        if (n == null) return;
+        if (n == null || RefuseRider(n, timelineId)) return;
         ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight this loop
+        // b24: Brio's hold recipe — AnimLock BEFORE pinning. In Normal mode the game's own idle/locomotion resolver can
+        // override a pinned base pose, and for some NPC poses it does (chair sit tired, sit couple 1, sit tobacco,
+        // standing talk 2 never showed: same sheet, files and play path as poses that worked). AnimLock takes the actor
+        // out of that resolver. Released by Sanitize (Normal) or any later PlayOnce/LoopReplay/PlaySequence
+        // (ClearEmoteMode); the DM's own body is also released when they move (TickSelfLock).
+        if (!IsRiding(n))
+        {
+            n->SetMode(CharacterModes.AnimLock, 0);
+            _animLocked.Add(chara.ObjectIndex);
+        }
         n->Timeline.BaseOverride = timelineId;
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId); // gap-free start
         _touched.Add(chara.ObjectIndex);
+        Bump(chara.ObjectIndex);
+        _takeRetries.Remove(chara.ObjectIndex);
+        _takeCheck[chara.ObjectIndex] = (timelineId, 0);   // b24 diagnostic: did the hold actually take?
     }
 
     /// <summary>
@@ -352,13 +391,15 @@ public sealed unsafe class AnimationService : IDisposable
     public void LoopReplay(ICharacter chara, ushort timelineId)
     {
         var n = (CSCharacter*)chara.Address;
-        if (n == null) return;
+        if (n == null || RefuseRider(n, timelineId)) return;
         var idx = chara.ObjectIndex;
         ClearEmoteMode(n);                                         // a prior persistent emote's loop mode must not fight the replay
         n->Timeline.BaseOverride = 0;                              // replay drives the full timeline; no base-lane force
         n->Timeline.TimelineSequencer.PlayTimeline(timelineId);
         _replays[idx] = new ReplayLoop { Id = timelineId, WaitingForStart = true, Ticks = 0 };
+        _animLocked.Remove(idx);
         _touched.Add(idx);
+        Bump(idx);
         _log.Information($"Anim: obj#{idx} replay-loop timeline {timelineId} (full-timeline re-trigger)");
     }
 
@@ -376,14 +417,16 @@ public sealed unsafe class AnimationService : IDisposable
     public void PlaySequence(ICharacter chara, ushort introId, ushort holdId)
     {
         var n = (CSCharacter*)chara.Address;
-        if (n == null) return;
+        if (n == null || RefuseRider(n, introId)) return;
         var idx = chara.ObjectIndex;
         ClearEmoteMode(n);                                         // a prior persistent emote's loop mode must not fight the intro
         n->Timeline.BaseOverride = 0;                              // intro plays as a full one-shot; no base-lane force yet
         n->Timeline.TimelineSequencer.PlayTimeline(introId);
         _sequences[idx] = new PoseSequence { IntroId = introId, HoldId = holdId, WaitingForStart = true, Ticks = 0 };
         _replays.Remove(idx);                                      // a replay and a sequence can't co-drive one actor
+        _animLocked.Remove(idx);
         _touched.Add(idx);
+        Bump(idx);
         _log.Information($"Anim: obj#{idx} sequence intro {introId} -> hold {holdId}");
     }
 
@@ -507,6 +550,222 @@ public sealed unsafe class AnimationService : IDisposable
     {
         if (_replays.Count != 0) TickReplays();
         if (_sequences.Count != 0) TickSequences();
+        if (_selfWatch.Count != 0) TickSelfWatch();
+        if (_animLocked.Count != 0) TickSelfLock();
+        if (_takeCheck.Count != 0) TickTakeCheck();
+        if (_seatWait != null) TickSeatWait();
+        if (_endHolds.Count != 0) TickEndHolds();
+    }
+
+    // b28 "Hold the ending" (F-08): play a one-shot once, then pause ITS slot about two frames before the end so the actor
+    // stays in the clip's final pose (a fall stays on its back) instead of blending back to idle. Runs under AnimLock so
+    // the game's idle handling can't pull the actor up; moving (self), Reset, or any newer HDM animation releases it and
+    // puts the slot speed back. Clip length comes from the .tmb header (PoseLibrary.ClipSeconds). The scheduler's
+    // timestamp unit (seconds vs frames) is measured on the fly from how far it moves per tick, so neither is assumed.
+    private sealed class EndHold { public ushort Id; public float EndSec; public int Gen; public int Slot = -1; public float LastTs = -1; public int Ticks; public bool Frozen; public bool? Frames; }
+    private readonly Dictionary<int, EndHold> _endHolds = new();
+
+    public void PlayHoldEnd(ICharacter chara, ushort timelineId, float clipSeconds)
+    {
+        var n = (CSCharacter*)chara.Address;
+        if (n == null || RefuseRider(n, timelineId)) return;
+        PlayOnce(chara, timelineId);                                    // clears holds, bumps the generation
+        n->SetMode(CharacterModes.AnimLock, 0);
+        _animLocked.Add(chara.ObjectIndex);
+        _endHolds[chara.ObjectIndex] = new EndHold { Id = timelineId, EndSec = clipSeconds, Gen = _gen.GetValueOrDefault(chara.ObjectIndex) };
+    }
+
+    private void TickEndHolds()
+    {
+        foreach (var idx in new List<int>(_endHolds.Keys))
+        {
+            var h = _endHolds[idx];
+            if (_objects[idx] is not ICharacter c || c.Address == nint.Zero) { _endHolds.Remove(idx); continue; }
+            var n = (CSCharacter*)c.Address;
+            if (_gen.GetValueOrDefault(idx) != h.Gen) { ReleaseEndHold(idx, n); continue; }     // superseded
+            if (h.Frozen) continue;
+            h.Ticks++;
+            var seq = &n->Timeline.TimelineSequencer;
+            if (h.Slot < 0)
+            {
+                for (var i = 0; i < seq->TimelineIds.Length; i++) if (seq->TimelineIds[i] == h.Id) { h.Slot = i; break; }
+                if (h.Slot < 0)
+                {
+                    if (h.Ticks % 20 == 0 && h.Ticks <= 40)          // b32: re-issue twice (a borrowed pap may still be loading)
+                    {
+                        seq->PlayTimeline(h.Id);
+                        _log.Information($"Anim[holdend] obj#{idx} {h.Id}: not started yet, retry {h.Ticks / 20}");
+                    }
+                    else if (h.Ticks > 60)
+                    {
+                        _endHolds.Remove(idx);
+                        _log.Information($"Anim[holdend] obj#{idx} {h.Id}: never started (mode={n->Mode} slots=[{seq->TimelineIds[0]},{seq->TimelineIds[1]},{seq->TimelineIds[2]}]); releasing");
+                        if (n->Mode == CharacterModes.AnimLock) n->SetMode(CharacterModes.Normal, 0);   // don't leave them locked
+                        _animLocked.Remove(idx);
+                        _touched.Remove(idx);                                                         // clears "[animating]"
+                    }
+                    continue;
+                }
+            }
+            if (seq->TimelineIds[h.Slot] != h.Id)
+            {
+                _log.Information($"Anim[holdend] obj#{idx} {h.Id}: ended before the freeze (last ts {h.LastTs:0.000}, end {h.EndSec:0.00}s)");
+                _endHolds.Remove(idx);
+                continue;
+            }
+            var st = seq->GetSchedulerTimeline((uint)h.Slot);
+            if (st == null) continue;
+            var ts = st->CurrentTimestamp;
+            if (h.Frames == null && h.LastTs >= 0 && ts > h.LastTs)
+                h.Frames = ts - h.LastTs > 0.1f;                                                 // ~0.5/tick = frames; ~0.017 = seconds
+            h.LastTs = ts;
+            if (h.Frames == null) continue;
+            var end = h.Frames.Value ? h.EndSec * 30f - 2f : h.EndSec - 2f / 30f;
+            if (ts < end) continue;
+            seq->SetSlotSpeed((uint)h.Slot, 0f);
+            h.Frozen = true;
+            _log.Information($"Anim[holdend] obj#{idx} {h.Id}: holding the ending at ts {ts:0.000} ({(h.Frames.Value ? "frames" : "seconds")}, slot {h.Slot})");
+        }
+    }
+
+    private void ReleaseEndHold(int idx, CSCharacter* n)
+    {
+        if (!_endHolds.Remove(idx, out var h)) return;
+        if (h.Frozen && n != null && h.Slot >= 0) n->Timeline.TimelineSequencer.SetSlotSpeed((uint)h.Slot, 1f);
+    }
+
+    // b26: chair snap. The UI fires a native /sit on the DM, then hands us the pose to play once they're seated. We
+    // wait for the seated mode plus ~0.8 s for the sit-down to land, then run it. Dropped if a newer HDM animation
+    // took over, or if they sat and then stood again (moved off). If the game never seats them (no chair, refused),
+    // the pose plays anyway after ~2.5 s where they stand.
+    private sealed class SeatWait { public int Idx; public Action Run = null!; public int Gen; public int Ticks; public int Seated; }
+    private SeatWait? _seatWait;
+    public void AfterSeated(ICharacter chara, Action run)
+        => _seatWait = new SeatWait { Idx = chara.ObjectIndex, Run = run, Gen = _gen.GetValueOrDefault(chara.ObjectIndex) };
+    private void TickSeatWait()
+    {
+        var w = _seatWait!;
+        if (_objects[w.Idx] is not ICharacter c || c.Address == nint.Zero || _gen.GetValueOrDefault(w.Idx) != w.Gen)
+        { _seatWait = null; return; }
+        w.Ticks++;
+        if (IsNativelySeated(c)) w.Seated++;
+        else if (w.Seated > 0) { _seatWait = null; _log.Information("Anim: seat snap abandoned (stood up)"); return; }
+        if (w.Seated < 50 && w.Ticks < 150) return;
+        _seatWait = null;
+        _log.Information($"Anim: seat snap {(w.Seated > 0 ? "landed" : "timed out (no chair?)")}; playing the pose");
+        w.Run();
+    }
+
+    // b24 diagnostic: ~20 frames after a hold, log whether the pose made it into a sequencer slot, the mode and the
+    // pinned base. If a pose still shows nothing, this one line says whether the game rejected the timeline (not in a
+    // slot) or took it and rendered nothing — the evidence the offline data couldn't give.
+    private readonly Dictionary<int, (ushort Id, int Ticks)> _takeCheck = new();
+    private readonly Dictionary<int, int> _takeRetries = new();
+    private void TickTakeCheck()
+    {
+        foreach (var idx in new List<int>(_takeCheck.Keys))
+        {
+            var (id, ticks) = _takeCheck[idx];
+            if (++ticks < 20) { _takeCheck[idx] = (id, ticks); continue; }
+            _takeCheck.Remove(idx);
+            if (_objects[idx] is not ICharacter c || c.Address == nint.Zero) continue;
+            var n = (CSCharacter*)c.Address;
+            // b32: a borrowed animation (UniversalPoses) can still be loading on the first try; the game then drops the
+            // play. Re-issue it (up to twice) while it is still the pinned hold.
+            if (!SlotHasTimeline(n, id) && n->Timeline.BaseOverride == id && _takeRetries.GetValueOrDefault(idx) < 2)
+            {
+                _takeRetries[idx] = _takeRetries.GetValueOrDefault(idx) + 1;
+                n->Timeline.TimelineSequencer.PlayTimeline(id);
+                _takeCheck[idx] = (id, 0);
+                _log.Information($"Anim[take] obj#{idx} hold {id}: not playing yet, retry {_takeRetries[idx]}");
+                continue;
+            }
+            _takeRetries.Remove(idx);
+            _log.Information($"Anim[take] obj#{idx} hold {id}: in-slot={SlotHasTimeline(n, id)} mode={n->Mode} " +
+                             $"base={n->Timeline.BaseOverride} slots=[{n->Timeline.TimelineSequencer.TimelineIds[0]}," +
+                             $"{n->Timeline.TimelineSequencer.TimelineIds[1]},{n->Timeline.TimelineSequencer.TimelineIds[2]}]");
+        }
+    }
+
+    // ---- b24: the DM's OWN body vs. sync -----------------------------------------------------------------
+    // The local player has the game's own idle/input handling (Principle 1); a copy of it on a peer's screen does
+    // not. Two consequences, handled here: (1) a looping one-shot (e.g. event_sit_eat_sequence, IsLoop) ends on the
+    // DM's screen but would loop forever on peers — so when it ends HERE we tell peers to settle to idle; (2) an
+    // AnimLock hold on the DM's own body would ignore their movement keys — so moving releases it.
+
+    // Every HDM animation call on an actor bumps its generation; a watch is void once a newer call took over.
+    private readonly Dictionary<int, int> _gen = new();
+    private void Bump(int idx) => _gen[idx] = _gen.GetValueOrDefault(idx) + 1;
+
+    private readonly HashSet<int> _animLocked = new();
+    private sealed class OneShotWatch { public ushort Id; public int Gen; public bool Started; public int Ticks; }
+    private readonly Dictionary<int, OneShotWatch> _selfWatch = new();
+    private const float MoveReleaseSpeed = 0.15f;   // yalms/s on the MoveController forward axis
+
+    /// <summary>Raised when a one-shot the DM fired on their OWN body has ended there (finished, or ended by the
+    /// game's own handling) and no newer HDM animation replaced it. The UI reports a settle-to-idle to peers.</summary>
+    public event Action<ICharacter>? SelfOneShotEnded;
+
+    /// <summary>Raised when the DM's own AnimLock hold was released because they started moving.</summary>
+    public event Action<ICharacter>? SelfReleasedByMovement;
+
+    /// <summary>Watch a one-shot just fired on the DM's own body (see <see cref="SelfOneShotEnded"/>).</summary>
+    public void WatchSelfOneShot(ICharacter chara, ushort timelineId)
+    {
+        if (_objects.LocalPlayer is not { } me || me.ObjectIndex != chara.ObjectIndex) return;
+        _selfWatch[chara.ObjectIndex] = new OneShotWatch { Id = timelineId, Gen = _gen.GetValueOrDefault(chara.ObjectIndex) };
+    }
+
+    private void TickSelfWatch()
+    {
+        foreach (var idx in new List<int>(_selfWatch.Keys))
+        {
+            if (_objects[idx] is not ICharacter c || c.Address == nint.Zero) { _selfWatch.Remove(idx); continue; }
+            var w = _selfWatch[idx];
+            if (_gen.GetValueOrDefault(idx) != w.Gen) { _selfWatch.Remove(idx); continue; }   // superseded
+            w.Ticks++;
+            var active = SlotHasTimeline((CSCharacter*)c.Address, w.Id);
+            if (!w.Started)
+            {
+                if (active) { w.Started = true; w.Ticks = 0; }
+                else if (w.Ticks > ReplayStartTimeout * 3) _selfWatch.Remove(idx);           // never started: nothing to settle
+                continue;
+            }
+            if (active) continue;
+            _selfWatch.Remove(idx);
+            _log.Debug($"Anim: self one-shot {w.Id} ended on obj#{idx}; settling peers to idle");
+            SelfOneShotEnded?.Invoke(c);
+        }
+    }
+
+    // b26: is the player pressing a movement input right now? AnimLock freezes the MoveController (b24 read its speed,
+    // which therefore never rose), so read the input layer: the movement/jump keybinds (respects rebinds; the game
+    // doesn't set them while typing in chat) and the gamepad left stick. Returns what fired, for the log; "" = none.
+    private static readonly InputId[] MoveInputs =
+        [InputId.MOVE_FORE, InputId.MOVE_BACK, InputId.MOVE_LEFT, InputId.MOVE_RIGHT,
+         InputId.MOVE_STRIFE_L, InputId.MOVE_STRIFE_R, InputId.JUMP];
+    private static string MoveInputHeld()
+    {
+        var ui = UIInputData.Instance();
+        if (ui == null) return "";
+        foreach (var id in MoveInputs)
+            if (ui->IsInputIdDown(id) || ui->IsInputIdHeld(id)) return id.ToString();
+        var pad = ui->GamepadInputs;
+        if (Math.Abs(pad.LeftStickX) > 40 || Math.Abs(pad.LeftStickY) > 40) return "left stick";
+        return "";
+    }
+
+    private void TickSelfLock()
+    {
+        if (_objects.LocalPlayer is not { } me || !_animLocked.Contains(me.ObjectIndex) || me.Address == nint.Zero) return;
+        var n = (CSCharacter*)me.Address;
+        if (n->Mode != CharacterModes.AnimLock) { _animLocked.Remove(me.ObjectIndex); return; }    // something else moved us on
+        var input = MoveInputHeld();
+        var fwd = 0f;
+        if (input.Length == 0 && (!TryReadMoveIntent(n, out fwd, out _) || MathF.Abs(fwd) < MoveReleaseSpeed)) return;
+        _log.Information($"Anim: DM moved ({(input.Length > 0 ? input : $"fwd {fwd:0.00}")}) — releasing their held pose");
+        Sanitize(me);
+        SelfReleasedByMovement?.Invoke(me);
     }
 
     // Drive the full-timeline replay loops. For each, watch whether the requested timeline is still
@@ -571,6 +830,11 @@ public sealed unsafe class AnimationService : IDisposable
             else if (!introActive)
             {
                 // The fall finished — clamp to the lying pose and blend it in (gap-free handoff to the hold).
+                if (!IsRiding(n))
+                {
+                    n->SetMode(CharacterModes.AnimLock, 0);       // b24: hold under AnimLock, as Loop does
+                    _animLocked.Add(idx);
+                }
                 n->Timeline.BaseOverride = s.HoldId;
                 n->Timeline.TimelineSequencer.PlayTimeline(s.HoldId);
                 s.Holding = true;
@@ -687,15 +951,20 @@ public sealed unsafe class AnimationService : IDisposable
 
         n->Timeline.BaseOverride = 0;           // stop forcing any base animation
         n->Timeline.OverallSpeed = 1f;          // undo freeze/slow-mo
-        n->SetMode(CharacterModes.Normal, 0);   // exit AnimLock / any special mode
-        n->Timeline.TimelineSequencer.PlayTimeline(ResetBlend); // blend to idle
+        var riding = IsRiding(n);
+        if (!riding) n->SetMode(CharacterModes.Normal, 0);   // exit AnimLock / any special mode (b26: never dismount)
+        if (!riding) n->Timeline.TimelineSequencer.PlayTimeline(ResetBlend); // blend to idle (a rider's mount drives its own)
 
+        ReleaseEndHold(chara.ObjectIndex, n);   // b28: un-pause a held ending's slot
         _speedPin.Remove(chara.ObjectIndex);    // stop the freeze pin re-asserting after an unstick
         _replays.Remove(chara.ObjectIndex);     // stop any full-timeline replay loop
         _sequences.Remove(chara.ObjectIndex);   // stop any compound intro->hold gesture
         _locoLastApplied.Remove(chara.ObjectIndex); // drop the §4b one-writer state (BaseOverride cleared above)
         _driveEmote.Remove(chara.ObjectIndex);   // drop the driven-emote edge state (SetMode Normal issued above)
         _touched.Remove(chara.ObjectIndex);
+        _animLocked.Remove(chara.ObjectIndex);
+        _selfWatch.Remove(chara.ObjectIndex);
+        Bump(chara.ObjectIndex);
         _calcGate = _slotGate = -1;             // a later freeze re-logs its confirmation lines
         _log.Information($"Anim: obj#{chara.ObjectIndex} sanitised to Normal");
     }
@@ -718,6 +987,9 @@ public sealed unsafe class AnimationService : IDisposable
         _locoLastApplied.Remove(objectIndex);
         _driveEmote.Remove(objectIndex);
         _touched.Remove(objectIndex);
+        _animLocked.Remove(objectIndex);
+        _selfWatch.Remove(objectIndex);
+        _endHolds.Remove(objectIndex);
     }
 
     /// <summary>
