@@ -68,6 +68,12 @@ public sealed class DisguiseAtom
     /// FFXIVClientStructs' <c>WeaponModelId.Value</c> (Id | Type &lt;&lt; 16 | Variant &lt;&lt; 32).</summary>
     public ulong HandModel { get; set; }
 
+    /// <summary>(MinorVersion 7) A Human puppet's outfit when the DM dressed it beyond its base NPC (HOutfits): the
+    /// gear, dyes, facewear and face sections of its Glamourer state, deflated + base64 (<see cref="LookCodec"/>). Null =
+    /// the base NPC's own look. Reset by a new base disguise (a fresh atom). The receiver applies it through Glamourer on
+    /// top of the human disguise.</summary>
+    public string? Look { get; set; }
+
     /// <summary>True when this atom means "take the disguise off" rather than "put one on".</summary>
     [JsonIgnore] public bool IsRevert => Kind == 0;
 }
@@ -131,7 +137,7 @@ public sealed class HdmIpc : IDisposable
     // Bump Minor for additive changes (new label / new atom field), Major only for a breaking change to an
     // existing label's signature or semantics. HMS gates on Major and treats Minor as capability discovery.
     public const uint MajorVersion = 1;
-    public const uint MinorVersion = 6;   // 1.6: atom + IntroId (intro before a held loop, live changes only) + Hand/HandModel (pose hand props). 1.5: ApplyDisguise/GetDisguise/DisguiseChanged accept a Kind-0 atom carrying a held LoopId (an UNDISGUISED subject holding a pose; b22). 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
+    public const uint MinorVersion = 7;   // 1.7: atom + Look (a dressed Human puppet's Glamourer outfit, compact). 1.6: atom + IntroId (intro before a held loop, live changes only) + Hand/HandModel (pose hand props). 1.5: ApplyDisguise/GetDisguise/DisguiseChanged accept a Kind-0 atom carrying a held LoopId (an UNDISGUISED subject holding a pose; b22). 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
     public const string NameSpace = "HDM";
 
     private readonly IDalamudPluginInterface _pi;
@@ -365,6 +371,30 @@ public sealed class HdmIpc : IDisposable
         EmitDisguiseChanged(slot, atom);
     }
 
+    /// <summary>(MinorVersion 7) Report a Human puppet's dressed look (see <see cref="DisguiseAtom.Look"/>). Deduped.
+    /// Only a Human (Kind 1) puppet carries one: a blank clone is hidden on peers, and monsters aren't Glamourer-dressed.</summary>
+    public void ReportLook(int slot, string? look)
+    {
+        if (_disposed || !_puppets.TryGetValue(slot, out var p) || p.Atom.Kind != 1) return;
+        if (p.Atom.Look == look) return;
+        p.Atom.Look = look;
+        p.Atom.Epoch = ++_epoch;
+        // HMS passes the atom JSON through only up to 2,048 characters; past that, peers get the typed fields and lose
+        // the look. Say so plainly instead of failing silently.
+        var size = JsonConvert.SerializeObject(p.Atom).Length;
+        if (size > 2048) _log.Warning($"HDM IPC: puppet slot {slot} atom is {size} chars with its dressed look; HMS caps pass-through at 2048, so peers won't see the outfit.");
+        else _log.Information($"HDM IPC: puppet slot {slot} dressed look reported (atom {size}/2048 chars)");
+        EmitDisguiseChanged(slot, p.Atom);
+    }
+
+    /// <summary>The sync slot of one of THIS DM's own puppets by its local object index, or null.</summary>
+    public int? PuppetSlotFor(int objectIndex)
+    {
+        foreach (var (slot, p) in _puppets)
+            if (p.ObjectIndex == objectIndex) return slot;
+        return null;
+    }
+
     /// <summary>Record + announce a puppet the DM just spawned. Called synchronously right after TrySpawn
     /// returns (the objectIndex is real immediately); the disguise itself lands later and is confirmed by the
     /// outbound PuppetReady. Adds the puppet to the sync-source set so its Ready/Despawn fire outbound. A null
@@ -556,6 +586,7 @@ public sealed class HdmIpc : IDisposable
                 else HoldLoop(chara, atom, live: true);
             }
             ApplyHand(chara, prev, atom);
+            if (atom.Kind == 1 && prev.Look != atom.Look) ApplyLook(chara.ObjectIndex, atom);   // Minor 7: dressed / undressed
             _lastApplied[objectIndex] = atom;
             return;
         }
@@ -570,6 +601,14 @@ public sealed class HdmIpc : IDisposable
     /// first (intro → hold, the same PlaySequence the sender used). First sight / late join holds directly.</summary>
     private void HoldLoop(ICharacter chara, DisguiseAtom atom, bool live)
     {
+        // b34: IntroId == LoopId = "play this one-shot and hold its ending" (the sender's Hold emote). Same on late join:
+        // the clip replays and freezes, so a fall ends on the ground for everyone. No wire change; an older receiver
+        // reads it as intro -> hold and keeps the clip pinned instead of standing up.
+        if (atom.LoopId != 0 && atom.IntroId == atom.LoopId && _anim.ClipSecondsOf?.Invoke(atom.LoopId) is > 0.1f and var secs)
+        {
+            _anim.PlayHoldEnd(chara, atom.LoopId, secs);
+            return;
+        }
         if (live && atom.IntroId != 0) _anim.PlaySequence(chara, atom.IntroId, atom.LoopId);
         else _anim.Loop(chara, atom.LoopId);
     }
@@ -615,6 +654,7 @@ public sealed class HdmIpc : IDisposable
             _guise.Revert(chara, () =>
             {
                 _humanGuise.Apply(idx, baseId, name, source);
+                if (atom.Look != null) ApplyLook(idx, atom);                   // Minor 7: the DM's HOutfits dressing on top
                 if (loopId != 0 && ResolveChara(idx) is { } c) _anim.Loop(c, loopId);
             });
         }
@@ -625,6 +665,23 @@ public sealed class HdmIpc : IDisposable
             if (atom.LoopId != 0) _anim.Loop(chara, atom.LoopId);
         }
         _guise.SetVerticalOffset(chara, atom.VOffset);
+    }
+
+    /// <summary>(Minor 7) Bring a mirrored Human puppet's outfit in line with the atom: its dressed look, or (Look
+    /// cleared) its base NPC look again.</summary>
+    private void ApplyLook(int objectIndex, DisguiseAtom atom)
+    {
+        if (LookCodec.Decode(atom.Look) is { } look)
+        {
+            var ok = _humanGuise.ApplyLook(objectIndex, look);
+            _log.Information($"HDM IPC: obj#{objectIndex} dressed look applied ({atom.Look!.Length} chars) -> {(ok ? "ok" : "Glamourer refused")}");
+        }
+        else if (atom.Look == null)
+        {
+            var row = RowForAtom(atom);
+            _humanGuise.Apply(objectIndex, atom.BaseId, row.DisplayName, row.Source);   // back to the base NPC outfit
+        }
+        else _log.Warning($"HDM IPC: obj#{objectIndex} dressed look could not be decoded; keeping the base outfit.");
     }
 
     private void RevertDisguise(int objectIndex)

@@ -275,20 +275,24 @@ public sealed class PoseLibrary
 
     /// <summary>b28: how long a timeline runs, in seconds, from its .tmb header (TMDH frame count at 30 fps); 0 if
     /// unreadable. Used to freeze a one-shot on its last frame ("Hold the ending").</summary>
-    public float ClipSeconds(LibEntry e)
+    public float ClipSeconds(LibEntry e) => ClipSeconds(e.Id);
+
+    /// <summary>b34: the same, by timeline id (a peer's held ending arrives as an id).</summary>
+    public float ClipSeconds(ushort id)
     {
-        if (_clipSeconds.TryGetValue(e.Id, out var cached)) return cached;
+        if (_clipSeconds.TryGetValue(id, out var cached)) return cached;
+        if (!_keyById.TryGetValue(id, out var key)) return 0f;
         var secs = 0f;
         try
         {
-            var f = _data.GetFile($"chara/action/{e.Key}.tmb");
+            var f = _data.GetFile($"chara/action/{key}.tmb");
             var d = f?.Data;
             // TMLB header (12 bytes), then TMDH: magic(4) size(4) id(2) unk(2) duration(2, frames) unk(2).
             if (d is { Length: >= 0x1C } && d[0x0C] == (byte)'T' && d[0x0D] == (byte)'M' && d[0x0E] == (byte)'D' && d[0x0F] == (byte)'H')
                 secs = BitConverter.ToUInt16(d, 0x18) / 30f;
         }
         catch { /* unreadable: caller falls back to plain once */ }
-        _clipSeconds[e.Id] = secs;
+        _clipSeconds[id] = secs;
         return secs;
     }
     private readonly Dictionary<ushort, float> _clipSeconds = new();
@@ -362,20 +366,41 @@ public sealed class PoseLibrary
         .Distinct().ToList();
     private List<string>? _eventKeys;
 
-    // b33: does ANY adult body ship this timeline? (Universal mode lists only these: Escape has a timeline but no file.)
     private static readonly int[] AdultBodies =
         [101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201, 1301, 1401, 1501, 1601, 1701, 1801];
-    private bool AnyBodyHas(ushort id) => !_keyById.ContainsKey(id) || AdultBodies.Any(b => HasAnimation(b, id));
+
+    /// <summary>b42: does this timeline's animation spawn a visual effect of its own (a C012 node pointing at an .avfx
+    /// inside the pap)? Such effects outlive an interrupted clip (touch ele shock's lightning stayed until a map change),
+    /// so AnimationService redraws the actor when it releases one. Read once per id from the first body that ships it.</summary>
+    public bool HasEffect(ushort id)
+    {
+        if (_hasEffect.TryGetValue(id, out var hit)) return hit;
+        var yes = false;
+        if (_keyById.TryGetValue(id, out var key))
+            foreach (var b in AdultBodies)
+            {
+                var d = _data.GetFile($"chara/human/c{b:D4}/animation/a0001/bt_common/{key}.pap")?.Data;
+                if (d == null) continue;
+                yes = Contains(d, "C012"u8) && Contains(d, ".avfx"u8);
+                break;
+            }
+        _hasEffect[id] = yes;
+        return yes;
+    }
+    private readonly Dictionary<ushort, bool> _hasEffect = new();
+    private static bool Contains(byte[] hay, ReadOnlySpan<byte> needle) => hay.AsSpan().IndexOf(needle) >= 0;
 
     public IReadOnlyList<LibGroup> PosesFor(int body)
     {
         if (body <= 0) return Poses;
-        if (_universal)
+        if (_universal && Porter is { Active: true } porter)
         {
-            if (_posesByBody.TryGetValue(-1, out var all)) return all;
-            var u = Poses.Select(g => new LibGroup(g.Name, g.Items.Where(e => AnyBodyHas(e.Id) && (e.HoldId == 0 || AnyBodyHas(e.HoldId))).ToList()))
+            // b42: this body's own poses plus those a same-build body can lend it (see UniversalPoses.BuildGroup).
+            if (_posesByBody.TryGetValue(-body, out var all)) return all;
+            bool Ok(ushort id) => !_keyById.TryGetValue(id, out var k) || HasAnimation(body, id) || porter.DonorFor(body, k) > 0;
+            var u = Poses.Select(g => new LibGroup(g.Name, g.Items.Where(e => Ok(e.Id) && (e.HoldId == 0 || Ok(e.HoldId))).ToList()))
                          .Where(g => g.Items.Count > 0).ToList();
-            _posesByBody[-1] = u;
+            _posesByBody[-body] = u;
             return u;
         }
         if (_posesByBody.TryGetValue(body, out var hit)) return hit;

@@ -225,6 +225,8 @@ public sealed unsafe class AnimationService : IDisposable
     {
         var n = (CSCharacter*)chara.Address;
         if (n == null || RefuseRider(n, timelineId)) return;
+        if (ClearEffectFirst(chara, () => PlayOnce(chara, timelineId))) return;
+        NoteEffect(chara.ObjectIndex, timelineId);
         var idx = chara.ObjectIndex;
         ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight this clip
         n->Timeline.BaseOverride = 0;
@@ -361,6 +363,8 @@ public sealed unsafe class AnimationService : IDisposable
     {
         var n = (CSCharacter*)chara.Address;
         if (n == null || RefuseRider(n, timelineId)) return;
+        if (ClearEffectFirst(chara, () => Loop(chara, timelineId))) return;
+        NoteEffect(chara.ObjectIndex, timelineId);
         ClearEmoteMode(n);                          // a prior persistent emote's loop mode must not fight this loop
         // b24: Brio's hold recipe — AnimLock BEFORE pinning. In Normal mode the game's own idle/locomotion resolver can
         // override a pinned base pose, and for some NPC poses it does (chair sit tired, sit couple 1, sit tobacco,
@@ -392,6 +396,8 @@ public sealed unsafe class AnimationService : IDisposable
     {
         var n = (CSCharacter*)chara.Address;
         if (n == null || RefuseRider(n, timelineId)) return;
+        if (ClearEffectFirst(chara, () => LoopReplay(chara, timelineId))) return;
+        NoteEffect(chara.ObjectIndex, timelineId);
         var idx = chara.ObjectIndex;
         ClearEmoteMode(n);                                         // a prior persistent emote's loop mode must not fight the replay
         n->Timeline.BaseOverride = 0;                              // replay drives the full timeline; no base-lane force
@@ -418,6 +424,9 @@ public sealed unsafe class AnimationService : IDisposable
     {
         var n = (CSCharacter*)chara.Address;
         if (n == null || RefuseRider(n, introId)) return;
+        if (ClearEffectFirst(chara, () => PlaySequence(chara, introId, holdId))) return;
+        NoteEffect(chara.ObjectIndex, introId);
+        NoteEffect(chara.ObjectIndex, holdId);
         var idx = chara.ObjectIndex;
         ClearEmoteMode(n);                                         // a prior persistent emote's loop mode must not fight the intro
         n->Timeline.BaseOverride = 0;                              // intro plays as a full one-shot; no base-lane force yet
@@ -564,6 +573,33 @@ public sealed unsafe class AnimationService : IDisposable
     // timestamp unit (seconds vs frames) is measured on the fly from how far it moves per tick, so neither is assumed.
     private sealed class EndHold { public ushort Id; public float EndSec; public int Gen; public int Slot = -1; public float LastTs = -1; public int Ticks; public bool Frozen; public bool? Frames; }
     private readonly Dictionary<int, EndHold> _endHolds = new();
+
+    /// <summary>b34: timeline id -> clip seconds (PoseLibrary.ClipSeconds), set by Plugin; lets the IPC receiver hold a
+    /// peer's ending without knowing the library.</summary>
+    public Func<ushort, float>? ClipSecondsOf { get; set; }
+
+    // b42: effects a pose's own animation spawns (touch ele shock's lightning) outlive an interrupted clip; only a rebuild
+    // of the character clears them (a map change did). Track actors playing such a pose; on Sanitize, redraw them; when a
+    // newer animation replaces it, redraw first and play the newer one once the character is back. Both hooks set by
+    // Plugin (PoseLibrary.HasEffect, GuiseService.Redraw). Poses without effects never redraw.
+    public Func<ushort, bool>? HasEffectOf { get; set; }
+    public Action<int, Action?>? RedrawActor { get; set; }
+    private readonly HashSet<int> _effectOn = new();
+
+    private void NoteEffect(int idx, ushort id)
+    {
+        if (id != 0 && HasEffectOf?.Invoke(id) == true) _effectOn.Add(idx);
+    }
+
+    /// <summary>True when the actor still shows a previous pose's effect: it is redrawn and <paramref name="replay"/>
+    /// re-issues the new animation after; the caller returns.</summary>
+    private bool ClearEffectFirst(ICharacter chara, Action replay)
+    {
+        if (RedrawActor == null || !_effectOn.Remove(chara.ObjectIndex)) return false;
+        _log.Information($"Anim: obj#{chara.ObjectIndex} clearing a pose effect (redraw) before the next animation");
+        RedrawActor(chara.ObjectIndex, replay);
+        return true;
+    }
 
     public void PlayHoldEnd(ICharacter chara, ushort timelineId, float clipSeconds)
     {
@@ -956,6 +992,7 @@ public sealed unsafe class AnimationService : IDisposable
         if (!riding) n->Timeline.TimelineSequencer.PlayTimeline(ResetBlend); // blend to idle (a rider's mount drives its own)
 
         ReleaseEndHold(chara.ObjectIndex, n);   // b28: un-pause a held ending's slot
+        var hadEffect = _effectOn.Remove(chara.ObjectIndex);   // b42: redraw away the pose's own effect below
         _speedPin.Remove(chara.ObjectIndex);    // stop the freeze pin re-asserting after an unstick
         _replays.Remove(chara.ObjectIndex);     // stop any full-timeline replay loop
         _sequences.Remove(chara.ObjectIndex);   // stop any compound intro->hold gesture
@@ -967,6 +1004,11 @@ public sealed unsafe class AnimationService : IDisposable
         Bump(chara.ObjectIndex);
         _calcGate = _slotGate = -1;             // a later freeze re-logs its confirmation lines
         _log.Information($"Anim: obj#{chara.ObjectIndex} sanitised to Normal");
+        if (hadEffect && RedrawActor != null)
+        {
+            _log.Information($"Anim: obj#{chara.ObjectIndex} clearing a pose effect (redraw)");
+            RedrawActor(chara.ObjectIndex, null);
+        }
     }
 
     /// <summary>UI-facing alias for <see cref="Sanitize"/>.</summary>
@@ -990,6 +1032,7 @@ public sealed unsafe class AnimationService : IDisposable
         _animLocked.Remove(objectIndex);
         _selfWatch.Remove(objectIndex);
         _endHolds.Remove(objectIndex);
+        _effectOn.Remove(objectIndex);
     }
 
     /// <summary>

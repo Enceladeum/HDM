@@ -14,7 +14,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>x64</Platforms>
-    <Version>1.0.6.0</Version>
+    <Version>1.0.7.0</Version>
 
     <!--
       HDMT testing-identity gate. A Debug build (what runs locally as a dev plugin) defines
@@ -30,6 +30,9 @@
       build by design and is deliberately NOT behind this symbol.
     -->
     <DefineConstants Condition="'$(Configuration)' == 'Debug'">$(DefineConstants);HDM_TESTING</DefineConstants>
+    <!-- HDM_PREVIEW: the parked model preview (ModelPreview.cs), only for a Debug build that has the file, so a
+         checkout without it builds in Debug too. -->
+    <DefineConstants Condition="'$(Configuration)' == 'Debug' And Exists('ModelPreview.cs')">$(DefineConstants);HDM_PREVIEW</DefineConstants>
 
     <!--
       Manifest metadata lives here, NOT in a hand-written .json — the SDK
@@ -39,7 +42,7 @@
     <Name>HDM</Name>
     <InternalName>HDM</InternalName>
     <Author>The Enceladeum</Author>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
     <Punchline>Wear any monster's face. Client-side mob disguises with a searchable catalog and animation triggers.</Punchline>
     <Description>A catalog of every mob in the game (16k+ models, 15.5k named) plus the full set of humanoid NPCs (Glamourer's NPC tab). Apply any mob's or NPC's look to yourself client-side (Brio-style ModelCharaId swap + redraw, or a Glamourer paint for humans), spawn disguised puppets, trigger action timelines for theatrics, and revert cleanly. Self-apply only, like Glamourer — never enforced on other players. Built for DM/event use — no mechanics, just the face.</Description>
     <RepoUrl>https://github.com/Enceladeum/HDM</RepoUrl>

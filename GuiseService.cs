@@ -411,7 +411,20 @@ public sealed unsafe class GuiseService : IDisposable
             _poseHand[idx] = new OrigWeapons(native->DrawData.Weapon(WeaponSlot.MainHand).ModelId,
                                              native->DrawData.Weapon(WeaponSlot.OffHand).ModelId);
         LoadWeaponsNow(idx, main, off);   // b29: a prop may go in the OFF hand (stand_read's book)
+        // b36 (DM): a pose prop is a weapon-slot model, so the "display weapon" setting hid it on the DM's own screen
+        // (peers' copies showed it). While a pose holds a REAL prop, show the slot; give the setting back when the
+        // pose ends or the next pose has no prop. Empty hands never touch it (no spear brandished while seated).
+        var hasProp = main.Value != 0 || off.Value != 0;
+        if (hasProp && native->DrawData.IsWeaponHidden)
+        {
+            native->DrawData.HideWeapons(false);
+            _propForcedShown.Add(idx);
+        }
+        else if (!hasProp && _propForcedShown.Remove(idx)) native->DrawData.HideWeapons(true);
     }
+
+    // b36: actors whose weapon display HDM switched on for a pose prop (restored by RestorePoseHand / a prop-less pose).
+    private readonly HashSet<int> _propForcedShown = new();
 
     /// <summary>Give back the weapons <see cref="SetPoseHand"/> took. No-op when no pose took them.</summary>
     public bool RestorePoseHand(ICharacter chara)
@@ -419,12 +432,13 @@ public sealed unsafe class GuiseService : IDisposable
         var idx = chara.ObjectIndex;
         if (!_poseHand.Remove(idx, out var w)) return false;
         if (chara.Address != nint.Zero) LoadWeaponsNow(idx, w.Main, w.Off);
+        if (_propForcedShown.Remove(idx) && chara.Address != nint.Zero) ((CSCharacter*)chara.Address)->DrawData.HideWeapons(true);
         return true;
     }
 
     /// <summary>Drop the remembered weapons WITHOUT loading them — when something else (a re-guise) rebuilds the
     /// actor's weapons itself, so restoring the old ones later would be stale.</summary>
-    public void ForgetPoseHand(int objectIndex) => _poseHand.Remove(objectIndex);
+    public void ForgetPoseHand(int objectIndex) { _poseHand.Remove(objectIndex); _propForcedShown.Remove(objectIndex); }
 
     /// <summary>True while a pose is holding this actor's hand slots.</summary>
     public bool HasPoseHand(int objectIndex) => _poseHand.ContainsKey(objectIndex);

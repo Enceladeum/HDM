@@ -74,8 +74,8 @@ public sealed class UniversalPoses : IDisposable
     public void SetEnabled(bool on)
     {
         _config.UniversalPoses = on;
-        _poses.Universal = on;
         Apply();
+        _poses.Universal = on;
     }
 
     private void Build()
@@ -101,8 +101,9 @@ public sealed class UniversalPoses : IDisposable
             {
                 _swaps = swaps;
                 foreach (var kv in donors) _donorOf[kv.Key] = kv.Value;
-                _log.Information($"UniversalPoses: {swaps.Count} borrowed animations across {_poses.EventKeys.Count} event poses.");
+                _log.Information($"UniversalPoses: {swaps.Count} borrowed animations across {_poses.EventKeys.Count} event poses (same-build donors only).");
                 Apply();
+                _poses.Universal = _config.UniversalPoses;   // refresh the per-body lists now that donors are known
             });
         }
         catch (Exception e) { _log.Error(e, "UniversalPoses: building the swap list failed."); Status = "failed to build"; }
@@ -141,16 +142,20 @@ public sealed class UniversalPoses : IDisposable
     /// <summary>The body this body borrows <paramref name="key"/> from (0 = it has its own, or nobody has it).</summary>
     public int DonorFor(int body, string key) => _donorOf.GetValueOrDefault((body, key));
 
-    // Donor preference: the body's own skeleton fallback chain, then the same sex, then the nearest build (Lalafell with
-    // Lalafell, Roegadyn/Hrothgar with each other), then anyone.
+    // b42 (DM): paps carry bone TRANSLATIONS, not just rotations, so a donor of another build squashes or stretches the
+    // body (a Lalafell pose crushed a Midlander; Elezen and Hrothgar poses stretched smaller bodies). Borrow only within
+    // a build group; a pose no compatible body ships is simply not offered.
+    //   0 Lalafell · 1 Elezen · 2 Roegadyn + Hrothgar · 3 everyone else (Midlander, Highlander, Miqo'te, Au Ra, Viera)
+    public static int BuildGroup(int body) => (body / 100) switch { 11 or 12 => 0, 5 or 6 => 1, 9 or 10 or 15 or 16 => 2, _ => 3 };
+
+    // Donor preference within the group: the body's own skeleton fallback chain, then the same sex, then Midlander.
     private int[] BuildOrder(int body)
     {
-        var chain = _poses.BodyChain(body).Where(b => b != body).ToList();
+        var group = BuildGroup(body);
+        var chain = _poses.BodyChain(body).Where(b => b != body && BuildGroup(b) == group).ToList();
         bool Male(int b) => b / 100 % 2 == 1;
-        int Build(int b) => (b / 100) switch { 11 or 12 => 0, 9 or 10 or 15 or 16 => 2, _ => 1 };
-        var rest = Bodies.Where(b => b != body && !chain.Contains(b))
+        var rest = Bodies.Where(b => b != body && !chain.Contains(b) && BuildGroup(b) == group)
             .OrderBy(b => Male(b) == Male(body) ? 0 : 1)
-            .ThenBy(b => Build(b) == Build(body) ? 0 : 1)
             .ThenBy(b => b == 101 || b == 201 ? 0 : 1);
         return chain.Where(Bodies.Contains).Concat(rest).ToArray();
     }

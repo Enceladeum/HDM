@@ -142,6 +142,14 @@ public sealed class HumanGuise : IDisposable
     /// No-op (with a log) for a non-guised index or when Glamourer is absent; those go through the native
     /// GuiseService.SetWeaponDrawn path at the call site.
     /// </summary>
+    /// <summary>(b45) Apply a dressed look (a Glamourer state subset: gear, dyes, facewear, face) on top of a human
+    /// guise, e.g. a peer DM's HOutfits dressing on their puppet's mirror. True when Glamourer accepted it.</summary>
+    public bool ApplyLook(int objectIndex, Newtonsoft.Json.Linq.JObject look)
+    {
+        try { return _glam.ApplyState(look, objectIndex, ApplyFlag.Equipment | ApplyFlag.Customization) == GlamourerApiEc.Success; }
+        catch { return false; }
+    }
+
     public void SetWeaponShown(int objectIndex, bool drawn)
     {
         if (!_guised.Contains(objectIndex) || !_glam.Available)

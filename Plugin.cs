@@ -70,12 +70,17 @@ public sealed class Plugin : IDalamudPlugin
     private readonly UniversalPoses _universal;
     private readonly WindowSystem _windows = new("HDM");
     private readonly MainWindow _main;
+#if HDM_PREVIEW
+    private readonly ModelPreview _preview;          // b41: parked, testing builds only
+    private readonly PreviewWindow _previewWindow;
+#endif
     private readonly GuiseService _guise;
     private readonly HumanGuise _humanGuise;
     private readonly AnimationService _anim;
     private readonly SpawnService _spawn;
     private readonly PossessionService _possession;
     private readonly HdmIpc _ipc;
+    private readonly PuppetLookSync _lookSync;
     private readonly MobHarvester _harvest;
 
     public Plugin()
@@ -235,12 +240,28 @@ public sealed class Plugin : IDalamudPlugin
         _possession.AllowPossessOthers = config.AllowPossessOthersPuppets; // seed the ownership gate (default off — only a puppet's originator drives it)
         _harvest.Enabled = config.HarvestMobNames; // seed the runtime name/territory harvester (default off — opt in via Config)
         _guise.ClearDisguiseOnMapChange = config.ClearDisguisesOnMapChange; // seed the opt-in map-hop own-body strip (default off — keep disguise across zones)
-        // b31: experimental cross-body pose porting (Human ResolvePapPath hook; no Penumbra). See UniversalPoses.
+        // b33: every event pose on every adult body, via Penumbra temporary-mod swaps. See UniversalPoses.
         _universal    = new UniversalPoses(PluginInterface, Framework, DataManager, Log, config, poses);
         poses.Porter  = _universal;
+        _anim.ClipSecondsOf = poses.ClipSeconds;   // b34: lets the IPC receiver hold a peer's ending
+        _anim.HasEffectOf   = poses.HasEffect;     // b42: poses whose animation spawns an effect...
+        _anim.RedrawActor   = (idx, then) => _guise.Redraw(idx, then);   // ...are cleared by a redraw on release
         _main         = new MainWindow(index, timeline, poses, content, territory, manual, stems, instanced, lore, level, webloc, companion, enpcLoc, _harvest, _guise, _humanGuise, _anim, _spawn, _possession, _ipc, moniker, config, PluginInterface, Objects, Targets, ClientState, Textures, Log, accent);
 
         _windows.AddWindow(_main);
+        var outfits   = new HOutfitsIpc(PluginInterface);
+        _main.Outfits = outfits;   // b44: Stage "Dress…" -> HOutfits dressing target
+        // b45: peers see a puppet the DM dressed in HOutfits (its Glamourer look rides the puppet's sync atom).
+        _lookSync     = new PuppetLookSync(PluginInterface, Framework, Objects, glamour, _ipc, outfits, Log);
+        // b37 (experimental): model preview side window, following the Catalog / Spawn selection. Toggle: the Catalog's
+        // "Preview" checkbox (b38) or /hdm preview.
+#if HDM_PREVIEW
+        _preview       = new ModelPreview(Framework, npc, Log);
+        _previewWindow = new PreviewWindow(_preview, () => _main.SelectedRow);
+        _windows.AddWindow(_previewWindow);
+        _main.PreviewIsOpen = () => _previewWindow.IsOpen;
+        _main.SetPreview    = on => _previewWindow.IsOpen = on;
+#endif
 
         PluginInterface.UiBuilder.Draw         += _windows.Draw;
         PluginInterface.UiBuilder.OpenMainUi   += OpenMain;
@@ -269,6 +290,7 @@ public sealed class Plugin : IDalamudPlugin
         // IPC first: broadcast Disposing + unregister the gates and unsubscribe puppet-lifecycle events
         // while _spawn (and the render services it drives) are all still live, so no in-flight HMS receiver
         // call lands on a half-torn-down service.
+        _lookSync.Dispose();
         _ipc.Dispose();
         // Possession before _spawn: release the freeze counter + camera retarget and unsubscribe the puppet
         // lifecycle event while the puppets it drives still exist (Release must run before they're deleted).
@@ -276,6 +298,9 @@ public sealed class Plugin : IDalamudPlugin
         // Order matters: stop animation overrides before reverting models —
         // both revert game state, and both must run before teardown completes.
         _harvest.Dispose();
+#if HDM_PREVIEW
+        _preview.Dispose();
+#endif
         _universal.Dispose();
         _spawn.Dispose();    // delete every live puppet FIRST — it Forgets guise/anim tracking, so those services must still be live
         _anim.Dispose();
@@ -308,6 +333,9 @@ public sealed class Plugin : IDalamudPlugin
             "revert" or "off" or "reset" => _main.CommandRevert(),
             "hide" or "unhide" or "show" => _main.CommandHide(),
             "wisp"                       => _main.CommandWisp(),
+#if HDM_PREVIEW
+            "preview"                    => TogglePreview(),
+#endif
             "play" or "anim" or "pose"   => _main.CommandPlay(rest),
             "stop"                       => _main.CommandPlay("stop"),
             "apply" or "become"          => _main.CommandApply(rest),
@@ -329,4 +357,7 @@ public sealed class Plugin : IDalamudPlugin
         "commands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · play <animation> · stop · open · (no argument opens the window).";
 
     private string OpenAndSilence() { _main.IsOpen = true; return ""; }
+#if HDM_PREVIEW
+    private string TogglePreview() { _previewWindow.Toggle(); return ""; }
+#endif
 }
