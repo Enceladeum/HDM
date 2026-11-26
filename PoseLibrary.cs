@@ -67,9 +67,12 @@ public sealed class PoseLibrary
     /// <summary>Every hand prop (Data/props.csv), sorted by name — the "In hand" picker's list.</summary>
     public IReadOnlyList<HandProp> Props { get; }
 
+    private readonly IPluginLog? _log;
+
     public PoseLibrary(IDataManager data, string dataDir, IPluginLog log)
     {
         _data = data;
+        _log = log;
         Poses = Array.Empty<LibGroup>();
         JobSkills = Array.Empty<LibGroup>();
         Props = LoadProps(System.IO.Path.Combine(dataDir, "props.csv"), log);
@@ -80,6 +83,7 @@ public sealed class PoseLibrary
                 var k = row.Key.ExtractText();
                 if (k.Length > 0 && row.RowId <= ushort.MaxValue) _keyById[(ushort)row.RowId] = k;
             }
+            _npcProps = BuildNpcProps(data, log);   // b57: the game's own pose -> prop pairing
             Poses = AttachAutoProps(BuildPoses());
             log.Information($"PoseLibrary: {Poses.Sum(g => g.Items.Count)} poses in {Poses.Count} groups, " +
                             $"{Poses.Sum(g => g.Items.Count(e => e.Prop != null))} with an auto-prop.");
@@ -575,14 +579,99 @@ public sealed class PoseLibrary
         return p == null ? null : off ? p with { OffHand = true } : p;
     }
 
+    /// <summary>The prop stem of a timeline key: the leaf without event_/event_base_ and _start/_loop.</summary>
+    private static string StemOf(string key)
+    {
+        var leaf = key[(key.IndexOf('/') + 1)..];
+        var m = Suffix.Match(leaf);
+        return Regex.Replace(m.Success ? leaf[..m.Index] : leaf, @"^event_(base_)?", "");
+    }
+
+    // ---- b57: the game's own pose -> prop pairing -----------------------------------------------------------
+    // DM: "always do things that do not require manual maintenance and use the game's own stuff". Every world NPC row
+    // (ENpcBase) names the pose it stands in (EventHandler, an ActionTimeline id) and what it holds (ModelMainHand /
+    // ModelOffHand, falling back to its NpcEquip row for an empty slot). Tallied per pose stem at load, the most common
+    // held PROP model (the 9000-range w90xx sets; weapons on armed guards are ignored) is the pose's prop, in whichever
+    // hand holds it more often (main on a tie). It stays right after every patch with nothing to ship. The hand-made
+    // PropOverrides and word rules now only cover poses no NPC stands in.
+    private Dictionary<string, HandProp> _npcProps = new(StringComparer.Ordinal);
+
+    private Dictionary<string, HandProp> BuildNpcProps(IDataManager data, IPluginLog log)
+    {
+        var result = new Dictionary<string, HandProp>(StringComparer.Ordinal);
+        try
+        {
+            var nameByModel = new Dictionary<(ushort, ushort, ushort), string>();
+            foreach (var p in Props) nameByModel.TryAdd((p.Set, p.Base, p.Variant), p.Name);
+
+            // stem -> (npc count, model -> (main count, off count))
+            var tally = new Dictionary<string, (int Npcs, Dictionary<(ushort, ushort, ushort), (int Main, int Off)> Models)>(StringComparer.Ordinal);
+            var rows = 0;
+            foreach (var row in data.GetExcelSheet<ENpcBase>())
+            {
+                var tid = (uint)row.EventHandler;
+                if (tid == 0 || tid > ushort.MaxValue || !_keyById.TryGetValue((ushort)tid, out var key)) continue;
+                ulong main = row.ModelMainHand, off = row.ModelOffHand;
+                if ((main == 0 || off == 0) && row.NpcEquip.RowId != 0 && row.NpcEquip.ValueNullable is { } eq)
+                {
+                    if (main == 0) main = eq.ModelMainHand;
+                    if (off == 0) off = eq.ModelOffHand;
+                }
+                var stem = StemOf(key);
+                if (!tally.TryGetValue(stem, out var t)) t = (0, new());
+                t.Npcs++;
+                Count(t.Models, main, offHand: false);
+                Count(t.Models, off, offHand: true);
+                tally[stem] = t;
+                rows++;
+            }
+
+            foreach (var (stem, t) in tally)
+            {
+                if (t.Models.Count == 0) continue;
+                var best = t.Models.OrderByDescending(kv => kv.Value.Main + kv.Value.Off).First();
+                var holders = best.Value.Main + best.Value.Off;
+                // Noise floor: at least 2 NPCs and a fifth of the pose's NPCs hold it (a lone pose NPC counts).
+                if (t.Npcs > 1 && (holders < 2 || holders * 5 < t.Npcs)) continue;
+                var (set, bas, variant) = best.Key;
+                var name = nameByModel.GetValueOrDefault(best.Key) ?? $"w{set} b{bas} v{variant}";
+                result[stem] = new HandProp(name, set, bas, variant, OffHand: best.Value.Off > best.Value.Main);
+            }
+            log.Information($"PoseLibrary: {result.Count} pose props from {rows} world NPCs ({tally.Count} poses NPCs stand in).");
+            foreach (var check in new[] { "stand_read", "stand_with_book", "chair_read", "chair_read_eat" })
+                if (tally.TryGetValue(check, out var ct))
+                    log.Information($"PoseLibrary: check {check}: {ct.Npcs} NPCs; " +
+                                    string.Join(", ", ct.Models.OrderByDescending(kv => kv.Value.Main + kv.Value.Off).Take(3)
+                                        .Select(kv => $"w{kv.Key.Item1} b{kv.Key.Item2} v{kv.Key.Item3} main {kv.Value.Main} off {kv.Value.Off}")));
+        }
+        catch (Exception e) { log.Warning($"PoseLibrary: NPC pose props unavailable ({e.Message}); using the word rules."); }
+        return result;
+
+        static void Count(Dictionary<(ushort, ushort, ushort), (int Main, int Off)> models, ulong v, bool offHand)
+        {
+            var set = (ushort)(v & 0xFFFF);
+            if (set < 9000 || set == 0xFFFF) return;   // empty, sentinel, or a real weapon (props are the w90xx sets)
+            var k = (set, (ushort)((v >> 16) & 0xFFFF), (ushort)((v >> 32) & 0xFFFF));
+            var c = models.GetValueOrDefault(k);
+            models[k] = offHand ? (c.Main, c.Off + 1) : (c.Main + 1, c.Off);
+        }
+    }
+
     private IReadOnlyList<LibGroup> AttachAutoProps(IReadOnlyList<LibGroup> groups)
     {
-        if (_propByName.Count == 0) return groups;
+        if (_propByName.Count == 0 && _npcProps.Count == 0) return groups;
+        var differ = new HashSet<string>(StringComparer.Ordinal);
         HandProp? For(string key)
         {
-            var leaf = key[(key.IndexOf('/') + 1)..];
-            var m = Suffix.Match(leaf);
-            var stem = Regex.Replace(m.Success ? leaf[..m.Index] : leaf, @"^event_(base_)?", "");
+            var stem = StemOf(key);
+            if (_npcProps.TryGetValue(stem, out var npc))
+            {
+                if (PropOverrides.TryGetValue(stem, out var hand) && ParseOverride(hand) is { } h
+                    && (h.Set, h.Base, h.Variant, h.OffHand) != (npc.Set, npc.Base, npc.Variant, npc.OffHand)
+                    && differ.Add(stem))
+                    _log?.Information($"PoseLibrary: {stem}: the NPCs hold {npc.Name} (w{npc.Set} b{npc.Base} v{npc.Variant}{(npc.OffHand ? " off" : "")}); the old hand-made pick was {h.Name}{(h.OffHand ? " off" : "")}.");
+                return npc;
+            }
             if (PropOverrides.TryGetValue(stem, out var named)) return ParseOverride(named);
             var words = Regex.Split(stem, @"[_\d]+").Where(w => w.Length > 0).ToHashSet(StringComparer.Ordinal);
             foreach (var (ws, prop) in AutoPropRules)
@@ -590,6 +679,8 @@ public sealed class PoseLibrary
                     return prop.Length > 0 && _propByName.TryGetValue(prop, out var p) ? p : null;
             return null;
         }
-        return groups.Select(g => g with { Items = g.Items.Select(e => For(e.Key) is { } p ? e with { Prop = p } : e).ToList() }).ToList();
+        var outGroups = groups.Select(g => g with { Items = g.Items.Select(e => For(e.Key) is { } p ? e with { Prop = p } : e).ToList() }).ToList();
+        if (differ.Count > 0) _log?.Information($"PoseLibrary: {differ.Count} pose props now follow the NPCs instead of the old hand-made pick.");
+        return outGroups;
     }
 }

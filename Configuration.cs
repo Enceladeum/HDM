@@ -39,6 +39,10 @@ public sealed class Configuration : IPluginConfiguration
     /// when this one has none (UniversalPoses, no Penumbra).</summary>
     public bool UniversalPoses { get; set; } = true;
 
+    /// <summary>b46 (F-02): puppets the DM spawns use the DM's own Penumbra collection (modded minions, props, gear),
+    /// on the DM's screen. Off by default.</summary>
+    public bool PuppetsUseMyMods { get; set; }
+
     /// <summary>
     /// Per-favourite absolute scale override, used by the Favourites tab's focused-library controls.
     /// Keyed by BNpcBase id; a base absent here falls back to the mob's authored native scale
@@ -170,6 +174,9 @@ public sealed class Configuration : IPluginConfiguration
     /// overlay defaults on for everyone; no migration is needed.
     /// </summary>
     public bool ShowPossessionDots { get; set; } = true;
+
+    /// <summary>b55: pop out the floating puppet bar when a possession starts (default on).</summary>
+    public bool PuppetBarOnPossess { get; set; } = true;
 
     /// <summary>
     /// Opt-in (default OFF): allow THIS client to possess puppets it did NOT originate — i.e. the mirrors of

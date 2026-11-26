@@ -74,6 +74,11 @@ public sealed class DisguiseAtom
     /// top of the human disguise.</summary>
     public string? Look { get; set; }
 
+    /// <summary>(MinorVersion 8) The Penumbra mods the DM's puppet was summoned with (HDM PuppetMods): per mod folder, game
+    /// path -> path inside the mod, plus small meta, deflated + base64. A peer rebuilds the redirects from its own copy of
+    /// those mods. Null = stock.</summary>
+    public string? Mods { get; set; }
+
     /// <summary>True when this atom means "take the disguise off" rather than "put one on".</summary>
     [JsonIgnore] public bool IsRevert => Kind == 0;
 }
@@ -137,7 +142,7 @@ public sealed class HdmIpc : IDisposable
     // Bump Minor for additive changes (new label / new atom field), Major only for a breaking change to an
     // existing label's signature or semantics. HMS gates on Major and treats Minor as capability discovery.
     public const uint MajorVersion = 1;
-    public const uint MinorVersion = 7;   // 1.7: atom + Look (a dressed Human puppet's Glamourer outfit, compact). 1.6: atom + IntroId (intro before a held loop, live changes only) + Hand/HandModel (pose hand props). 1.5: ApplyDisguise/GetDisguise/DisguiseChanged accept a Kind-0 atom carrying a held LoopId (an UNDISGUISED subject holding a pose; b22). 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
+    public const uint MinorVersion = 8;   // 1.8: atom + Mods (a puppet's Penumbra mods, rebuilt from the peer's own mod folders). 1.7: atom + Look (a dressed Human puppet's Glamourer outfit, compact). 1.6: atom + IntroId (intro before a held loop, live changes only) + Hand/HandModel (pose hand props). 1.5: ApplyDisguise/GetDisguise/DisguiseChanged accept a Kind-0 atom carrying a held LoopId (an UNDISGUISED subject holding a pose; b22). 1.4: + FreezeChanged / GetFrozenOwnBody / SetFrozen + PuppetInfo.Frozen (freeze-animation sync: edge event + late-join snapshot + receiver, cloned from the OwnBodyHidden trio but HDM-applied on the receiver). 1.3: + SanitizeSelf (own-body exit sanitiser — revert model/scale/elevation/hidden + release possession on a logout / session-teardown edge). 1.2: + SpawnPuppetAt (atomic position-carrying mirror spawn — fixes the spawn-in-front race). 1.1: + OwnBodyHidden / GetOwnBodyHidden (DM own-body hide during possession)
     public const string NameSpace = "HDM";
 
     private readonly IDalamudPluginInterface _pi;
@@ -249,7 +254,7 @@ public sealed class HdmIpc : IDisposable
         _movePuppet = pi.GetIpcProvider<int, float, float, float, float, object?>($"{NameSpace}.MovePuppet");
         _movePuppet.RegisterAction((idx, x, y, z, rot) => Guard(() => MovePuppet(idx, x, y, z, rot)));
         _despawnPuppet = pi.GetIpcProvider<int, object?>($"{NameSpace}.DespawnPuppet");
-        _despawnPuppet.RegisterAction(idx => Guard(() => _spawn.Despawn((ushort)idx)));
+        _despawnPuppet.RegisterAction(idx => Guard(() => { Mods?.End(idx, redraw: false); _spawn.Despawn((ushort)idx); }));
         _sanitizeSelf = pi.GetIpcProvider<bool, object?>($"{NameSpace}.SanitizeSelf");
         _sanitizeSelf.RegisterAction(rv => Guard(() => SanitizeSelf(rv)));
         _setFrozen = pi.GetIpcProvider<int, bool, object?>($"{NameSpace}.SetFrozen");
@@ -386,6 +391,23 @@ public sealed class HdmIpc : IDisposable
         else _log.Information($"HDM IPC: puppet slot {slot} dressed look reported (atom {size}/2048 chars)");
         EmitDisguiseChanged(slot, p.Atom);
     }
+
+    /// <summary>(MinorVersion 8) Report the Penumbra mods one of the DM's own puppets was frozen with (null = released).
+    /// Deduped. Not for a blank clone (hidden on peers).</summary>
+    public void ReportMods(int slot, string? mods)
+    {
+        if (_disposed || !_puppets.TryGetValue(slot, out var p) || p.Atom.Kind == 0) return;
+        if (p.Atom.Mods == mods) return;
+        p.Atom.Mods = mods;
+        p.Atom.Epoch = ++_epoch;
+        var size = JsonConvert.SerializeObject(p.Atom).Length;
+        if (size > 2048) _log.Warning($"HDM IPC: puppet slot {slot} atom is {size} chars with its mod list; HMS caps pass-through at 2048, so peers won't see the mods.");
+        else _log.Information($"HDM IPC: puppet slot {slot} mod list reported (atom {size}/2048 chars)");
+        EmitDisguiseChanged(slot, p.Atom);
+    }
+
+    /// <summary>b49: the per-puppet Penumbra mods service (receiver side applies peers' mod lists). Set by Plugin.</summary>
+    public PuppetMods? Mods { get; set; }
 
     /// <summary>The sync slot of one of THIS DM's own puppets by its local object index, or null.</summary>
     public int? PuppetSlotFor(int objectIndex)
@@ -587,11 +609,17 @@ public sealed class HdmIpc : IDisposable
             }
             ApplyHand(chara, prev, atom);
             if (atom.Kind == 1 && prev.Look != atom.Look) ApplyLook(chara.ObjectIndex, atom);   // Minor 7: dressed / undressed
+            if (prev.Mods != atom.Mods)                                                           // Minor 8: the DM's mods
+            {
+                Mods?.ApplyRemote(chara.ObjectIndex, atom.Mods);
+                _guise.Redraw(chara.ObjectIndex);   // b50: HDM's own redraw (re-asserts the guise), not a Penumbra one
+            }
             _lastApplied[objectIndex] = atom;
             return;
         }
 
         if (prev is { Hand: not 0 }) _guise.ForgetPoseHand(chara.ObjectIndex); // the re-guise rebuilds the weapons
+        if (prev?.Mods != atom.Mods) Mods?.ApplyRemote(chara.ObjectIndex, atom.Mods);     // Minor 8, before the redraw
         ApplyAtomFull(chara, atom);
         ApplyHand(chara, null, atom);
         _lastApplied[objectIndex] = atom;
@@ -758,13 +786,14 @@ public sealed class HdmIpc : IDisposable
     /// copy of THEMSELF standing in front of them (the DM's naked dummy has no shared appearance to mirror).
     /// Hide it instead; ApplyAtomFull reveals it (SetHidden false) the moment the DM gives the dummy a real
     /// face. The DM's OWN blank dummies are spawned through MainWindow, never this IPC path, so they stay
-    /// visible for the DM. See docs: "HMS may ignore Kind-0 spawns" — we make honouring them safe. Otherwise
+    /// visible for the DM. HMS may ignore Kind-0 spawns; we make honouring them safe. Otherwise
     /// paint the atom and seed the diff baseline for a later ApplyDisguise.</summary>
     private Action<ICharacter> MirrorOnReady(DisguiseAtom atom) => p =>
     {
         // A blank (Kind-0) mirror is a clone of the RECEIVER's own body, so it stays hidden here by design. Seed the
         // diff baseline anyway (b22) so a later held-pose / disguise atom for it diffs from a known state.
         if (atom.Kind == 0) { _guise.SetHidden(p, true); _lastApplied[p.ObjectIndex] = atom; return; }
+        if (atom.Mods != null) Mods?.ApplyRemote(p.ObjectIndex, atom.Mods);   // Minor 8, before the guise redraw
         ApplyAtomFull(p, atom);
         ApplyHand(p, null, atom);
         if (ResolveChara(p.ObjectIndex) is not null)

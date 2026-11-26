@@ -55,7 +55,8 @@ public sealed partial class MainWindow
 
     // ---- 1. cast strip --------------------------------------------------------------------------------------
 
-    private void DrawCastStrip(ICharacter? self)
+    /// <summary>The cast chips. b55: also drawn on the Catalog (spawnChip: false; its Spawn button does that).</summary>
+    private void DrawCastStrip(ICharacter? self, bool spawnChip = true)
     {
         var puppets = _spawn.Spawned.ToList();
         var right = ImGui.GetWindowPos().X + ImGui.GetWindowContentRegionMax().X;
@@ -101,16 +102,25 @@ public sealed partial class MainWindow
         }
 
         // + Spawn
-        Next("+ Spawn");
-        using (new Disabled(self == null))
-            if (Chip("+ Spawn", "cast_spawn", false)) { _spawnFilter = ""; ImGui.OpenPopup("##stage_spawn"); }
-        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(self == null ? "Be present in the world to spawn." : "Spawn a puppet from your favourites, a search, or as a blank dummy.");
-        ImGui.SetNextWindowSize(new Vector2(440, 420), ImGuiCond.Appearing);
-        if (ImGui.BeginPopup("##stage_spawn"))
+        if (spawnChip)
         {
-            DrawLookPicker(spawn: true, self, null);
-            ImGui.EndPopup();
+            Next("+ Spawn");
+            using (new Disabled(self == null))
+                if (Chip("+ Spawn", "cast_spawn", false)) { _spawnFilter = ""; ImGui.OpenPopup("##stage_spawn"); }
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip(self == null ? "Be present in the world to spawn." : "Spawn a puppet from your favourites, a search, or as a blank dummy.");
+            ImGui.SetNextWindowSize(new Vector2(440, 420), ImGuiCond.Appearing);
+            if (ImGui.BeginPopup("##stage_spawn"))
+            {
+                DrawLookPicker(spawn: true, self, null);
+                ImGui.EndPopup();
+            }
+        }
+        if (_spawnQueue.Count > 0)
+        {
+            ImGui.TextDisabled($"{_spawnQueue.Count} spawn{(_spawnQueue.Count == 1 ? "" : "s")} queued (one a second while HM-Sync is running)");
+            ImGui.SameLine();
+            if (ImGui.SmallButton("Cancel##spawnq")) _spawnQueue.Clear();
         }
         ImGui.Spacing();
     }
@@ -143,12 +153,14 @@ public sealed partial class MainWindow
         else if (_possession.CanPossess(idx) && ImGui.Selectable("Possess")) { SelectPuppet(idx); _possession.Possess(idx); }
         if (ImGui.Selectable("Bring to me")) { _spawn.MoveToLocalPlayer(idx); if (_spawn.TryGetTransform(idx, out var p, out var r)) ReportPuppetMove(idx, p, r); }
         if (ImGui.Selectable("Face me")) { _spawn.FaceLocalPlayer(idx); if (_spawn.TryGetTransform(idx, out var p, out var r)) ReportPuppetMove(idx, p, r); }
+        if (ImGui.Selectable("Puppet bar")) { SelectPuppet(idx); _showPuppetBar = true; }
         ImGui.Separator();
         if (ImGui.Selectable("Despawn")) DespawnPuppet(idx);
     }
 
     private void DespawnPuppet(ushort idx)
     {
+        SetPuppetMods(idx, false);
         _spawn.Despawn(idx);
         _puppetGuise.Remove(idx); _puppetTid.Remove(idx); _puppetSpeed.Remove(idx); _puppetScale.Remove(idx);
         if (_selectedPuppet == idx) { _selectedPuppet = ushort.MaxValue; _animApplyToPuppet = false; }
@@ -235,7 +247,7 @@ public sealed partial class MainWindow
             PopColors();
             if (despawn)
             {
-                if (_stageAll) { _spawn.DespawnAll(); _puppetGuise.Clear(); _stageAll = false; }
+                if (_stageAll) { DespawnAllPuppets(); _puppetGuise.Clear(); _stageAll = false; }
                 else DespawnPuppet(idx);
             }
         }
@@ -250,13 +262,7 @@ public sealed partial class MainWindow
             ImGui.SetTooltip("Back to a normal, unlocked idle (clears a stuck or held animation; keeps the look).");
         if (reset) ForSubject(target, ResetToNormal);
 
-        if (_possession.IsPossessing)
-        {
-            var pi = (ushort)_possession.PossessedIndex;
-            var who = _puppetGuise.TryGetValue(pi, out var pg) ? pg.DisplayName : $"obj#{pi}";
-            ImGui.TextColored(new Vector4(1f, 0.75f, 0.20f, 1f), $"Driving {who}.  WASD move · Space up · Ctrl down · Esc release.");
-        }
-        ImGui.Spacing();
+        ImGui.Spacing();   // b55: the "Driving …" line moved to the banner above the tabs
     }
 
     /// <summary>Run an action on the subject: every puppet when "All puppets" is chosen, else the one target.</summary>
@@ -276,12 +282,7 @@ public sealed partial class MainWindow
         {
             if (ImGui.Button("Blank dummy") && self != null)
             {
-                if (_spawn.TrySpawn(out var blank) && blank != null)
-                {
-                    ReportPuppetSpawn(blank, null);
-                    SelectPuppet((ushort)blank.ObjectIndex);
-                    ImGui.CloseCurrentPopup();
-                }
+                if (RequestSpawn(null) != SpawnRequest.Refused) ImGui.CloseCurrentPopup();
             }
             if (ImGui.IsItemHovered()) ImGui.SetTooltip("A plain puppet (a copy of you) a step ahead; dress it with Look.");
             ImGui.SameLine();
@@ -346,7 +347,7 @@ public sealed partial class MainWindow
             _selected = r;
             if (spawn)
             {
-                if (SpawnPuppetAs(r) is { } p) SelectPuppet((ushort)p.ObjectIndex);
+                RequestSpawn(r);
             }
             else if (_stageAll)
                 BroadcastAnim(c => WearOn(c, r));
@@ -365,6 +366,8 @@ public sealed partial class MainWindow
     {
         var idx = (ushort)puppet.ObjectIndex;
         var forced = _puppetScale.TryGetValue(idx, out var ps) ? (float?)ps : null;
+        // b48: a new look needs your mods resolved for the NEW model, then frozen again (the guise apply redraws it).
+        if (_config.PuppetsUseMyMods && _spawn.IsOriginated(idx)) Mods?.Begin(idx);
         ApplyGuise(puppet, r, forcedScale: forced);
         _puppetGuise[idx] = r;
     }
@@ -509,6 +512,77 @@ public sealed partial class MainWindow
             if (results.Count >= cap) break;
         }
         return results;
+    }
+
+    /// <summary>b48 (F-02): the DM's Penumbra mods on their puppets, frozen per puppet (see PuppetMods). Set by Plugin.</summary>
+    public PuppetMods? Mods { get; set; }
+
+    /// <summary>Penumbra (redraw), set by Plugin.</summary>
+    public PenumbraIpc? Penumbra { get; set; }
+
+    /// <summary>b46/b48 (F-02): a puppet the DM just spawned gets the DM's mods (frozen ~2 s later); off / despawn undoes it.
+    /// Always called on spawn, also when off, because puppet names repeat across sessions and a stale assignment must not
+    /// linger.</summary>
+    private void SetPuppetMods(int idx, bool on)
+    {
+        if (Mods == null) return;
+        if (on) Mods.Begin(idx); else Mods.End(idx, redraw: false, announce: false);   // b51: despawn / spawn paths stay silent
+    }
+
+    private void DespawnAllPuppets()
+    {
+        _spawnQueue.Clear();
+        foreach (var idx in _spawn.Spawned.ToList()) SetPuppetMods(idx, false);
+        _spawn.DespawnAll();
+    }
+
+    // ---- spawn queue (DM: "a fast clicker cannot flood the lane with 10 prop spawns per second") -----------------
+    // Every spawn the DM asks for goes through RequestSpawn. While HM-Sync is running, spawns leave at most one per
+    // SpawnGapMs: each spawn sends several sync messages (spawn, position, look, the position again when ready, mods at
+    // ~2 s, a top-up at ~6 s), and a burst reordered on the wire left peers with misplaced or orphan copies. Extra clicks
+    // are QUEUED, not dropped (a DM who double-clicks three props expects three), up to MaxQueuedSpawns. Without HM-Sync
+    // nothing waits: a purely local spawn has no lane to protect. Peers' mirror spawns never pass through here.
+    public enum SpawnRequest { Done, Queued, Refused }
+    private readonly Queue<MobRow?> _spawnQueue = new();
+    private long _nextSpawnAt;
+    private const int SpawnGapMs = 1000;
+    private const int MaxQueuedSpawns = 10;
+
+    /// <summary>b54: HM-Sync is running (spawns are paced). Set by Plugin.</summary>
+    public Func<bool>? SyncRunning { get; set; }
+
+    /// <summary>Spawn <paramref name="row"/> (null = a blank dummy) now, or queue it behind the pacing gap.</summary>
+    private SpawnRequest RequestSpawn(MobRow? row)
+    {
+        if (Self() == null) return SpawnRequest.Refused;
+        var paced = SyncRunning?.Invoke() == true;
+        if (!paced || (_spawnQueue.Count == 0 && Environment.TickCount64 >= _nextSpawnAt))
+        {
+            SpawnNow(row, paced);
+            return SpawnRequest.Done;
+        }
+        if (_spawnQueue.Count >= MaxQueuedSpawns)
+        {
+            _log.Information($"Spawn: queue full ({MaxQueuedSpawns}); request refused.");
+            return SpawnRequest.Refused;
+        }
+        _spawnQueue.Enqueue(row);
+        return SpawnRequest.Queued;
+    }
+
+    private void SpawnNow(MobRow? row, bool paced)
+    {
+        var p = row is null ? SpawnBlankPuppet() : SpawnPuppetAs(row);
+        if (p != null) SelectPuppet((ushort)p.ObjectIndex);   // the new puppet becomes the Stage's subject
+        if (paced) _nextSpawnAt = Environment.TickCount64 + SpawnGapMs;
+    }
+
+    /// <summary>Called every frame by Plugin (the window may be closed): release the next queued spawn when due.</summary>
+    public void PumpSpawnQueue()
+    {
+        if (_spawnQueue.Count == 0 || Environment.TickCount64 < _nextSpawnAt) return;
+        if (Self() == null) { _spawnQueue.Clear(); return; }   // logged out / zoning: drop the queue
+        SpawnNow(_spawnQueue.Dequeue(), SyncRunning?.Invoke() == true);
     }
 
     /// <summary>Run an action on every live puppet. Resolves each puppet's ICharacter fresh.</summary>

@@ -29,6 +29,27 @@ public static class LookCodec
         return Convert.ToBase64String(ms.ToArray());
     }
 
+    /// <summary>b49: deflate + base64 any JSON text (the mod list uses it too).</summary>
+    public static string Pack(string json)
+    {
+        var bytes = Encoding.UTF8.GetBytes(json);
+        using var ms = new MemoryStream();
+        using (var z = new DeflateStream(ms, CompressionLevel.SmallestSize, leaveOpen: true)) z.Write(bytes, 0, bytes.Length);
+        return Convert.ToBase64String(ms.ToArray());
+    }
+
+    public static string? Unpack(string? packed)
+    {
+        if (string.IsNullOrEmpty(packed)) return null;
+        try
+        {
+            using var z = new DeflateStream(new MemoryStream(Convert.FromBase64String(packed)), CompressionMode.Decompress);
+            using var r = new StreamReader(z, Encoding.UTF8);
+            return r.ReadToEnd();
+        }
+        catch { return null; }
+    }
+
     public static JObject? Decode(string? look)
     {
         if (string.IsNullOrEmpty(look)) return null;

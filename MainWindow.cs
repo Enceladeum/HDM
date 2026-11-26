@@ -56,7 +56,7 @@ public sealed partial class MainWindow : Window, IDisposable
     // The whole apparatus is gated behind HDM_TESTING (defined only on a Debug build — see HDM.csproj), so
     // the public Release build compiles the plain "HDM v<Version>" header with no b-tag. The
     // testing identity therefore auto-normalizes on promotion; there is nothing to strip by hand.
-    private const int InternalBuild = 45;
+    private const int InternalBuild = 57;
 #endif
 
     private readonly MobIndex _index;
@@ -419,6 +419,16 @@ public sealed partial class MainWindow : Window, IDisposable
         if (slot >= 0) _ipc.ReportPuppetMoved(slot, pos, rot);
     }
 
+    /// <summary>b52: say where a freshly spawned puppet is AGAIN once it is ready. HMS creates a peer's copy from the
+    /// first update it sees, at the PEER's own default spot, and drops a move that arrives before that copy exists; a
+    /// parked puppet never moves again, so the copy stayed in front of the peer ("Schroedinger's bike"). A repeat after
+    /// the copy exists puts it in place.</summary>
+    private void ReannouncePosition(ICharacter p)
+    {
+        var idx = (ushort)p.ObjectIndex;
+        if (_spawn.TryGetTransform(idx, out var pos, out var rot)) ReportPuppetMove(idx, pos, rot);
+    }
+
     /// <summary>Resolve a name-substring-or-BaseId query to a renderable catalog row (shared by the
     /// /hdm ipc dev harness; mirrors CommandApply's resolution rule).</summary>
     private MobRow? ResolveRow(string query)
@@ -474,15 +484,20 @@ public sealed partial class MainWindow : Window, IDisposable
         PushWindowAccent();
         try
         {
+            DrawPossessionBanner();   // b55: Release reachable from every tab
             if (!ImGui.BeginTabBar("##hgtabs")) return;
 
-            if (ImGui.BeginTabItem("Catalog"))
+            var catalogFlags = _focusCatalogTab ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
+            _focusCatalogTab = false;
+            if (ImGui.BeginTabItem("Catalog", catalogFlags))
             {
                 DrawCatalogTab();
                 ImGui.EndTabItem();
             }
             // b43: Stage = the old Animations + Spawn tabs merged (cast strip, subject, placement, library).
-            if (ImGui.BeginTabItem("Stage"))
+            var stageFlags = _focusStageTab ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
+            _focusStageTab = false;
+            if (ImGui.BeginTabItem("Stage", stageFlags))
             {
                 DrawStageTab();
                 ImGui.EndTabItem();
@@ -541,31 +556,27 @@ public sealed partial class MainWindow : Window, IDisposable
 
         // ── CATEGORY: content-family chips (the Duty-Finder tabs), single-select + wrapping. Leads the
         // pair now (batch-1 swap — Category above Type).
-        using (HmUi.Panel("Category",
-            "Narrow the catalog to one content family, the way the in-game Duty Finder tabs do:\n" +
-            "World / City / Housing / Dungeon / Trial / Raid / … resolved from each mob's home\n" +
-            "territory. \"Unknown\" = no home territory yet (the instanced/uncovered tail); \"All\"\n" +
-            "clears the filter. The catalog body groups every match under its home zone."))
+        // b55: Category and Type share ONE "Filter" panel (two rows, one border) to give the tree more height.
+        using (HmUi.Panel("Filter",
+            "Top row: one content family, the way the in-game Duty Finder tabs do (World / City / Housing /\n" +
+            "Dungeon / Trial / Raid / …), from each mob's home territory. \"Unknown\" = no home territory yet.\n" +
+            "Body row: model family. Human rows wear the player skeleton, so player emotes like /sit work on\n" +
+            "them; Monster and Demihuman skeletons don't carry the player emote set. \"All\" clears a row."))
         {
             if (WrappedChips(_visibleCategoryChips, _config.CategoryFilter, "cat") is { } catKey)
                 SetCategory(catKey);
-        }
-
-        // ── TYPE: model-family filter (Monster / Demihuman / Human) — keys on the SKELETON family (the
-        // Skel-prefix), the lever for isolating player-similar rows (a Human (c) guise takes native player
-        // emotes; m/d skeletons carry none). "All" clears it. Labelled "Type" (batch-1 rename of "Family").
-        using (HmUi.Panel("Type",
-            "Filter the catalog by model family (the Skel-prefix):\n" +
-            "  Monster (m) · Demihuman (d) · Human (c).\n" +
-            "Human rows are painted on the player skeleton via Glamourer, so player\n" +
-            "emotes like /sit work on them natively. Monster/Demihuman skeletons don't\n" +
-            "carry the player emote set, so /sit won't render on them. \"All\" clears it."))
-        {
+            ImGui.AlignTextToFramePadding();
+            ImGui.TextDisabled("Body");
+            ImGui.SameLine(0, 10);
             if (Chip("All",       "fam_all", _config.FamilyFilter == "All"))       SetFamily("All");
             ImGui.SameLine(0, 6); if (Chip("Monster",   "fam_m",   _config.FamilyFilter == "Monster"))   SetFamily("Monster");
             ImGui.SameLine(0, 6); if (Chip("Demihuman", "fam_d",   _config.FamilyFilter == "Demihuman")) SetFamily("Demihuman");
             ImGui.SameLine(0, 6); if (Chip("Human",     "fam_c",   _config.FamilyFilter == "Human"))     SetFamily("Human");
         }
+
+        // ── TYPE: model-family filter (Monster / Demihuman / Human) — keys on the SKELETON family (the
+        // Skel-prefix), the lever for isolating player-similar rows (a Human (c) guise takes native player
+        // emotes; m/d skeletons carry none). "All" clears it. Labelled "Type" (batch-1 rename of "Family").
 
         // ── DISGUISE | SCALE — side by side (mockup 1a, batch-1 swap). The disguise group (the
         // "things you apply to yourself" quick-actions) leads on the left; Scale, which sizes the active
@@ -601,7 +612,12 @@ public sealed partial class MainWindow : Window, IDisposable
                 // panel (Scale = chips + Custom box + slider = 3 rows; Disguise = Wisp/Hide + rename = 2). The
                 // spacer sits ABOVE the rename checkbox so the checkbox settles near the bottom edge, lining its
                 // border up with Scale's.
-                ImGui.Dummy(new Vector2(0f, ImGui.GetFrameHeight()));
+                // b56: the spacer row now holds the bar toggle (the panel keeps its height, Scale's 3 rows).
+                if (HmUi.AccentButton(_showPuppetBar ? "Bar is out" : "Pop out bar", "popbar", _showPuppetBar, acc, bw * 2f + gap))
+                    _showPuppetBar = !_showPuppetBar;
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("A small floating bar for you or the puppet you're working on: Revert / Possess, Freeze,\n" +
+                                     "Hide / Despawn, size and height. It stays up with this window closed. /hdm bar toggles it.");
 
                 // Nameplate rename toggle (opt-in, self-only) — lifted from HOutfits' NPC "Apply name". When on,
                 // disguising YOURSELF also sets your nameplate to the disguise's name via Moniker, which HMoniker
@@ -715,96 +731,100 @@ public sealed partial class MainWindow : Window, IDisposable
 
         ImGui.Columns(1);
 
-        // ── Primary CTA grid (2×2). Row 1: Disguise | Spawn — the batch-1 split of the old single "Spawn
-        // puppet from selection" button; both act on the SELECTED catalog row (a plain click selects one).
-        // Row 2: Revert | Despawn — Revert relocated here under Disguise (batch-3 item #4), lit while guised;
-        // Despawn sits under Spawn but goes inert until puppets are live (batch-4).
-        //
-        // Layout: the grid REUSES the Disguise|Scale boxes' columns id ("##catsd"), so the four buttons inherit
-        // pixel-identical column boundaries from the boxes directly above them — Disguise/Revert track the
-        // Disguise box, Spawn/Despawn track the Scale box. The old hand-split (`(avail-6)/2` + a 6px SameLine
-        // gap) did NOT match: ImGui's column gutter is wider than 6px and its last-column inset trims the right
-        // edge, so the buttons read wider-in-the-middle and off from the boxes. Sharing the columns id is the
-        // idiom for aligning two separate blocks; per-cell width = that column's GetContentRegionAvail — the
-        // exact span HmUi.Panel captures for its border. Don't "simplify" this back to a hand-computed width.
-        // Row 1 stays clickable while nothing's selected so the tooltip can say what's missing.
+        // ── b55: the CAST + subject-aware action grid. The Catalog acts on the same subject as the Stage (You, one
+        // puppet, or All puppets), picked from the cast strip that appears once a puppet is live, so a DM can spawn,
+        // possess, drive, release and re-skin without leaving this tab. The grid keeps the "##catsd" columns id so
+        // its cells line up with the Disguise | Scale boxes above (don't hand-split the width; see the boxes' note).
+        //   Row 1: Disguise/Wear the selection on the subject | Spawn the selection
+        //   Row 2: You -> Revert | Despawn all;  a puppet -> Possess/Release | Despawn it;  All -> (pick one) | Despawn all
+        if (_spawn.Count > 0) DrawCastStrip(self, spawnChip: false);
+        var (subject, _) = StageSubject(self);
+        var subjSelf = !_stageAll && !_animApplyToPuppet;
+        var subjIdx = subject != null ? (ushort)subject.ObjectIndex : ushort.MaxValue;
+        var subjName = _stageAll ? $"all {_spawn.Count} puppets"
+                     : subjSelf ? "you"
+                     : _puppetGuise.TryGetValue(subjIdx, out var sg) ? sg.DisplayName : "the blank dummy";
+
         var canAct = _selected is not null && self != null;
         ImGui.Columns(2, "##catsd", false);
 
-        if (HmUi.PrimaryButton("Disguise", "selfdisguise", acc, ImGui.GetContentRegionAvail().X, canAct)
-            && self is { } ds && _selected is { } dsel)
-            ApplyGuise(ds, dsel);
+        var wearW = ImGui.GetContentRegionAvail().X;
+        var selName = _selected?.DisplayName ?? "";
+        var wearLabel = _selected is null ? (subjSelf ? "Disguise" : "Wear")
+                      : subjSelf ? FitLabel("Disguise as ", selName, wearW)
+                      : FitLabel(_stageAll ? "All wear " : "Wear ", selName, wearW);
+        if (HmUi.PrimaryButton(wearLabel, "selfdisguise", acc, wearW, canAct && subject != null) && canAct && _selected is { } wsel)
+            WearOnSubject(self, subject, wsel);
         if (ImGui.IsItemHovered())
-            ImGui.SetTooltip(_selected is { } dps
-                ? $"Wear {dps.DisplayName} yourself. Revert (below) drops it."
-                : "Pick a catalog row first (a plain click selects it), then Disguise wears it.");
+            ImGui.SetTooltip(_selected is null
+                ? "Pick a catalog row first (a plain click selects it)."
+                : subjSelf ? $"Wear {selName} yourself. Revert (below) drops it."
+                : $"Dress {subjName} as {selName}, keeping its size and place.\nClick \"You\" in the cast row to disguise yourself instead.");
 
         ImGui.NextColumn();
-        if (HmUi.PrimaryButton("Spawn", "spawnpuppet", acc, ImGui.GetContentRegionAvail().X, canAct))
+        var spawnW = ImGui.GetContentRegionAvail().X;
+        if (HmUi.PrimaryButton(_selected is null ? "Spawn" : FitLabel("Spawn ", selName, spawnW), "spawnpuppet", acc, spawnW, canAct))
             SpawnSelected();
         if (ImGui.IsItemHovered())
             ImGui.SetTooltip(_selected is { } ps
                 ? $"Spawn a set-piece puppet a step ahead of you, disguised as {ps.DisplayName}.\n" +
-                   "Non-targetable: the party can't click or attack it. Despawn it below."
+                   "It becomes the subject: Possess it right below. Double-clicking a row does the same."
                 : "Pick a catalog row first (a plain click selects it), then Spawn drops a puppet wearing it.");
 
-        // Row 2: Revert (under Disguise) lights while a disguise is active; Despawn all (under Spawn) stays
-        // in place but goes inert when no puppets are live. RevertGuise no-ops safely when nothing's worn.
         ImGui.NextColumn();
-        if (HmUi.AccentButton("Revert", "revert", guised, acc, ImGui.GetContentRegionAvail().X) && self is { } rvt)
-            RevertGuise(rvt);
-        if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("Restore your real model + size and un-stick any animation.");
+        var cellW = ImGui.GetContentRegionAvail().X;
+        if (subjSelf)
+        {
+            if (HmUi.AccentButton("Revert", "revert", guised, acc, cellW) && self is { } rvt)
+                RevertGuise(rvt);
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Restore your real model + size and un-stick any animation.");
+        }
+        else if (_stageAll || subject == null)
+        {
+            using (new Disabled(true))
+                ImGui.Button("Possess##catposs", new Vector2(cellW, 0f));
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Pick one puppet in the cast row to possess it.");
+        }
+        else if (_possession.IsPossessing && _possession.PossessedIndex == subjIdx)
+        {
+            PushRed();
+            if (ImGui.Button("Release##catposs", new Vector2(cellW, 0f))) _possession.Release();
+            PopColors();
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Stop driving it (Esc does the same). It stays where you left it.");
+        }
+        else
+        {
+            var can = _possession.CanPossess(subjIdx);
+            using (new Disabled(!can))
+                if (HmUi.AccentButton("Possess", "catposs", true, acc, cellW) && can)
+                    _possession.Possess(subjIdx);
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip(can
+                    ? $"Drive {subjName} with WASD from an orbit camera. Space up · Ctrl down · Esc release."
+                    : "Another player's puppet. Config > Possession can allow driving others' puppets.");
+        }
 
-        // batch-4: Despawn stays UNHIDDEN under Spawn at all times (keeps the 2×2 grid square) but goes inert
-        // when no puppets are live, rather than vanishing. Disabled dims the red fill; the tooltip still shows
-        // through AllowWhenDisabled so the empty state can explain itself.
         ImGui.NextColumn();
         var anyPuppets = _spawn.Count > 0;
+        var one = !subjSelf && !_stageAll && subject != null;
         using (new Disabled(!anyPuppets))
         {
             PushRed();
-            if (ImGui.Button($"Despawn all ({_spawn.Count})##puppets", new Vector2(ImGui.GetContentRegionAvail().X, 0f)) && anyPuppets)
-            { _spawn.DespawnAll(); _puppetGuise.Clear(); }
+            if (ImGui.Button(one ? "Despawn##puppets" : $"Despawn all ({_spawn.Count})##puppets", new Vector2(ImGui.GetContentRegionAvail().X, 0f)) && anyPuppets)
+            {
+                if (one) DespawnPuppet(subjIdx);
+                else { DespawnAllPuppets(); _puppetGuise.Clear(); _stageAll = false; }
+            }
             PopColors();
         }
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip(anyPuppets
-                ? "Despawn every live puppet. A zone change clears them too."
-                : "No live puppets to despawn. Spawn one first.");
+            ImGui.SetTooltip(!anyPuppets ? "No live puppets to despawn. Spawn one first."
+                           : one ? $"Despawn {subjName}. Right-click its cast chip for more (Bring to me, Face me)."
+                           : "Despawn every live puppet. A zone change clears them too.");
 
         ImGui.Columns(1);
-
-        // ── Disguise the FOCUSED PUPPET from the same selection, WITHOUT possession. Spawned puppets are
-        // non-targetable (incorporeal), so they can't be clicked/focused in-world — this re-skins the Spawn-tab
-        // roster's focused puppet through the shared ApplyGuise funnel, the very path the per-puppet row's Apply
-        // uses (no new mechanism; peer-synced for free via ReportApply inside the funnel). Only appears once a
-        // puppet is live so the common self-only flow stays uncluttered, and it's the discoverable answer to
-        // "how do I disguise an incorporeal puppet without possessing it" (previously buried in the Spawn tab). ──
-        if (anyPuppets)
-        {
-            var fpup = FocusedPuppet();
-            bool canPup = _selected is not null && fpup is not null;
-            string pupName = fpup is { } fpc && _puppetGuise.TryGetValue(fpc.ObjectIndex, out var pwl)
-                ? pwl.DisplayName : "the focused puppet";
-            ImGui.Spacing();
-            if (HmUi.PrimaryButton("Disguise focused puppet", "disguisepup", acc, ImGui.GetContentRegionAvail().X, canPup)
-                && fpup is { } pup && _selected is { } prow)
-            {
-                // Preserve a dialed puppet size across the re-guise (matches the Spawn-tab per-puppet Apply).
-                var forced = _puppetScale.TryGetValue(pup.ObjectIndex, out var ps) ? (float?)ps : null;
-                ApplyGuise(pup, prow, forcedScale: forced);
-                _puppetGuise[pup.ObjectIndex] = prow; // keep the Spawn roster chip in sync
-            }
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(canPup
-                    ? $"Wear {_selected!.DisplayName} on {pupName} — no possession needed.\n" +
-                       "That's the puppet selected on the Stage tab; pick another cast chip there to retarget.\n" +
-                       "Spawned puppets are non-targetable, so this is how you re-skin one in place."
-                    : _selected is null
-                        ? "Pick a catalog row first (a plain click selects it), then disguise the focused puppet."
-                        : "Spawn a puppet first (Stage > + Spawn); its cast chip picks which one is focused.");
-        }
 
         // ── Browse row (batch-1.1): a prominent, near-full-width search sits between the Disguise/Spawn
         // buttons and the despawn line, with the Hide-unnamed toggle tucked right-aligned onto the SAME
@@ -905,6 +925,70 @@ public sealed partial class MainWindow : Window, IDisposable
     /// <summary>Float near-equality for lighting the active scale chip (slider values never land
     /// exactly on a preset after a round-trip through the config).</summary>
     private static bool Approx(float a, float b) => MathF.Abs(a - b) < 0.001f;
+
+    /// <summary>b55: "prefix + name" clipped with an ellipsis to fit a button of <paramref name="width"/>.</summary>
+    private static string FitLabel(string prefix, string name, float width)
+    {
+        var pad = ImGui.GetStyle().FramePadding.X * 2f + 8f;
+        if (ImGui.CalcTextSize(prefix + name).X + pad <= width) return prefix + name;
+        var n = name;
+        while (n.Length > 1 && ImGui.CalcTextSize(prefix + n + "…").X + pad > width) n = n[..^1];
+        return prefix + n.TrimEnd() + "…";
+    }
+
+    /// <summary>b55: wear a catalog row on the Stage subject (you, one puppet, or every puppet) through the usual funnels.</summary>
+    private void WearOnSubject(ICharacter? self, ICharacter? subject, MobRow row)
+    {
+        if (_stageAll) BroadcastAnim(c => WearOn(c, row));
+        else if (subject != null && self != null && subject.ObjectIndex != self.ObjectIndex) WearOn(subject, row);
+        else if (self != null) ApplyGuise(self, row);
+    }
+
+    /// <summary>b55 (DM: "to detach you'd have to navigate to another window"): while possessing, a gold bar above the
+    /// tabs names the puppet and carries Release (plus the puppet bar toggle), whatever tab is open.</summary>
+    private void DrawPossessionBanner()
+    {
+        if (!_possession.IsPossessing) return;
+        var pi = (ushort)_possession.PossessedIndex;
+        var who = PuppetName(pi);
+        var gold = new Vector4(1f, 0.75f, 0.20f, 1f);
+        var style = ImGui.GetStyle();
+        var p0 = ImGui.GetCursorScreenPos();
+        var w = ImGui.GetContentRegionAvail().X;
+        var h = ImGui.GetFrameHeight() + 8f;
+        var dl = ImGui.GetWindowDrawList();
+        dl.AddRectFilled(p0, new Vector2(p0.X + w, p0.Y + h), ImGui.GetColorU32(new Vector4(gold.X, gold.Y, gold.Z, 0.10f)), 6f);
+        dl.AddRect(p0, new Vector2(p0.X + w, p0.Y + h), ImGui.GetColorU32(new Vector4(gold.X, gold.Y, gold.Z, 0.55f)), 6f);
+        dl.AddCircleFilled(new Vector2(p0.X + 12f, p0.Y + h / 2f), 4f, ImGui.GetColorU32(gold), 12);
+
+        var relW = ImGui.CalcTextSize("Release").X + style.FramePadding.X * 2f + 16f;
+        var barW = ImGui.CalcTextSize("Bar").X + style.FramePadding.X * 2f + 8f;
+        var rightX = p0.X + w - relW - barW - style.ItemSpacing.X - 4f;
+        ImGui.SetCursorScreenPos(new Vector2(p0.X + 22f, p0.Y + 4f));
+        ImGui.AlignTextToFramePadding();
+        ImGui.TextColored(gold, $"Driving {who}");
+        const string hint = "WASD move · Space up · Ctrl down · Esc release";
+        if (ImGui.GetItemRectMax().X + 12f + ImGui.CalcTextSize(hint).X < rightX - 8f)
+        {
+            ImGui.SameLine(0, 12f);
+            ImGui.TextDisabled(hint);
+        }
+        ImGui.SameLine();
+        ImGui.SetCursorScreenPos(new Vector2(rightX, p0.Y + 4f));
+        if (HmUi.AccentButton("Bar", "possbar", _showPuppetBar, _accent.Primary, barW)) _showPuppetBar = !_showPuppetBar;
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Pop out the puppet bar: Release, Freeze, Despawn, size and height\nin a small window that stays up with this one closed.");
+        ImGui.SameLine();
+        PushRed();
+        if (ImGui.Button("Release##possbanner", new Vector2(relW, 0f))) _possession.Release();
+        PopColors();
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Stop driving it (Esc does the same). It stays where you left it.");
+        ImGui.SetCursorScreenPos(new Vector2(p0.X, p0.Y + h + style.ItemSpacing.Y));
+        ImGui.Dummy(new Vector2(0f, 0f));
+    }
+
+    private bool _focusStageTab;   // b55: the puppet bar's Stage button jumps to the Stage tab
+
+    private string PuppetName(ushort idx) => _puppetGuise.TryGetValue(idx, out var g) ? g.DisplayName : "Blank dummy";
 
     // Chip mutators — each no-ops when unchanged, persists config, and invalidates the filter
     // cache where the change affects which rows are listed (category) vs only how they're
@@ -1247,8 +1331,7 @@ public sealed partial class MainWindow : Window, IDisposable
             _log.Information("HDM: Spawn — pick a catalog row first (the puppet wears the selected mob).");
             return;
         }
-        if (SpawnPuppetAs(row) is { } puppet)
-            _log.Information($"HDM: spawned puppet obj#{puppet.ObjectIndex} as {row.DisplayName} (Base {row.BaseId}).");
+        RequestSpawn(row);
     }
 
     /// <summary>Spawn a puppet and immediately disguise it as <paramref name="row"/>, recording what it
@@ -1262,8 +1345,9 @@ public sealed partial class MainWindow : Window, IDisposable
         // a Human paint on a not-yet-registered actor (the "c_ on a dummy spawns only the blank" bug) or a
         // Monster redraw on a half-built draw object. SpawnService fires onReady on the framework thread
         // once the clone is drawn — the correct, safe moment. We still record what it wears right away.
-        if (!_spawn.TrySpawn(out var puppet, onReady: p => ApplyGuise(p, row)) || puppet is null)
+        if (!_spawn.TrySpawn(out var puppet, onReady: p => { ApplyGuise(p, row); ReannouncePosition(p); }) || puppet is null)
             return null;
+        SetPuppetMods(puppet.ObjectIndex, _config.PuppetsUseMyMods);   // b46: before its first draw
         _puppetGuise[(ushort)puppet.ObjectIndex] = row;
         // Announce the new puppet to HMS with its target atom + spawn transform (the disguise lands later
         // via the onReady ApplyGuise → DisguiseChanged; that's diffed to a no-op against this atom).
@@ -1275,12 +1359,14 @@ public sealed partial class MainWindow : Window, IDisposable
     /// moves, and animates in its row. Since SpawnService now seeds puppets as a clone of the local player,
     /// a blank one renders as a visible copy of the DM (no longer invisible) until a guise is applied.
     /// No-op (logged) if the native spawn failed.</summary>
-    private void SpawnBlankPuppet()
+    private ICharacter? SpawnBlankPuppet()
     {
-        if (!_spawn.TrySpawn(out var puppet) || puppet is null)
-            return; // SpawnService logged why
+        if (!_spawn.TrySpawn(out var puppet, onReady: ReannouncePosition) || puppet is null)
+            return null; // SpawnService logged why
+        SetPuppetMods(puppet.ObjectIndex, _config.PuppetsUseMyMods);   // b46
         _log.Information($"HDM: spawned blank puppet obj#{puppet.ObjectIndex} (clone of you, no guise yet).");
         ReportPuppetSpawn(puppet, null); // announce the blank dummy (Kind 0); its face arrives when disguised
+        return puppet;
     }
 
     // ---- Spawn Management tab -------------------------------------------------
@@ -1350,8 +1436,12 @@ public sealed partial class MainWindow : Window, IDisposable
             _selected = match;
         }
         if (_selected is not { } row) return $"select a mob first, or '{Plugin.Command} spawn <name|BaseId>'.";
-        if (SpawnPuppetAs(row) is not { } puppet) return "spawn failed (no local player, or the object table is full).";
-        return $"spawned a {row.DisplayName} puppet (obj#{puppet.ObjectIndex}). Total puppets: {_spawn.Count}.";
+        return RequestSpawn(row) switch
+        {
+            SpawnRequest.Done => $"spawned a {row.DisplayName} puppet. Total puppets: {_spawn.Count}.",
+            SpawnRequest.Queued => $"{row.DisplayName} queued ({_spawnQueue.Count} waiting; one spawn a second while HM-Sync is running).",
+            _ => $"spawn refused: {_spawnQueue.Count} spawns already queued.",
+        };
     }
 
     /// <summary>Chat/command: despawn every puppet.</summary>
@@ -1359,7 +1449,7 @@ public sealed partial class MainWindow : Window, IDisposable
     {
         if (_spawn.Count == 0) return "no puppets spawned.";
         var n = _spawn.Count;
-        _spawn.DespawnAll();
+        DespawnAllPuppets();
         return $"despawned {n} puppet(s).";
     }
 
@@ -1618,6 +1708,12 @@ public sealed partial class MainWindow : Window, IDisposable
         }
         if (clicked)
             _selected = r; // select only — apply/spawn happen via the header's Disguise / Spawn buttons
+        // b50 (DM): double-click a row to spawn it right away (the new puppet becomes the Stage's subject).
+        if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) && Self() != null)
+        {
+            _selected = r;
+            RequestSpawn(r);
+        }
 
         // Muted numeric columns (TextDisabled) so the bright Name reads as primary and the Base/Model/Skel/
         // Scale ids sit back as the mono reference the mockup shows in a dimmer tone.
@@ -1919,6 +2015,20 @@ public sealed partial class MainWindow : Window, IDisposable
         SetupMobColumns();
         ImGui.TableHeadersRow();
 
+        // b50 (DM): when the filter leaves ONE group (e.g. Mounts -> "All mounts (350)"), skip the divider and the
+        // collapsed header and list its rows directly.
+        var onlyNodes = new List<LocNode>(located);
+        onlyNodes.AddRange(eventNodes);
+        onlyNodes.AddRange(unknown);
+        if (minionNode != null) onlyNodes.Add(minionNode);
+        if (_treeMountNode != null) onlyNodes.Add(_treeMountNode);
+        if (onlyNodes.Count == 1)
+        {
+            DrawNodeRows(onlyNodes[0], indented: false);
+            ImGui.EndTable();
+            return;
+        }
+
         // Located region: emit a collapsible expansion divider whenever the expansion changes, and
         // skip that expansion's zone nodes while it's folded. `located` is expansion-contiguous, so
         // one open/closed flag carried across the run fences each section correctly.
@@ -2089,6 +2199,13 @@ public sealed partial class MainWindow : Window, IDisposable
         ImGui.PopID();
 
         if (!open) return;
+        DrawNodeRows(n, indented: true);
+    }
+
+    /// <summary>A group's rows: b50 starred favourites first (DM: "pin them on top of the list"), then the rest, each part
+    /// alphabetical. Shared by an expanded group and the flat single-group view.</summary>
+    private void DrawNodeRows(LocNode n, bool indented)
+    {
         // Alphabetize the leaf's rows by the label the DM actually reads (DisplayName). Only expanded nodes
         // reach here, so this per-frame sort touches a handful of small lists at most — and it gives every
         // open zone / minion / NPC leaf the "secondary sort is alphabetical" ordering the DM asked for.
@@ -2098,13 +2215,16 @@ public sealed partial class MainWindow : Window, IDisposable
         // visibly hops between positions ("jitter"). Adding BaseId makes the comparison a strict total order —
         // no two rows tie, the sorted permutation is unique, and re-sorting the already-sorted list every frame
         // is a fixpoint, so the order (and the selection highlight) holds still.
-        n.Items.Sort(static (a, b) =>
+        var favs = _config.Favorites;
+        n.Items.Sort((a, b) =>
         {
+            var fa = favs.Contains(a.RowKey); var fb = favs.Contains(b.RowKey);
+            if (fa != fb) return fa ? -1 : 1;
             var c = string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
             return c != 0 ? c : a.BaseId.CompareTo(b.BaseId);
         });
         foreach (var r in n.Items)
-            DrawMobRow(r, indented: true);
+            DrawMobRow(r, indented);
     }
 
     /// <summary>
@@ -3483,6 +3603,34 @@ public sealed partial class MainWindow : Window, IDisposable
             }
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Off by default: you can only possess puppets you spawned. Turn on to help run someone else's event.");
+            var autoBar = _config.PuppetBarOnPossess;
+            if (ImGui.Checkbox("Pop out the bar when I disguise or possess", ref autoBar)) { _config.PuppetBarOnPossess = autoBar; _pi.SavePluginConfig(_config); }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("A small floating bar (Revert or Release, Freeze, Hide or Despawn, size, height) that stays up\n" +
+                                 "with HDM's window closed. /hdm bar or the Catalog's \"Pop out bar\" toggles it any time.");
+        }
+        ImGui.Spacing();
+
+        {
+            var mods = _config.PuppetsUseMyMods;
+            using (new Disabled(Mods == null))
+                if (ImGui.Checkbox("Use my Penumbra mods on my puppets", ref mods))
+                {
+                    _config.PuppetsUseMyMods = mods;
+                    _pi.SavePluginConfig(_config);
+                    foreach (var idx in _spawn.Spawned.ToList())
+                        if (_spawn.IsOriginated(idx))
+                        {
+                            if (mods) { Mods?.Begin(idx); Penumbra?.Redraw(idx); }   // redraw so it resolves through your collection
+                            else Mods?.End(idx, redraw: true);
+                        }
+                }
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Puppets you spawn render with your own Penumbra mods: a modded minion, prop or outfit shows on\n" +
+                                 "them as it does on you. Each puppet keeps the mods you had ON when you summoned it (toggle a mod,\n" +
+                                 "summon, toggle another, summon: both stay). Redraws don't change it; resummon to pick up changes.\n" +
+                                 "Only what it had loaded is kept: a modded animation or effect it plays later shows vanilla.\n" +
+                                 "Your screen only for now; other players see the stock model.");
         }
         ImGui.Spacing();
 
@@ -3611,6 +3759,7 @@ public sealed partial class MainWindow : Window, IDisposable
 
     public void Dispose()
     {
+        foreach (var idx in _spawn.Spawned.ToList()) SetPuppetMods(idx, false);   // b46: leave no assignment behind
         _anim.SelfOneShotEnded -= OnSelfOneShotEnded;
         _anim.SelfReleasedByMovement -= OnSelfReleasedByMovement;
     }

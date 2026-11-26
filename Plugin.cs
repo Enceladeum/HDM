@@ -81,6 +81,7 @@ public sealed class Plugin : IDalamudPlugin
     private readonly PossessionService _possession;
     private readonly HdmIpc _ipc;
     private readonly PuppetLookSync _lookSync;
+    private readonly PuppetMods _puppetMods;
     private readonly MobHarvester _harvest;
 
     public Plugin()
@@ -251,6 +252,19 @@ public sealed class Plugin : IDalamudPlugin
         _windows.AddWindow(_main);
         var outfits   = new HOutfitsIpc(PluginInterface);
         _main.Outfits = outfits;   // b44: Stage "Dress…" -> HOutfits dressing target
+        _main.Penumbra = penumbra;
+        _puppetMods   = new PuppetMods(PluginInterface, Framework, Objects, Log);   // b48 (F-02): frozen per-puppet mods
+        _main.Mods    = _puppetMods;
+        _main.SyncRunning = () => hms.Present;   // b54: pace spawns while HM-Sync is running
+        Framework.Update += PumpSpawns;
+        _ipc.Mods     = _puppetMods;   // b49: peers' puppets wear the DM's mods (rebuilt from the peer's own mod folders)
+        _puppetMods.FrozenForSync = (idx, mods) =>
+        {
+            if (_ipc.PuppetSlotFor(idx) is not { } slot) return;
+            _ipc.ReportMods(slot, mods);
+            // b52: and where it is, once more (a peer's copy that missed the first move gets put in place)
+            if (mods != null && _spawn.TryGetTransform((ushort)idx, out var pos, out var rot)) _ipc.ReportPuppetMoved(slot, pos, rot);
+        };
         // b45: peers see a puppet the DM dressed in HOutfits (its Glamourer look rides the puppet's sync atom).
         _lookSync     = new PuppetLookSync(PluginInterface, Framework, Objects, glamour, _ipc, outfits, Log);
         // b37 (experimental): model preview side window, following the Catalog / Spawn selection. Toggle: the Catalog's
@@ -264,12 +278,13 @@ public sealed class Plugin : IDalamudPlugin
 #endif
 
         PluginInterface.UiBuilder.Draw         += _windows.Draw;
+        PluginInterface.UiBuilder.Draw         += _main.DrawPuppetBar;   // b55: the tear-off puppet bar
         PluginInterface.UiBuilder.OpenMainUi   += OpenMain;
         PluginInterface.UiBuilder.OpenConfigUi += OpenMain;
 
         CommandManager.AddHandler(Command, new CommandInfo(OnCommand)
         {
-            HelpMessage = "Open the catalog (no arg). Subcommands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · play <animation> · stop · help.",
+            HelpMessage = "Open the catalog (no arg). Subcommands: apply <name|BaseId> · spawn <name|BaseId> · despawn · bar · revert · hide · wisp · play <animation> · stop · help.",
         });
 #if !HDM_TESTING
         CommandManager.AddHandler(CommandAlias, new CommandInfo(OnCommand) { ShowInHelp = false });
@@ -282,6 +297,8 @@ public sealed class Plugin : IDalamudPlugin
 #if !HDM_TESTING
         CommandManager.RemoveHandler(CommandAlias);
 #endif
+        Framework.Update -= PumpSpawns;
+        PluginInterface.UiBuilder.Draw         -= _main.DrawPuppetBar;
         PluginInterface.UiBuilder.Draw         -= _windows.Draw;
         PluginInterface.UiBuilder.OpenMainUi   -= OpenMain;
         PluginInterface.UiBuilder.OpenConfigUi -= OpenMain;
@@ -307,6 +324,7 @@ public sealed class Plugin : IDalamudPlugin
         _guise.Dispose();
         _humanGuise.Dispose();
         _main.Dispose();
+        _puppetMods.Dispose();
     }
 
     private void OpenMain() => _main.IsOpen = true;
@@ -341,6 +359,7 @@ public sealed class Plugin : IDalamudPlugin
             "apply" or "become"          => _main.CommandApply(rest),
             "spawn"                      => _main.CommandSpawn(rest),
             "despawn" or "despawnall"    => _main.CommandDespawnAll(),
+            "bar"                        => _main.CommandBar(),   // b55: the tear-off puppet bar
             "diag" or "dump"             => _main.CommandDiag(),
             // Dev-only: exercise the HMS IPC receiver path (apply/revert/play/spawn/snapshot) on a local
             // actor without HMS loaded — see MainWindow.CommandIpc. Not advertised in HelpText.
@@ -354,7 +373,9 @@ public sealed class Plugin : IDalamudPlugin
     }
 
     private const string HelpText =
-        "commands: apply <name|BaseId> · spawn <name|BaseId> · despawn · revert · hide · wisp · play <animation> · stop · open · (no argument opens the window).";
+        "commands: apply <name|BaseId> · spawn <name|BaseId> · despawn · bar · revert · hide · wisp · play <animation> · stop · open · (no argument opens the window).";
+
+    private void PumpSpawns(IFramework _) => _main.PumpSpawnQueue();   // b54
 
     private string OpenAndSilence() { _main.IsOpen = true; return ""; }
 #if HDM_PREVIEW
